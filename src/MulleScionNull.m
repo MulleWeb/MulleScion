@@ -46,7 +46,7 @@ id   MulleScionNull;
 id   MulleScionZero;
 
 
-MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
+MULLE_OBJC_DEPENDS_ON_LIBRARY( MulleObjCValueFoundation);
 
 
 + (void) load

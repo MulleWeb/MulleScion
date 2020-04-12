@@ -40,6 +40,9 @@
 
 @implementation MulleScionObject( NSCoding)
 
+
+MULLE_OBJC_DEPENDS_ON_LIBRARY( MulleFoundation);
+
 + (void) load
 {
    [self setVersion:1851];  // sry had to change something, old stuff not loading anymore

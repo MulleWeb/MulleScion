@@ -44,7 +44,7 @@
 - (MulleScionObject *) nextOwnerOfBlockCommand
 {
    MulleScionObject  *curr;
-   
+
    for( curr = self; curr; curr = curr->next_)
    {
       if( [curr->next_ isBlock])
@@ -59,7 +59,7 @@
 - (MulleScionObject *) ownerOfBlockWithIdentifier:(NSString *) identifier
 {
    MulleScionObject  *curr;
-   
+
    for( curr = self; curr; curr = curr->next_)
       if( [curr->next_ isBlock])
          if( [identifier isEqualToString:[(MulleScionBlock *) curr->next_ identifier]])
@@ -74,23 +74,23 @@
    MulleScionBlock      *block;
    MulleScionObject     *endBlock;
    MulleScionObject     *endReplacement;
-   
+
    NSParameterAssert( [replacement isBlock]);
    NSParameterAssert( [self->next_ isBlock]);
-   
+
    endReplacement = [replacement tail];
    block          = (MulleScionBlock *) self->next_;
    endBlock       = [block terminateToEnd:block->next_];
-   
+
    NSParameterAssert( [endBlock isEndBlock]);
    NSParameterAssert( [endReplacement isEndBlock]);
-   
+
    self->next_           = replacement;
    endReplacement->next_ = endBlock->next_;
    endBlock->next_       = nil;
-   
+
    [block release];
-   
+
    return( replacement);
 }
 
@@ -107,13 +107,13 @@
    MulleScionBlock    *chain;
    NSMutableArray     *stack;
    NSAutoreleasePool  *pool;
-   
+
    pool  = [NSAutoreleasePool new];
-   
+
    stack = [NSMutableArray array];
-   
+
    owner = self;
-   while( owner = [owner nextOwnerOfBlockCommand])
+   while( (owner = [owner nextOwnerOfBlockCommand]))
    {
       block = (MulleScionBlock *) owner->next_;
       if( [block isEndBlock])
@@ -122,7 +122,7 @@
          owner = owner->next_;
          continue;
       }
-      
+
       identifier = [block identifier];
       if( [stack containsObject:identifier])
          [NSException raise:NSInvalidArgumentException
@@ -136,11 +136,11 @@
          owner = block;
          continue;
       }
-      
+
       chain = [chain copyWithZone:NULL];
       owner = [owner replaceOwnedBlockWith:chain];
    }
-   
+
    [pool release];
 }
 

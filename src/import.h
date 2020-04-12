@@ -1,5 +1,5 @@
-#ifndef mulle_scion_import_h__
-#define mulle_scion_import_h__
+#ifndef MulleScion_import_h__
+#define MulleScion_import_h__
 
 /* This is a central include file to keep dependencies out of the library
    Objective-C files. It is usally imported by Objective-C .h files only.
@@ -16,7 +16,6 @@
    sourcetree, then you don't need it.
  */
 
-#import <Foundation/Foundation.h>
 
 #import "_MulleScion-import.h"
 

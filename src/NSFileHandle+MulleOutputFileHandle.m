@@ -33,6 +33,7 @@
 //
 #import "NSFileHandle+MulleOutputFileHandle.h"
 
+
 @implementation NSFileHandle (MulleOutputFileHandle)
 
 + (NSFileHandle *) mulleOutputFileHandleWithFilename:(NSString *) outputName
@@ -40,7 +41,7 @@
 {
    NSFileHandle   *stream;
    NSFileManager  *manager;
-   
+
    if( [outputName isEqualToString:@"-"])
       return( [NSFileHandle performSelector:sel]);
 
@@ -55,7 +56,7 @@
                      attributes:nil];
    else
       [stream truncateFileAtOffset:0];
-   
+
    stream = [NSFileHandle fileHandleForWritingAtPath:outputName];
    return( stream);
 }
