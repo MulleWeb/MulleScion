@@ -1,3 +1,0 @@
-{% filter uppercaseString %}
-VfL Bochum 1848
-{% endfilter %}

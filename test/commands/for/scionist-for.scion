@@ -1,8 +1,0 @@
-{% define sortedByName = [self sortedArrayUsingDescriptors:@( [NSSortDescriptor sortDescriptorWithKey:@"name"
-ascending:NO])] 
-%}
-{%
-   for item in Liga . sortedByName
-      {{ item.name }} {{ @"\n" }}
-   endfor 
- %}

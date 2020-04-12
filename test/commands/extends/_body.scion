@@ -1,5 +1,0 @@
-{# this template is not very interesting on it's own #}
-{% block body %}
-my body
-{% block body_extension %}default body_extension text{% endblock %}
-{% endblock %}

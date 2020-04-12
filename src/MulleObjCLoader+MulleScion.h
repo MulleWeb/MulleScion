@@ -5,7 +5,7 @@
 //  Created by Nat! on 11.05.17.
 //  Copyright © 2017 Mulle kybernetiK. All rights reserved.
 //
-#import <Foundation/Foundation.h>
+#import <MulleObjC/MulleObjC.h>
 
 #ifdef __MULLE_OBJC__
 

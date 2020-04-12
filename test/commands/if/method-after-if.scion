@@ -1,8 +1,0 @@
-{% 
-    x=@"0"
-    if [x hasSuffix:@"0"]  
-       [NSDate date]
-       x=@"1"
-    endif   
-%}
-{{ x }}

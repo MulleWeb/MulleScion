@@ -45,7 +45,9 @@
 #import "MulleScionObjectModel+MacroExpansion.h"
 #import "MulleScionObjectModel+TraceDescription.h"
 #if ! TARGET_OS_IPHONE
-# import <Foundation/NSDebug.h>
+# ifndef __MULLE_OBJC__
+#  import <Foundation/NSDebug.h>
+# endif
 #endif
 
 @implementation MulleScionParser( Parsing)

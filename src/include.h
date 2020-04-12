@@ -1,5 +1,5 @@
-#ifndef mulle_scion_include_h__
-#define mulle_scion_include_h__
+#ifndef MulleScion_include_h__
+#define MulleScion_include_h__
 
 /* This is a central include file to keep dependencies out of the library
    C files. It is usally included by .h files only.

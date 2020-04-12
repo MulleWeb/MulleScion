@@ -1,1 +1,0 @@
-{{  [[NSArray arrayWithObjects:nil] componentsJoinedByString:@"x"]  }}
