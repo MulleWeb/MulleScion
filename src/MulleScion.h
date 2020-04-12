@@ -35,7 +35,7 @@
 //
 #import "import.h"
 
-#define MULLE_SCION_VERSION   ((1859 << 20) | (1 << 8) | 3)
+#define MULLE_SCION_VERSION   ((1859 << 20) | (1 << 8) | 4)
 
 #import "MulleScionObjectModel.h"
 #import "MulleScionObjectModel+TraceDescription.h"
