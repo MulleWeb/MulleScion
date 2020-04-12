@@ -147,6 +147,15 @@ TODO
 =============
 It might be nice to have delayed evaluation for render results. More tests.
 
+ADD
+====
+
+Use [mulle-sde](//github.com/mulle-sde) to add MulleScion to your project:
+
+```
+mulle-sde dependency add --objc --github MulleWeb MulleScion
+```
+
 
 AUTHOR
 =============
