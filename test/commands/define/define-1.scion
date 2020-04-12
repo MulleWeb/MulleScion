@@ -1,2 +1,0 @@
-{% define UPPER = [self uppercaseString] %}
-{{ @"VfL" | UPPER }}

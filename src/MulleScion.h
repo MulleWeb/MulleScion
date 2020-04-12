@@ -35,14 +35,20 @@
 //
 #import "import.h"
 
+#define MULLE_SCION_VERSION   ((1859 << 20) | (1 << 8) | 3)
+
 #import "MulleScionObjectModel.h"
 #import "MulleScionObjectModel+TraceDescription.h"
+#import "MulleScionNull.h"
 
 #import "MulleScionDataSourceProtocol.h"
 #import "MulleScionOutputProtocol.h"
 #import "MulleScionParser.h"
 #import "MulleScionPrinter.h"
 #import "MulleScionPrintingException.h"
+#import "MulleScionTemplate+CompressedArchive.h"
+
+#import "NSFileHandle+MulleOutputFileHandle.h"
 
 
 @protocol MulleScionStringOrURL
@@ -56,7 +62,7 @@
 
 /*
  * The convenience interface. If you don't want to think, use this:
- * 
+ *
  * --------------snip------------------------
  // [MulleScionTemplate setCacheEnabled:YES];
  output = [MulleScionTemplate descriptionWithTemplateFile:pathToTemplate

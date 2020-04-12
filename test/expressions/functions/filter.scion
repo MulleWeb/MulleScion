@@ -1,5 +1,0 @@
-{% filter htmlEscapedString %}
-{% x=filter( @"&"); %}
-{% endfilter %}
-{% x = @"&amp;" %}
-{{ x }}

@@ -49,10 +49,10 @@
 }
 
 
-+ (id) allocWithZone:(NSZone *)zone 
++ (id) allocWithZone:(NSZone *)zone
 {
    id  p;
-   
+
    p = [super allocWithZone:zone];
    // we will take undefined behaviour, thank you :)
 #ifdef SIMPLE_SCOREBOARD
@@ -72,7 +72,7 @@
 - (id) initWithLineNumber:(NSUInteger) nr
 {
    NSParameterAssert( (NSInteger) nr >= 0);
-   
+
    lineNumber_ = nr;
    return( self);
 }
@@ -126,7 +126,7 @@
 
 - (BOOL) isMacro      { return( NO); }
 
-   
+
 - (Class) terminatorClass
 {
    return( Nil);
@@ -154,7 +154,7 @@
 NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, NSUInteger nr)
 {
    MulleScionValueObject   *p;
-   
+
    p         = [self newWithLineNumber:nr];
    p->value_ = [value copy];
    return( p);
@@ -173,7 +173,7 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 {
    self = [self initWithLineNumber:nr];
    assert( self);
-   
+
    value_ = [value copy];
    return( self);
 }
@@ -192,7 +192,7 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 - (void) dealloc
 {
    [value_ release];
-   
+
    [super dealloc];
 }
 
@@ -210,7 +210,7 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 }
 
 
-- (oneway void) release
+- (void) release
 {
    [super release];
 }
@@ -262,7 +262,7 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
                   lineNumber:(NSUInteger) nr
 {
    MulleScionPlainText   *p;
-   
+
    NSParameterAssert( [s isKindOfClass:[NSString class]]);
 
    p         = newMulleScionValueObject( self, nil, nr);
@@ -274,7 +274,7 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 {
    return( [self->value_ isEqualToString:@"\n"]);
 }
-   
+
 @end
 
 
@@ -345,7 +345,7 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 #pragma mark -
 
 @implementation MulleScionDictionary
-   
+
 + (id) newWithDictionary:(NSDictionary *) value
               lineNumber:(NSUInteger) nr
 {
@@ -374,12 +374,12 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    return( value_);
 }
 
-   
+
 - (BOOL) hasIdentifier
 {
    return( YES);
 }
-   
+
 @end
 
 
@@ -409,10 +409,10 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
               lineNumber:(NSUInteger) nr;
 {
    MulleScionFunction   *p;
-   
+
    NSParameterAssert( [s isKindOfClass:[NSString class]]);
    NSParameterAssert( ! arguments || [arguments isKindOfClass:[NSArray class]]);
-   
+
    p             = newMulleScionValueObject( self, s, nr);
    p->arguments_ = [arguments copy];
    return( p);
@@ -452,11 +452,11 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 
 {
    MulleScionMethod   *p;
-   
+
    NSParameterAssert( [target isKindOfClass:[MulleScionExpression class]]);
    NSParameterAssert( [methodName isKindOfClass:[NSString class]] && [methodName length]);
    NSParameterAssert( ! arguments || [arguments isKindOfClass:[NSArray class]]);
-   
+
    p             = newMulleScionValueObject( self, nil, nr);
    p->value_     = target;
    p->action_    = NSSelectorFromString( methodName);
@@ -468,13 +468,13 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 - (void) dealloc
 {
    [arguments_ release];
-   
+
    [super dealloc];
 }
 
 
 #if DEBUG
-- (oneway void) release
+- (void) release
 {
    [super release];
 }
@@ -527,7 +527,7 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 - (void) dealloc
 {
    [expression_ release];
-   
+
    [super dealloc];
 }
 
@@ -575,9 +575,9 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
                       lineNumber:(NSUInteger) nr
 {
    MulleScionUnaryOperatorExpression   *p;
-   
+
    NSParameterAssert( [expr isKindOfClass:[MulleScionExpression class]]);
-   
+
    p         = newMulleScionValueObject( self, nil, nr);
    p->value_ = expr;
    return( p);
@@ -595,10 +595,10 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
                           lineNumber:(NSUInteger) nr
 {
    MulleScionBinaryOperatorExpression   *p;
-   
+
    NSParameterAssert( [left isKindOfClass:[MulleScionExpression class]]);
    NSParameterAssert( [right isKindOfClass:[MulleScionExpression class]]);
-   
+
    p = newMulleScionValueObject( self, nil, nr);
    p->value_ = left;  // pipe is funny that way
    p->right_ = right;
@@ -609,7 +609,7 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 - (void) dealloc
 {
    [right_ release];
-   
+
    [super dealloc];
 }
 
@@ -623,7 +623,7 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    // up in precedence (used for dot / pipe)
    other->right_ = self->value_;
    self->value_  = other;
-   
+
    return( self);
 }
 
@@ -639,10 +639,10 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
                           lineNumber:(NSUInteger) nr
 {
    MulleScionAssignmentExpression   *p;
-   
+
    NSParameterAssert( [left isLexpr]);
    NSParameterAssert( [right isKindOfClass:[MulleScionExpression class]]);
-   
+
    p = newMulleScionValueObject( self, nil, nr);
    p->value_ = left;
    p->right_ = right;
@@ -663,12 +663,12 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
                           lineNumber:(NSUInteger) nr;
 {
    MulleScionComparison   *p;
-   
+
    NSParameterAssert( [left isKindOfClass:[MulleScionExpression class]]);
    NSParameterAssert( [right isKindOfClass:[MulleScionExpression class]]);
-   
+
    p = newMulleScionValueObject( self, nil, nr);
-   p->value_      = left;  
+   p->value_      = left;
    p->right_      = right;
    p->comparison_ = op;
    return( p);
@@ -744,7 +744,7 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    return( @"[]");
 }
 
-   
+
 - (BOOL) isIndexing
 {
    return( YES);
@@ -805,11 +805,11 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
                           lineNumber:(NSUInteger) nr
 {
    MulleScionConditional   *p;
-   
+
    NSParameterAssert( [left isKindOfClass:[MulleScionExpression class]]);
    NSParameterAssert( [middle isKindOfClass:[MulleScionExpression class]]);
    NSParameterAssert( [right isKindOfClass:[MulleScionExpression class]]);
-   
+
    p = newMulleScionValueObject( self, nil, nr);
    p->value_      = left;
    p->middle_     = middle;
@@ -827,7 +827,7 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 - (NSString *) commandName
 {
    NSString  *s;
-   
+
    s = NSStringFromClass( MulleGetClass( self));
    if( [s hasPrefix:@"MulleScion"])
    {
@@ -844,10 +844,10 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    Class        currCls;
    Class        terminatorCls;
    NSUInteger   stack;
-   
+
    stack         = 1;
    terminatorCls = [self terminatorClass];
-   
+
    selfCls = MulleGetClass( self);
    for( ; curr; curr = curr->next_)
    {
@@ -857,7 +857,7 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
          ++stack;
          continue;
       }
-      
+
       if( currCls == terminatorCls)
          if( ! --stack)
             return( curr);
@@ -875,11 +875,11 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    Class        elseCls;
    Class        terminatorCls;
    NSUInteger   stack;
-   
+
    stack         = 1;
    terminatorCls = [self terminatorClass];
    elseCls       = [self elseClass];
-   
+
    selfCls = MulleGetClass( self);
    for( ; curr; curr = curr->next_)
    {
@@ -889,11 +889,11 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
          ++stack;
          continue;
       }
-      
+
       if( currCls == elseCls)
          if( stack == 1)
             return( curr);
-      
+
       if( currCls == terminatorCls)
          if( ! --stack)
             return( curr);
@@ -916,7 +916,7 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 @end
 
 
-#pragma mark - 
+#pragma mark -
 
 @implementation MulleScionSet
 
@@ -925,11 +925,11 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
                           lineNumber:(NSUInteger) nr
 {
    MulleScionSet   *p;
-   
+
    p = [self newWithLineNumber:nr];
    p->left_  = left;
    p->right_ = right;
-   
+
    return( p);
 }
 
@@ -939,7 +939,7 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    return( @""); // O RLY ?
 }
 
-   
+
 - (BOOL) isSet
 {
    return( YES);
@@ -996,9 +996,9 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
                       lineNumber:(NSUInteger) nr
 {
    MulleScionExpressionCommand   *p;
-   
+
    NSParameterAssert( [expr isKindOfClass:[MulleScionExpression class]]);
-   
+
    p = [self newWithLineNumber:nr];
    p->expression_ = expr;
    return( p);
@@ -1107,9 +1107,9 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
               lineNumber:(NSUInteger) nr
 {
    MulleScionBlock   *p;
-   
+
    NSParameterAssert( [s isKindOfClass:[NSString class]] && [s length]);
-   
+
    p              = [self newWithLineNumber:nr];
    p->identifier_ = [s copy];
    p->fileName_   = [fileName copy];
@@ -1121,7 +1121,7 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 {
    [identifier_ release];
    [fileName_ release];
-   
+
    [super dealloc];
 }
 
@@ -1197,11 +1197,11 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
                       lineNumber:(NSUInteger) nr
 {
    MulleScionFilter   *p;
-   
+
    p = [super newWithRetainedExpression:expr
                              lineNumber:nr];
    p->_flags = (unsigned int) flags;
-   
+
    return( p);
 }
 
@@ -1226,17 +1226,17 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
               lineNumber:(NSUInteger) nr
 {
    MulleScionMacro   *p;
-   
+
    NSParameterAssert( [s isKindOfClass:[NSString class]]);
    NSParameterAssert( [function isKindOfClass:[MulleScionFunction class]]);
    NSParameterAssert( [body isKindOfClass:[MulleScionTemplate class]]);
-   
+
    p              = [self newWithValue:fileName
                             lineNumber:nr];
    p->identifier_ = [s copy];
    p->function_   = [function retain];
    p->body_       = [body retain];
-   
+
    return( p);
 }
 
@@ -1246,7 +1246,7 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    [body_ release];
    [function_ release];
    [identifier_ release];
-   
+
    [super dealloc];
 }
 
@@ -1291,12 +1291,12 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
               lineNumber:(NSUInteger) nr;
 {
    MulleScionRequires   *p;
-   
+
    NSParameterAssert( [identifier isKindOfClass:[NSString class]]);
-   
+
    p = [super newWithLineNumber:nr];
    p->identifier_ = [identifier copy];
-   
+
    return( p);
 }
 

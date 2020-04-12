@@ -61,7 +61,7 @@
 {
    NSParameterAssert( [keyPath isKindOfClass:[NSString class]]);
    NSParameterAssert( [locals isKindOfClass:[NSMutableDictionary class]]);
-   
+
    return( [self valueForKeyPath:keyPath]);
 }
 
@@ -87,7 +87,7 @@
 {
    NSParameterAssert( [keyPath isKindOfClass:[NSString class]]);
    NSParameterAssert( [locals isKindOfClass:[NSMutableDictionary class]]);
-   
+
    return( [locals valueForKeyPath:keyPath]);
 }
 
@@ -101,16 +101,35 @@
    if( sel == @selector( poseAs:) || sel == @selector( poseAsClass:))
       [NSException raise:NSInvalidArgumentException
                   format:@"death to all posers :)"];
-   
+
    return( [target methodSignatureForSelector:sel]);
 }
 
 //
 // here you can intercept factory calls like [NSDate date]
+// it's OK to return nil here, it's not sure that 's' is really
+// the name of a class. It could be an unknown variable
 //
 - (Class) mulleScionClassFromString:(NSString *) s
 {
-   return( NSClassFromString( s));
+   Class        cls;
+   unichar      c;
+   NSUInteger   length;
+
+   cls = NSClassFromString( s);
+   if( ! cls)
+   {
+      // produce a warning if s starts with uppercase letter,
+      // which looks like a class...
+      length = [s length];
+      if( length)
+      {
+         c = [s characterAtIndex:0];
+         if( c >= 'A' && c <= 'Z')
+            NSLog( @"Did not find a class %@", s);
+      }
+   }
+   return( cls);
 }
 
 
@@ -119,40 +138,40 @@
              localVariables:(NSMutableDictionary *) locals
 {
    SEL   sel;
-   
+
    NSParameterAssert( ! s || [s isKindOfClass:[NSString class]]);
    NSParameterAssert( [identifier isKindOfClass:[NSString class]]);
    NSParameterAssert( [locals isKindOfClass:[NSMutableDictionary class]]);
-   
+
    if( ! [identifier length])
       MulleScionPrintingException( NSInvalidArgumentException, locals, @"empty pipe identifier is invalid");
-   
+
    sel = NSSelectorFromString( identifier);
    if( ! [s respondsToSelector:sel] && s)
       MulleScionPrintingException( NSInvalidArgumentException, locals, @"NSString does not respond to %@",
                                   identifier);;
-   
+
    // assume extra parameter is harmless...
    s = [s performSelector:sel
                withObject:locals];
    return( s);
 }
 
-    
+
 - (id) mulleScionFunction:(NSString *) identifier
                 arguments:(NSArray *) arguments
            localVariables:(NSMutableDictionary *) locals
 {
    id             (*f)( id, NSArray *, NSMutableDictionary *);
    NSDictionary   *functions;
-   
+
    NSParameterAssert( [identifier isKindOfClass:[NSString class]]);
    NSParameterAssert( ! arguments || [arguments isKindOfClass:[NSArray class]]);
    NSParameterAssert( [locals isKindOfClass:[NSMutableDictionary class]]);
-   
+
    [locals setObject:identifier
               forKey:MulleScionCurrentFunctionKey];
-   
+
    functions = [locals objectForKey:@"__FUNCTION_TABLE__"];
    f = [[functions objectForKey:identifier] pointerValue];
    if( f)
@@ -163,7 +182,7 @@
     [locals valueForKey:MulleScionCurrentFileKey],
     [locals valueForKey:MulleScionCurrentLineKey],
     [locals valueForKey:MulleScionCurrentFunctionKey]];
-   
+
    return( nil);
 }
 

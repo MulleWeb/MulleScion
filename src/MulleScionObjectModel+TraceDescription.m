@@ -53,13 +53,13 @@
 NSString   *mulleShortenedString( NSString *s, size_t max)
 {
    NSUInteger   length;
-   
+
    length = [s length];
    if( length > max)
    {
       if( max < 4)
          return( [s substringToIndex:max]);
-      
+
       s = [s substringToIndex:max - 3];
       s = [s stringByAppendingString:@"..."];
    }
@@ -86,14 +86,14 @@ NSString   *mulleLinefeedEscapedShortenedString( NSString *s, size_t max)
 static Class   NSPlaceholderStringClass;
 
 
-MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
+MULLE_OBJC_DEPENDS_ON_LIBRARY( MulleObjCValueFoundation);
 
 
 + (void) load
 {
    NSString  *s;
-   
-   s = [NSString alloc];
+
+   s                        = [NSString alloc];
    NSPlaceholderStringClass = [s class];
    [s release];
 }
@@ -103,7 +103,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
 {
    if( MulleGetClass( self) == NSPlaceholderStringClass)
       return( @"NSPlaceholderStringClass");
-   
+
    return( [NSString stringWithFormat:@"@\"%@\"", self]);
 }
 
@@ -129,7 +129,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
    id                old;
    NSMutableString   *s;
    NSEnumerator      *rover;
-   
+
    // this code gets around the if in the while, there is no other point to
    // this, just sport :D
    s     = [NSMutableString stringWithFormat:@"@("];
@@ -147,7 +147,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
       [s appendString:[old traceValueDescription]];
    }
    [s appendString:@")"];
-   
+
    return( s);
 }
 
@@ -163,7 +163,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
    id                oldValue;
    NSMutableString   *s;
    NSEnumerator      *rover;
-   
+
    // this code gets arounf the if in the while, there is no other point to
    // this, just sport :D
    s      = [NSMutableString stringWithFormat:@"@{"];
@@ -187,7 +187,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
       [s appendString:[oldKey traceValueDescription]];
    }
    [s appendString:@"}"];
-   
+
    return( s);
 }
 
@@ -219,7 +219,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
 - (NSString *) templateDescription
 {
    NSString  *s;
-   
+
    s = [self _templateDescription];
    if( next_)
       return( [NSString stringWithFormat:@"%@%@%@", s, [self _templateDescriptionSeparator], [next_ templateDescription]]);
@@ -238,7 +238,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
 - (NSString *) dumpDescription
 {
    NSString  *s;
-   
+
    s = [self traceDescription];
    if( next_)
       return( [NSString stringWithFormat:@"%ld: %@%@%@", (long) lineNumber_, s, [next_ _dumpDescriptionSeparator], [next_ dumpDescription]]);
@@ -249,7 +249,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
 - (NSString *) debugDescription
 {
    NSString  *s;
-   
+
    s = [self _templateDescription];
    s = mulleShortenedString( s, 64);
    if( [s length])
@@ -271,7 +271,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
 - (NSString *) traceDescription
 {
    NSString     *s;
-   
+
    s = mulleLinefeedEscapedShortenedString( value_, 64);
    return( [NSString stringWithFormat:@"\"%@\"", s]);
 }
@@ -385,10 +385,10 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
 {
    NSMutableString   *s;
    NSUInteger        i, n;
-   
+
    s = [NSMutableString string];
    n = [value_ count];
-   
+
    [s appendFormat:@"@("];
    if( n)
    {
@@ -397,7 +397,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
       [s appendFormat:@" %@", [[value_ objectAtIndex:i] _expressionDescription]];
    }
    [s appendString:@")"];
-   
+
    return( s);
 }
 
@@ -411,10 +411,10 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
    NSMutableString   *s;
    NSEnumerator      *rover;
    id                key, value;
-   
+
    s = [NSMutableString string];
    rover = [value_ keyEnumerator];
-   
+
    [s appendFormat:@"@{"];
    while( key = [rover nextObject])
    {
@@ -423,7 +423,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
       [s appendFormat:@" %@", [key _expressionDescription]];
    }
    [s appendString:@"}"];
-   
+
    return( s);
 }
 
@@ -436,9 +436,9 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
 {
    NSMutableString   *s;
    NSUInteger        i, n;
-   
+
    s = [NSMutableString string];
-   
+
    [s appendFormat:@"%@( ", [super _expressionDescription]];
    n = [arguments_ count];
    if( n)
@@ -452,7 +452,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
        [[arguments_ objectAtIndex:i] _expressionDescription]];
    }
    [s appendString:@")"];
-   
+
    return( s);
 }
 
@@ -467,10 +467,10 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
    NSArray           *components;
    NSMutableString   *s;
    NSUInteger        i, n, m;
-   
+
    s       = [NSMutableString string];
    selName = NSStringFromSelector( action_);
-   
+
    [s appendFormat:@"[%@", [super _expressionDescription]];
    n = [arguments_ count];
    if( n)
@@ -571,10 +571,10 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
 {
    NSString   *command;
    NSString   *spacer;
-   
+
    command = [self commandName];
    spacer  = [command length] ? @" " : @"";
-   
+
    return( [NSString stringWithFormat:@"%@%@", command, spacer]);
 }
 
@@ -598,7 +598,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
 - (NSString *) commandDescription
 {
    NSString   *command;
-   
+
    command = [self _commandDescription];
    return( [NSString stringWithFormat:@"%@%@ = %@", command, [left_ _expressionDescription], [right_ _expressionDescription]]);
 }
@@ -611,7 +611,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
 - (NSString *) commandDescription
 {
    NSString   *command;
-   
+
    command = [self _commandDescription];
    return( [NSString stringWithFormat:@"%@%@ in %@", command, [left_ _expressionDescription], [right_ _expressionDescription]]);
 }
@@ -624,7 +624,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
 - (NSString *) commandDescription
 {
    NSString   *command;
-   
+
    command = [self _commandDescription];
    return( [NSString stringWithFormat:@"%@%@", command, [expression_ _expressionDescription]]);
 }
@@ -637,7 +637,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
 - (NSString *) commandDescription
 {
    NSString   *command;
-   
+
    command = [self _commandDescription];
    return( [NSString stringWithFormat:@"(%@) %@%@", fileName_, command, identifier_]);
 }
