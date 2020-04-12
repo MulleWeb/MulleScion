@@ -1,3 +1,7 @@
+### 1859.1.4
+
+* split off from mulle-kybernetik/MulleScion
+
 ### 1859.1.2
 
 * Various small improvements
