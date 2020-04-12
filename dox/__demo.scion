@@ -1,3 +1,0 @@
-{% block demo %}
-Here is just some plaintext and {{ @"an expression" }}
-{% endblock %}

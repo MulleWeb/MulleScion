@@ -3,7 +3,10 @@ MulleScion is a modern template engine for Objective C
 =============
 (written in an oldfashioned way)
 
-Release on [github](//github.com/mulle-kybernetik/MulleScion): [![Build Status](https://travis-ci.org/mulle-kybernetik/MulleScion.svg?branch=release)](https://travis-ci.org/mulle-kybernetik/MulleScion)
+Release on [github](//github.com/MulleWeb/MulleScion): [![Build Status](https://travis-ci.org/MulleWeb/MulleScion.svg?branch=release)](https://travis-ci.org/MulleWeb/MulleScion)
+
+> This is a fork of [mulle-kybernetik/MulleScion](//github.com/mulle-kybernetik/MulleScion)
+> tailored for use in mulle-sde projects
 
 ***
 
@@ -55,7 +58,7 @@ Here is a simple example, where ObjC code is embedded in a template:
 </html>
 ```
 
-Using the MulleScion.framework the creation of a string from your
+Using MulleScion the creation of a string from your
 object using a template file is as easy as:
 
 ``` objective-c
@@ -67,8 +70,7 @@ object using a template file is as easy as:
 
 This is the general architecture of *MulleScion*
 
-![](/dox/MulleScionDataFlow.png "Data Flow Sketch")
-![](https://www.mulle-kybernetik.com/software/git/MulleScion/raw/master/dox/MulleScionDataFlow.png "Data Flow Sketch")
+![](dox/MulleScionDataFlow.png "Data Flow Sketch")
 
 *MulleScion* is happily used in a commercial project and has gone through
 enough iterations to pronounce it "ready for production".
@@ -105,7 +107,8 @@ HTML editors:
 
 TOOLS
 =============
-There is an interactive editor available for OS X called [MulleScionist](https://www.mulle-kybernetik.com/software/git/MulleScionist/),
+There is an interactive editor available for OS X called
+[MulleScionist](https://www.mulle-kybernetik.com/software/git/MulleScionist/),
 which allows you to edit a HTML scion template and preview the results at the
 same time.
 
@@ -113,14 +116,8 @@ same time.
 DOCUMENTATION
 =============
 
-Virtually all the documentation is contained in example **.scion** templates
-in the `dox` folder. For each command or feature there should be a separate
-template file that documents it. **mulle-scion**, the command line utility,
-contains  a small quickly hacked together webserver that can present the
-documentation using *MulleScion* itself.
-
-In Xcode just run `Show Documentation in Webserver` and it should setup the
-webserver and open your browser to the right address.
+The documentation is contained in a companion project
+[mulle-scion](//github.com/mulle-scion).
 
 MulleScion is very similar to TWIG, so you can glean much of relevance from
 <http://twig.sensiolabs.org>. If you see a feature in TWIG but don't see it in
@@ -146,82 +143,15 @@ The documentation is not very good, actually it is just more or less a
 collection of test cases with comments...
 
 
-iOS SUPPORT
-=============
-There is iOS Support :)
-
-
-SITES
-=============
-The main development site is Mulle kybernetiK.
-
-[http://www.mulle-kybernetik.com/software/git/MulleScion/](http://www.mulle-kybernetik.com/software/git/MulleScion/)
-
-releases are pushed to github
-
-[https://github.com/mulle-nat/MulleScion/](https://github.com/mulle-nat/MulleScion/)
-
-
 TODO
 =============
 It might be nice to have delayed evaluation for render results. More tests.
-
-
-INSTALLATION (mulle-scion command line tool only)
-=============
-
-``` sh
-brew install mulle-kybernetik/software/mulle-scion
-```
-
-USAGE mulle-scion
-=============
-
-```
-Usage:
-   mulle-scion [options] <input> <datasource> [output] [arguments]
-
-Options:
-   -w       : start webserver for /usr/local/share/mulle-scion/dox
-   -z       : write compressed archive to outputfile
-   -Z       : write compressed keyed archive to outputfile (for IOS)
-
-Input:
-   -        : Read template from stdin
-   template : a MulleScion template path or URL
-
-Datasource:
-   -        : Read data from stdin (only if input is not stdin already)
-   args     : use arguments as datasource (see below)
-   bundle   : a NSBundle. It's NSPrincipalClass will be used as the datasource
-   plist    : a property list path or URL as datasource, see: plist(5)
-   none     : empty datasource
-
-Output:
-   -        : Write result to stdout
-   file     : Write result to file
-
-Arguments:
-   key=value: key/value pairs to be used as __ARGV__ contents
-              (unless args as datasource was specified)
-
-Examples:
-   echo '***{{ VALUE }}***' | mulle-scion - args - VALUE="VfL Bochum 1848"
-   echo '***{{ __ARGV__[ 0]}}***' | mulle-scion - none - "VfL Bochum 1848"
-```
 
 
 AUTHOR
 =============
 Coded by Nat!
 2013 Mulle kybernetiK
-
-Mongoose Webserver by
-Sergey Lyubka
-
-Hoedown Library by Natacha Porté
-Vicent Martí
-Xavier Mendez, Devin Torres and the Hoedown authors
 
 Contributors: @hons82 (Hannes)
 

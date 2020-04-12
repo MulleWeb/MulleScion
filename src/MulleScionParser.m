@@ -43,7 +43,9 @@
 #import "NSFileHandle+MulleOutputFileHandle.h"
 #import "MulleScionObjectModel+TraceDescription.h"
 #if ! TARGET_OS_IPHONE
-# import <Foundation/NSDebug.h>
+# ifndef __MULLE_OBJC__
+#  import <Foundation/NSDebug.h>
+# endif
 #endif
 
 
@@ -54,7 +56,7 @@
 {
    NSParameterAssert( [data isKindOfClass:[NSData class]]);
    NSParameterAssert( [fileName isKindOfClass:[NSString class]] && [fileName length]);
-   
+
    data_     = [data retain];
    fileName_ = [fileName copy];
 
@@ -67,7 +69,7 @@
    [fileName_ release];
    [data_ release];
    [preprocessor_ release];
-   
+
    [super dealloc];
 }
 
@@ -98,7 +100,7 @@
    NSData            *data;
    MulleScionParser  *parser;
    NSError           *error;
-   
+
    error = nil;
    data  = [NSData dataWithContentsOfURL:url
                                  options:NSDataReadingMappedIfSafe
@@ -108,7 +110,7 @@
       NSLog( @"%@", error);
       return( nil);
    }
-   
+
    parser = [[[self alloc] initWithData:data
                                fileName:[url path]] autorelease];
    return( parser);
@@ -119,7 +121,7 @@
 {
    NSData            *data;
    MulleScionParser  *parser;
-   
+
    data = [[[NSData alloc] initWithBytesNoCopy:(char *) s
                                        length:strlen( (char *) s)
                                  freeWhenDone:NO] autorelease];
@@ -134,7 +136,7 @@
 {
    NSData            *data;
    MulleScionParser  *parser;
-   
+
    data = [NSData dataWithContentsOfMappedFile:path];
    if( ! data)
    {
@@ -142,7 +144,7 @@
                [[NSFileManager defaultManager] currentDirectoryPath]);
       return( nil);
    }
-   
+
    parser = [[[self alloc] initWithData:data
                                fileName:path] autorelease];
    return( parser);
@@ -167,7 +169,7 @@ static void   _dump( MulleScionTemplate *self, NSString *path, NSString *blurb, 
 {
    NSFileHandle   *stream;
    NSData         *nl;
-   
+
    stream = [NSFileHandle mulleErrorFileHandleWithFilename:path];
    if( ! path)
    {
@@ -182,10 +184,10 @@ static void   _dump( MulleScionTemplate *self, NSString *path, NSString *blurb, 
       [stream writeData:[blurb dataUsingEncoding:NSUTF8StringEncoding]];
       [stream writeData:nl];
    }
-   
+
    [stream writeData:[[self performSelector:sel] dataUsingEncoding:NSUTF8StringEncoding]];
    [stream writeData:nl];
-   
+
    if( blurb)
    {
       [stream writeData:nl];
@@ -199,11 +201,11 @@ static void   dump( MulleScionTemplate *self, char *env, NSString *blurb, SEL se
    NSAutoreleasePool   *pool;
    char                *s;
    NSString            *path;
-   
+
    s = getenv( env);
    if( ! s || ! *s)
       return;
-   
+
    pool = [NSAutoreleasePool new];
    path = [NSString stringWithCString:s];
    _dump( self, path, blurb, sel);
@@ -222,7 +224,7 @@ static void   dump( MulleScionTemplate *self, char *env, NSString *blurb, SEL se
    MulleScionTemplate     *template;
    NSMutableDictionary    *blockTable;
    NSAutoreleasePool      *pool;
-   
+
    pool       = [NSAutoreleasePool new];
    blockTable = [NSMutableDictionary dictionary];
    template   = [self templateParsedWithBlockTable:blockTable];
@@ -233,19 +235,19 @@ static void   dump( MulleScionTemplate *self, char *env, NSString *blurb, SEL se
    dump( template, MULLE_SCION_DESCRIPTION_PRE_EXPAND,
                    @"BEFORE BLOCK EXPANSION:",
                    @selector( templateDescription));
-   
+
    [template expandBlocksUsingTable:blockTable];
-   
+
    dump( template, MULLE_SCION_DUMP_POST_EXPAND,
                    @"AFTER BLOCK EXPANSION:",
                    @selector( dumpDescription));
    dump( template, MULLE_SCION_DESCRIPTION_POST_EXPAND,
                    @"AFTER BLOCK EXPANSION:",
                    @selector( templateDescription));
-   
+
    [template retain];
    [pool release];
-   
+
    return( [template autorelease]);
 }
 
@@ -255,16 +257,16 @@ static void   dump( MulleScionTemplate *self, char *env, NSString *blurb, SEL se
    MulleScionTemplate       *template;
    NSAutoreleasePool        *pool;
    MulleScionParserTables   tables;
-   
+
    pool = [NSAutoreleasePool new];
-   
+
    tables.definitionTable = [NSMutableDictionary dictionary];
    tables.macroTable      = [NSMutableDictionary dictionary];
    tables.blockTable      = blockTable;
    tables.dependencyTable = nil;
-   
+
    template = [[self templateParsedWithTables:&tables] retain];
-   
+
    [pool release];
 
    return( [template autorelease]);
@@ -276,24 +278,24 @@ static void   dump( MulleScionTemplate *self, char *env, NSString *blurb, SEL se
    NSAutoreleasePool        *pool;
    MulleScionParserTables   tables;
    MulleScionTemplate       *root;
-   
+
    tables.dependencyTable = [NSMutableDictionary dictionary];
-   
+
    pool = [NSAutoreleasePool new];
-   
+
    tables.definitionTable = [NSMutableDictionary dictionary];
    tables.macroTable      = [NSMutableDictionary dictionary];
    tables.blockTable      = [NSMutableDictionary dictionary];
-   
+
    root = [[[MulleScionTemplate alloc] initWithFilename:[fileName_ lastPathComponent]] autorelease];
-      
+
    [self parseData:data_
     intoRootObject:root
             tables:&tables
       ignoreErrors:YES];
 
    [pool release];
-   
+
    return( tables.dependencyTable);
 }
 

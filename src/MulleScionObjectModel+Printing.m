@@ -43,9 +43,10 @@
 #import "MulleScionPrintingException.h"
 #import "NSObject+MulleScionDescription.h"
 #import "MulleCommonObjCRuntime.h"
+
 #if ! TARGET_OS_IPHONE
-# import <Foundation/NSDebug.h>
 # ifndef __MULLE_OBJC__
+#  import <Foundation/NSDebug.h>
 #  import <objc/objc-class.h>
 # endif
 #else
@@ -709,7 +710,11 @@ static char   *_NSObjCSkipRuntimeTypeQualifier( char *type)
 
    assert( type != NULL);
 
-   while( (c = *type) == _C_CONST
+   while( (c = *type) &&
+      (0
+#ifdef _C_CONST
+         || c == _C_CONST
+#endif
 #ifdef _C_IN
          || c == _C_IN
 #endif
@@ -725,7 +730,7 @@ static char   *_NSObjCSkipRuntimeTypeQualifier( char *type)
 #ifdef _C_ONEWAY
          || c == _C_ONEWAY
 #endif
-         )
+         ))
    {
       type++;
    }
@@ -779,7 +784,7 @@ static void   *numberBuffer( char *type, NSNumber *value)
    case _C_FLT      : *(float *)          buf = [value floatValue]; return( buf);
    case _C_DBL      : *(double *)         buf = [value doubleValue]; return( buf);
 #ifdef _C_BOOL
-   case _C_BOOL     : *(bool *)           buf = [value boolValue]; return( buf);
+   case _C_BOOL     : *(BOOL *)           buf = [value boolValue]; return( buf);
 #endif
    }
 
@@ -792,7 +797,7 @@ static void   *numberBuffer( char *type, NSNumber *value)
    return( buf);
 }
 
-
+// evaluateValue:localVariables:dataSource:
 - (id) evaluateValue:(id) target
       localVariables:(NSMutableDictionary *) locals
           dataSource:(id <MulleScionDataSource>) dataSource
@@ -809,6 +814,8 @@ static void   *numberBuffer( char *type, NSNumber *value)
    id                     value;
    id                     result;
    void                   *tmp;
+   SEL                    sel;
+   void                   *arg;
 
    // static char         id_type[ 2] = { _C_ID, 0 };
 
@@ -824,7 +831,10 @@ static void   *numberBuffer( char *type, NSNumber *value)
                                                          target:target];
    if( ! signature)
       MulleScionPrintingException( NSInvalidArgumentException, locals,
-                  @"Method \"%@\" (%p) is unknown on \"%@\"", NSStringFromSelector( action_), (void *) action_, [target class]);
+                  @"Method \"%@\" (%p) is unknown on \"%@\"",
+                  NSStringFromSelector( action_),
+                  (void *) (intptr_t) action_,
+                  [target class]);
 
    // remember varargs, there can be more arguments
    m = [signature numberOfArguments];
@@ -860,19 +870,19 @@ static void   *numberBuffer( char *type, NSNumber *value)
 
       switch( *type)
       {
-      case _C_ID    : buf = &value; break;
-      case _C_CLASS : buf = &value; break;
-      case _C_SEL   : tmp = [value pointerValue]; buf = (id *) &tmp; break;
-      default       : buf = numberBuffer( type, value); break;
+      case _C_ID    : arg = &value; break;
+      case _C_CLASS : arg = &value; break;
+      case _C_SEL   : [value getValue:&sel]; arg = &sel; break;
+      default       : arg = numberBuffer( type, value); break;
       }
 
-      if( ! buf)
+      if( ! arg)
          MulleScionPrintingException( NSInvalidArgumentException, locals,
                                      @"Method \"%@\" is not callable from MulleScion (argument #%ld)",
           NSStringFromSelector( action_), (long) i - 2);
 
       // unfortunately NSInvocation is too dumb for varargs
-      [invocation setArgument:buf
+      [invocation setArgument:arg
                       atIndex:i];
    }
 
@@ -897,7 +907,7 @@ static void   *numberBuffer( char *type, NSNumber *value)
       {
       case _C_ID       : result = *buf; break;
       case _C_CLASS    : result = *buf; break;
-      case _C_SEL      : result = [NSValue valueWithPointer:        (void *) *(SEL *) buf]; break;
+      case _C_SEL      : result = [NSValue valueWithBytes:buf objCType:@encode( SEL)]; break;
       case _C_CHARPTR  : result = [NSString stringWithCString:      (char *) buf]; break;
       case _C_CHR      : result = [NSNumber numberWithChar:         *(char *) buf]; break;
       case _C_UCHR     : result = [NSNumber numberWithUnsignedChar: *(unsigned char *) buf]; break;
@@ -946,6 +956,9 @@ static void   *numberBuffer( char *type, NSNumber *value)
                                  dataSource:dataSource];
    NSParameterAssert( target);
 
+   //
+   // if value is unknown, check if this is a class
+   //
    if( target == MulleScionNull && original)
       target = [dataSource mulleScionClassFromString:original];
 
@@ -1068,8 +1081,13 @@ static void   *numberBuffer( char *type, NSNumber *value)
 - (id) valueWithLocalVariables:(NSMutableDictionary *) locals
                     dataSource:(id <MulleScionDataSource>) dataSource
 {
+   SEL   sel;
+
    NSParameterAssert( value_ != nil);
-   return( [NSValue valueWithPointer:(void *) NSSelectorFromString( value_)]);
+
+   sel = NSSelectorFromString( value_);
+   return( [NSValue value:&sel
+             withObjCType:@encode( SEL)]);
 }
 
 @end
@@ -1381,7 +1399,7 @@ static void   *numberBuffer( char *type, NSNumber *value)
 static Class  _nsStringClass;
 
 
-MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
+MULLE_OBJC_DEPENDS_ON_LIBRARY( MulleObjCValueFoundation);
 
 + (void) load
 {
@@ -1588,8 +1606,9 @@ static BOOL  isTrue( id value)
    i    = 0;
    newi = nil;
    next = [rover nextObject];
-   while( key = next)
+   while( next)
    {
+      key  = next;
       next = [rover nextObject];
 
       TRACE_EVAL_CONT( self, key);

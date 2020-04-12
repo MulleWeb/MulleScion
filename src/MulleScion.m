@@ -119,14 +119,25 @@ char  MulleScionFrameworkVersion[] = STRINGIFY( PROJECT_VERSION);
 
 static id   acquirePropertyList( NSObject <MulleScionStringOrURL> *s)
 {
-   NSData    *data;
-   NSString  *error;
-   id        plist;
+   NSData     *data;
+   NSString   *error;
+   id         plist;
+   NSURL      *url;
+   NSString   *path;
 
    if( [s isKindOfClass:[NSURL class]])
-      data  = [NSData dataWithContentsOfURL:(NSURL *) s];
+   {
+      url = (NSURL *) s;
+      if( [url isFileURL])
+      {
+         path = [url path];
+         data = [NSData dataWithContentsOfFile:path];
+      }
+      else
+         data = [NSData dataWithContentsOfURL:url];
+   }
    else
-      data  = [NSData dataWithContentsOfFile:(NSString *) s];
+      data = [NSData dataWithContentsOfFile:(NSString *) s];
 
    if( ! data)
    {
@@ -364,7 +375,7 @@ static BOOL  checkCacheDirectory( NSString *path)
 }
 
 
-MULLE_OBJC_DEPENDS_ON_LIBRARY( Foundation);
+MULLE_OBJC_DEPENDS_ON_LIBRARY( MulleFoundation);
 
 
 + (void) load

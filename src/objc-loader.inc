@@ -1,5 +1,6 @@
-      { @selector( Hoedown), @selector( MulleScionPrinting) },      // fbfc4833;Hoedown;4ef670bb;MulleScionPrinting
-      { @selector( Hoedown), MULLE_OBJC_NO_CATEGORYID },      // fbfc4833;Hoedown;;
+      { @selector( MulleObjCLoader), @selector( MulleFoundation) },      // 47a9beb6;MulleObjCLoader;46ed3b36;MulleFoundation
+      { @selector( MulleObjCLoader), @selector( MulleObjCHTTPFoundation) },      // 47a9beb6;MulleObjCLoader;457d3115;MulleObjCHTTPFoundation
+      { @selector( MulleObjCLoader), @selector( MulleObjCInetOSFoundation) },      // 47a9beb6;MulleObjCLoader;e6af6918;MulleObjCInetOSFoundation
       { @selector( MulleMutableLineNumber), MULLE_OBJC_NO_CATEGORYID },      // f0a19f70;MulleMutableLineNumber;;
       { @selector( MulleScionAnd), @selector( Printing) },      // e3dc9432;MulleScionAnd;11e5c20c;Printing
       { @selector( MulleScionAnd), MULLE_OBJC_NO_CATEGORYID },      // e3dc9432;MulleScionAnd;;
@@ -11,6 +12,7 @@
       { @selector( MulleScionAssignmentExpression), @selector( Printing) },      // 787ae514;MulleScionAssignmentExpression;11e5c20c;Printing
       { @selector( MulleScionAssignmentExpression), @selector( VariableSubstitution) },      // 787ae514;MulleScionAssignmentExpression;e459bb08;VariableSubstitution
       { @selector( MulleScionAssignmentExpression), MULLE_OBJC_NO_CATEGORYID },      // 787ae514;MulleScionAssignmentExpression;;
+      { @selector( MulleScionBinaryOperatorExpression), @selector( Graphviz) },      // 7f708e55;MulleScionBinaryOperatorExpression;ab6e46cf;Graphviz
       { @selector( MulleScionBinaryOperatorExpression), @selector( NSCoding) },      // 7f708e55;MulleScionBinaryOperatorExpression;b67e77cf;NSCoding
       { @selector( MulleScionBinaryOperatorExpression), @selector( TraceDescription) },      // 7f708e55;MulleScionBinaryOperatorExpression;35e2b50e;TraceDescription
       { @selector( MulleScionBinaryOperatorExpression), @selector( VariableSubstitution) },      // 7f708e55;MulleScionBinaryOperatorExpression;e459bb08;VariableSubstitution
@@ -22,6 +24,7 @@
       { @selector( MulleScionCommand), @selector( Printing) },      // 4e39ca3d;MulleScionCommand;11e5c20c;Printing
       { @selector( MulleScionCommand), @selector( TraceDescription) },      // 4e39ca3d;MulleScionCommand;35e2b50e;TraceDescription
       { @selector( MulleScionCommand), MULLE_OBJC_NO_CATEGORYID },      // 4e39ca3d;MulleScionCommand;;
+      { @selector( MulleScionComparison), @selector( MulleGraphviz) },      // 49a3663b;MulleScionComparison;53d139bc;MulleGraphviz
       { @selector( MulleScionComparison), @selector( NSCoding) },      // 49a3663b;MulleScionComparison;b67e77cf;NSCoding
       { @selector( MulleScionComparison), @selector( Printing) },      // 49a3663b;MulleScionComparison;11e5c20c;Printing
       { @selector( MulleScionComparison), MULLE_OBJC_NO_CATEGORYID },      // 49a3663b;MulleScionComparison;;
@@ -90,6 +93,7 @@
       { @selector( MulleScionNumber), @selector( Printing) },      // 185dcef1;MulleScionNumber;11e5c20c;Printing
       { @selector( MulleScionNumber), MULLE_OBJC_NO_CATEGORYID },      // 185dcef1;MulleScionNumber;;
       { @selector( MulleScionObject), @selector( BlockExpansion) },      // 7ed9b39e;MulleScionObject;ba0a1bbc;BlockExpansion
+      { @selector( MulleScionObject), @selector( MulleGraphviz) },      // 7ed9b39e;MulleScionObject;53d139bc;MulleGraphviz
       { @selector( MulleScionObject), @selector( NSCoding) },      // 7ed9b39e;MulleScionObject;b67e77cf;NSCoding
       { @selector( MulleScionObject), @selector( Parsing) },      // 7ed9b39e;MulleScionObject;bd0f67fb;Parsing
       { @selector( MulleScionObject), @selector( Printing) },      // 7ed9b39e;MulleScionObject;11e5c20c;Printing
@@ -139,6 +143,7 @@
       { @selector( MulleScionTerminator), MULLE_OBJC_NO_CATEGORYID },      // 60f5faff;MulleScionTerminator;;
       { @selector( MulleScionUnaryOperatorExpression), @selector( VariableSubstitution) },      // 64ededbc;MulleScionUnaryOperatorExpression;e459bb08;VariableSubstitution
       { @selector( MulleScionUnaryOperatorExpression), MULLE_OBJC_NO_CATEGORYID },      // 64ededbc;MulleScionUnaryOperatorExpression;;
+      { @selector( MulleScionValueObject), @selector( MulleGraphviz) },      // b8ab7406;MulleScionValueObject;53d139bc;MulleGraphviz
       { @selector( MulleScionValueObject), @selector( NSCoding) },      // b8ab7406;MulleScionValueObject;b67e77cf;NSCoding
       { @selector( MulleScionValueObject), @selector( TraceDescription) },      // b8ab7406;MulleScionValueObject;35e2b50e;TraceDescription
       { @selector( MulleScionValueObject), MULLE_OBJC_NO_CATEGORYID },      // b8ab7406;MulleScionValueObject;;
@@ -147,9 +152,6 @@
       { @selector( MulleScionWhile), @selector( Printing) },      // 42d36077;MulleScionWhile;11e5c20c;Printing
       { @selector( MulleScionWhile), MULLE_OBJC_NO_CATEGORYID },      // 42d36077;MulleScionWhile;;
       { @selector( NSArray), @selector( TraceValueDescription) },      // 233490fe;NSArray;f69b003f;TraceValueDescription
-      { @selector( NSData), @selector( Hoedown) },      // 8fce7861;NSData;fbfc4833;Hoedown
-      { @selector( NSData), @selector( StrippedToExamples) },      // 8fce7861;NSData;0ccec34c;StrippedToExamples
-      { @selector( NSData), @selector( ZLib) },      // 8fce7861;NSData;18732846;ZLib
       { @selector( NSDate), @selector( MulleScionDescription) },      // cfcedd21;NSDate;04602b46;MulleScionDescription
       { @selector( NSDictionary), @selector( TraceValueDescription) },      // 8b2abcad;NSDictionary;f69b003f;TraceValueDescription
       { @selector( NSFileHandle), @selector( MulleOutputFileHandle) },      // 01a8a865;NSFileHandle;f4e71bf3;MulleOutputFileHandle
@@ -161,11 +163,8 @@
       { @selector( NSObject), @selector( MulleScionDataSourceSupport) },      // b3a66256;NSObject;cc20cca6;MulleScionDataSourceSupport
       { @selector( NSObject), @selector( MulleScionDescription) },      // b3a66256;NSObject;04602b46;MulleScionDescription
       { @selector( NSObject), @selector( TraceValueDescription) },      // b3a66256;NSObject;f69b003f;TraceValueDescription
-      { @selector( NSString), @selector( GTMNSStringHTMLAdditions) },      // 1994a171;NSString;ae58287f;GTMNSStringHTMLAdditions
-      { @selector( NSString), @selector( HTMLEscape) },      // 1994a171;NSString;77864132;HTMLEscape
-      { @selector( NSString), @selector( Hoedown) },      // 1994a171;NSString;fbfc4833;Hoedown
+      { @selector( NSString), @selector( MulleScion) },      // 1994a171;NSString;9b28dc2b;MulleScion
       { @selector( NSString), @selector( MulleScionDescription) },      // 1994a171;NSString;04602b46;MulleScionDescription
-      { @selector( NSString), @selector( NonExamplesStripped) },      // 1994a171;NSString;fb95d785;NonExamplesStripped
       { @selector( NSString), @selector( TraceValueDescription) },      // 1994a171;NSString;f69b003f;TraceValueDescription
       { @selector( NSValue), @selector( CheatAndHack) },      // 96deaa7d;NSValue;f5730f02;CheatAndHack
       { @selector( _MulleScionNull), @selector( MulleScionDescription) },      // 036e3d07;_MulleScionNull;04602b46;MulleScionDescription

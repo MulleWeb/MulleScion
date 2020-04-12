@@ -1,2 +1,0 @@
-Allow calls to {{ [NSCalendarDate date] }} but do not allow 
-calls to {{ [NSDate date] }}.
