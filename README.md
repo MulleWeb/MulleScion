@@ -1,9 +1,14 @@
+# MulleScion
 
-MulleScion is a modern template engine for Objective C
-=============
+🌱 A modern template engine for Objective C
+
 (written in an oldfashioned way)
 
-Release on [github](//github.com/MulleWeb/MulleScion): [![Build Status](https://travis-ci.org/MulleWeb/MulleScion.svg?branch=release)](https://travis-ci.org/MulleWeb/MulleScion)
+
+Build Status | Release Version
+-------------|-----------------------------------
+[![Build Status](https://travis-ci.org/MulleWeb/MulleScion.svg?branch=release)](https://travis-ci.org/MulleWeb/MulleScion) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/MulleWeb/MulleScion.svg) [![Build Status](https://travis-ci.org/MulleWeb/MulleScion.svg?branch=release)](https://travis-ci.org/MulleWeb/MulleScion)
+
 
 > This is a fork of [mulle-kybernetik/MulleScion](//github.com/mulle-kybernetik/MulleScion)
 > tailored for use in mulle-sde projects
@@ -78,7 +83,8 @@ enough iterations to pronounce it "ready for production".
 
 HTML PREPROCESSOR
 =============
-There is a companion project [MulleScionHTMLPreprocessor](//github.com/mulle-nat/MulleScionHTMLPreprocessor)
+There is a companion project
+[MulleScionHTMLPreprocessor](//github.com/MulleWeb/MulleScionHTMLPreprocessor)
 that uses HTML like tags, to make the template easier to reformat in
 HTML editors:
 
@@ -103,6 +109,27 @@ HTML editors:
 </html>
 ```
 
+
+Add
+======
+
+Use [mulle-sde](//github.com/mulle-sde) to add MulleScion to your project:
+
+```
+mulle-sde dependency add --objc --github MulleWeb MulleScion
+```
+
+
+Install
+=======
+
+Use [mulle-sde](//github.com/mulle-sde) to build and install MulleScion and
+all its dependencies:
+
+```
+mulle-sde install --prefix /usr/local \
+   https://github.com/MulleWeb/MulleScion/archive/latest.tar.gz
+```
 
 
 TOOLS
@@ -151,7 +178,7 @@ It might be nice to have delayed evaluation for render results. More tests.
 AUTHOR
 =============
 Coded by Nat!
-2013 Mulle kybernetiK
+2013-2020 Mulle kybernetiK
 
 Contributors: @hons82 (Hannes)
 

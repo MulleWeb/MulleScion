@@ -14,7 +14,6 @@ if( NOT __ENVIRONMENT__CMAKE__)
    #
    #
    #
-   set( MULLE_VIRTUAL_ROOT KITCHEN_DIR)
    if( NOT MULLE_VIRTUAL_ROOT)
       set( MULLE_VIRTUAL_ROOT "${PROJECT_SOURCE_DIR}")
    endif()
@@ -41,6 +40,11 @@ if( NOT __ENVIRONMENT__CMAKE__)
             "${TMP_DEPENDENCY_DIR}"
             "${TMP_ADDICTION_DIR}"
          )
+      endif()
+   else()
+      # temporary fix until mulle-objc 0.18 release
+      if( $ENV{MULLE_MAKE_VERSION} VERSION_LESS 0.14.0)
+         string( REPLACE ":" ";" MULLE_SDK_PATH "${MULLE_SDK_PATH}")
       endif()
    endif()
 
