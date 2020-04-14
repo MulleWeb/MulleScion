@@ -79,7 +79,6 @@
       { @selector( MulleScionLog), @selector( Printing) },      // dbea3c8e;MulleScionLog;11e5c20c;Printing
       { @selector( MulleScionLog), MULLE_OBJC_NO_CATEGORYID },      // dbea3c8e;MulleScionLog;;
       { @selector( MulleScionMacro), @selector( MacroExpansion) },      // 4736d5ed;MulleScionMacro;9ed6e240;MacroExpansion
-      { @selector( MulleScionMacro), @selector( NSCoding) },      // 4736d5ed;MulleScionMacro;b67e77cf;NSCoding
       { @selector( MulleScionMacro), MULLE_OBJC_NO_CATEGORYID },      // 4736d5ed;MulleScionMacro;;
       { @selector( MulleScionMethod), @selector( NSCoding) },      // 628c2bf3;MulleScionMethod;b67e77cf;NSCoding
       { @selector( MulleScionMethod), @selector( Printing) },      // 628c2bf3;MulleScionMethod;11e5c20c;Printing
