@@ -386,7 +386,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( MulleObjCValueFoundation);
    NSMutableString   *s;
    NSUInteger        i, n;
 
-   s = [NSMutableString string];
+   s = [NSMutableString object];
    n = [value_ count];
 
    [s appendFormat:@"@("];
@@ -412,7 +412,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( MulleObjCValueFoundation);
    NSEnumerator      *rover;
    id                key, value;
 
-   s = [NSMutableString string];
+   s = [NSMutableString object];
    rover = [value_ keyEnumerator];
 
    [s appendFormat:@"@{"];
@@ -437,7 +437,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( MulleObjCValueFoundation);
    NSMutableString   *s;
    NSUInteger        i, n;
 
-   s = [NSMutableString string];
+   s = [NSMutableString object];
 
    [s appendFormat:@"%@( ", [super _expressionDescription]];
    n = [arguments_ count];
@@ -468,7 +468,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( MulleObjCValueFoundation);
    NSMutableString   *s;
    NSUInteger        i, n, m;
 
-   s       = [NSMutableString string];
+   s       = [NSMutableString object];
    selName = NSStringFromSelector( action_);
 
    [s appendFormat:@"[%@", [super _expressionDescription]];

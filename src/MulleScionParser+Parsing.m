@@ -771,9 +771,9 @@ static macro_type   parser_skip_text_until_scion_end( parser *p, int type)
          {
             switch( d)
             {
-               case '%' : return( command);
-               case '#' : return( comment);
-               case '}' : return( expression);
+            case '%' : return( command);
+            case '#' : return( comment);
+            case '}' : return( expression);
             }
          }
       }
@@ -1172,8 +1172,7 @@ static inline void   parser_next_expected_character( parser *p,
 }
 
 
-# pragma mark -
-# pragma mark Simple Expressions
+# pragma mark - Simple Expressions
 
 static NSString  *parser_do_keypath( parser *p)
 {
@@ -1405,7 +1404,7 @@ static MulleScionMethod  * NS_RETURNS_RETAINED   parser_do_method( parser *p)
    if( hasColon)
    {
       arguments = [NSMutableArray array];
-      selBuf    = [NSMutableString string];
+      selBuf    = [NSMutableString object];
       for( ;;)
       {
          [selBuf appendString:selName];
