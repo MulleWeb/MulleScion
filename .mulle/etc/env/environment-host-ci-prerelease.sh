@@ -1,4 +1,22 @@
 #
+#
+#
+export MULLE_DATA_NODETYPE="git"
+
+
+#
+#
+#
+export MULLE_DATA_BRANCH="prerelease"
+
+
+#
+#
+#
+export MULLE_DATA_URL="https://github.com/mulle-c/mulle-data.git"
+
+
+#
 # MulleFoundation nodetype: ${MULLE_FOUNDATION_NODETYPE:-tar}
 #
 export MULLE_FOUNDATION_NODETYPE="git"
@@ -485,6 +503,42 @@ export MULLE_OBJC_MATH_FOUNDATION_BRANCH="prerelease"
 
 
 #
+# MulleObjCUnicodeFoundation nodetype: ${MULLE_OBJC_UNICODE_FOUNDATION_NODETYPE:-tar}
+#
+export MULLE_OBJC_UNICODE_FOUNDATION_NODETYPE="git"
+
+
+#
+# MulleObjCUnicodeFoundation url: ${MULLE_OBJC_UNICODE_FOUNDATION_URL:-https://github.com/MulleFoundation/MulleObjCUnicodeFoundation/archive/${MULLE_TAG}.tar.gz}
+#
+export MULLE_OBJC_UNICODE_FOUNDATION_URL="https://github.com/MulleFoundation/MulleObjCUnicodeFoundation.git"
+
+
+#
+# MulleObjCUnicodeFoundation branch: ${MULLE_OBJC_UNICODE_FOUNDATION_BRANCH}
+#
+export MULLE_OBJC_UNICODE_FOUNDATION_BRANCH="prerelease"
+
+
+#
+# mulle-unicode nodetype: ${MULLE_UNICODE_NODETYPE:-tar}
+#
+export MULLE_UNICODE_NODETYPE="git"
+
+
+#
+# mulle-unicode url: ${MULLE_UNICODE_URL:-https://github.com/mulle-c/mulle-unicode/archive/${MULLE_TAG}.tar.gz}
+#
+export MULLE_UNICODE_URL="https://github.com/mulle-c/mulle-unicode.git"
+
+
+#
+# mulle-unicode branch: ${MULLE_UNICODE_BRANCH}
+#
+export MULLE_UNICODE_BRANCH="prerelease"
+
+
+#
 # MulleObjCHTTPFoundation nodetype: ${MULLE_OBJC_HTTP_FOUNDATION_NODETYPE:-tar}
 #
 export MULLE_OBJC_HTTP_FOUNDATION_NODETYPE="git"
@@ -518,6 +572,42 @@ export MULLE_OBJC_INET_FOUNDATION_URL="https://github.com/MulleWeb/MulleObjCInet
 # MulleObjCInetFoundation branch: ${MULLE_OBJC_INET_FOUNDATION_BRANCH}
 #
 export MULLE_OBJC_INET_FOUNDATION_BRANCH="prerelease"
+
+
+#
+# mulle-url nodetype: ${MULLE_URL_NODETYPE:-tar}
+#
+export MULLE_URL_NODETYPE="git"
+
+
+#
+# mulle-url url: ${MULLE_URL_URL:-https://github.com/mulle-c/mulle-url/archive/${MULLE_TAG}.tar.gz}
+#
+export MULLE_URL_URL="https://github.com/mulle-c/mulle-url.git"
+
+
+#
+# mulle-url branch: ${MULLE_URL_BRANCH}
+#
+export MULLE_URL_BRANCH="prerelease"
+
+
+#
+# mulle-http nodetype: ${MULLE_HTTP_NODETYPE:-tar}
+#
+export MULLE_HTTP_NODETYPE="git"
+
+
+#
+# mulle-http url: ${MULLE_HTTP_URL:-https://github.com/mulle-c/mulle-http/archive/${MULLE_TAG}.tar.gz}
+#
+export MULLE_HTTP_URL="https://github.com/mulle-c/mulle-http.git"
+
+
+#
+# mulle-http branch: ${MULLE_HTTP_BRANCH}
+#
+export MULLE_HTTP_BRANCH="prerelease"
 
 
 #
