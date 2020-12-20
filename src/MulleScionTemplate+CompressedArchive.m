@@ -176,7 +176,7 @@ static id   _newWithContentsOfArchive( NSString *fileName, NSAutoreleasePool **p
    if( isKeyed)
       return( [[NSKeyedUnarchiver unarchiveObjectWithData:data] retain]);
 
-#if TARGET_OS_IPHONE  // much slower...
+#if defined( TARGET_OS_IPHONE) && TARGET_OS_IPHONE  // much slower...
    NSLog( @"unsupported archive");
    return( nil);
 #else
@@ -254,7 +254,7 @@ static id   _newWithContentsOfArchive( NSString *fileName, NSAutoreleasePool **p
 
    pool = [NSAutoreleasePool new];
 
-#if TARGET_OS_IPHONE  // probably much slower...
+#if defined( TARGET_OS_IPHONE) && TARGET_OS_IPHONE  // much slower...
    NSParameterAssert( keyed);
    payload = [NSKeyedArchiver archivedDataWithRootObject:self];
 #else
@@ -292,7 +292,7 @@ static id   _newWithContentsOfArchive( NSString *fileName, NSAutoreleasePool **p
 
 - (BOOL) writeArchive:(NSString *) fileName
 {
-#if TARGET_OS_IPHONE
+#if defined( TARGET_OS_IPHONE) && TARGET_OS_IPHONE  // much slower...
    return( [self writeArchive:fileName
                         keyed:YES]);
 #else

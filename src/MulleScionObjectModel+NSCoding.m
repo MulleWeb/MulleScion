@@ -60,7 +60,7 @@ static id  _copy(id self)
    id                 copy;
 
    pool = [NSAutoreleasePool new];
-#if TARGET_OS_IPHONE  // much slower...
+#if defined( TARGET_OS_IPHONE) && TARGET_OS_IPHONE  // much slower...
    data = [NSKeyedArchiver archivedDataWithRootObject:self];
    copy = [[NSKeyedUnarchiver unarchiveObjectWithData:data] retain];
 #else
