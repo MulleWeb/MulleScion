@@ -1,0 +1,18 @@
+{
+   "name" : "MulleScion",
+   "version" : "1859.1.5",
+   "description" : "",
+   "homepage" : "https://github.com/MulleWeb/MulleScion",
+   "bugs" : "https://github.com/MulleWeb/MulleScion/issues",
+   "keywords" : [],
+   "license" : "BSD-3-Clause",
+   "repository" : {
+      "type" : "git",
+      "url" : "MulleWeb/MulleScion"
+   },
+   "dependencies" : {
+      "MulleFoundation" : "MulleFoundation/MulleFoundation",
+      "MulleObjCHTTPFoundation" : "MulleWeb/MulleObjCHTTPFoundation",
+      "MulleObjCInetOSFoundation" : "MulleFoundation/MulleObjCInetOSFoundation"
+   }
+}

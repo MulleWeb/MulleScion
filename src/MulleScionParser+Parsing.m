@@ -44,7 +44,7 @@
 #import "MulleScionObjectModel+NSCoding.h"
 #import "MulleScionObjectModel+MacroExpansion.h"
 #import "MulleScionObjectModel+TraceDescription.h"
-#if ! TARGET_OS_IPHONE
+#if ! defined( TARGET_OS_IPHONE) || ! TARGET_OS_IPHONE
 # ifndef __MULLE_OBJC__
 #  import <Foundation/NSDebug.h>
 # endif

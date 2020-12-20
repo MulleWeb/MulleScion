@@ -68,7 +68,7 @@ extern void  MULLE_NO_RETURN   MulleScionPrintingException( NSString *exceptionN
 - (NSString *) mulleScionDescriptionWithLocalVariables:(NSMutableDictionary *) context
 {
    NSString  *s;
-   
+
    s = [context objectForKey:MulleScionNilDescriptionKey];
    if( ! s)
       return( @"");
@@ -83,7 +83,7 @@ extern void  MULLE_NO_RETURN   MulleScionPrintingException( NSString *exceptionN
 + (NSString *) mulleScionDescriptionWithLocalVariables:(NSMutableDictionary *) context
 {
    NSString  *s;
-   
+
    s = [context objectForKey:MulleScionNilDescriptionKey];
    if( ! s)
       return( @"");
@@ -102,11 +102,11 @@ extern void  MULLE_NO_RETURN   MulleScionPrintingException( NSString *exceptionN
    NSString     *ellipsis;
    NSUInteger   length;
    NSUInteger   max;
-   
+
    s = [context objectForKey:MulleScionStringLengthKey];
    if( ! s)
       return( self);
-   
+
    if( ! [s respondsToSelector:@selector( integerValue)])
       return( self);
 
@@ -128,14 +128,14 @@ extern void  MULLE_NO_RETURN   MulleScionPrintingException( NSString *exceptionN
 static NSLocale   *getLocale( NSMutableDictionary *context)
 {
    id   locale;
-   
+
    locale = [context objectForKey:MulleScionLocaleKey];
    if( ! locale)
       return( nil);
-   
+
    if( [locale isKindOfClass:[NSLocale class]])
       return( locale);
-   
+
    locale = [locale description];
    locale = [[[NSLocale alloc] initWithLocaleIdentifier:locale] autorelease];
    if( ! locale)
@@ -148,11 +148,11 @@ static NSLocale   *getLocale( NSMutableDictionary *context)
 static id   getFormatter( NSMutableDictionary *context, NSString *key, Class cls)
 {
    id   formatter;
-   
+
    formatter = [context objectForKey:key];
    if( ! formatter)
       return( nil);
-   
+
    if( [formatter isKindOfClass:cls])
       return( formatter);
 
@@ -183,7 +183,7 @@ static NSString   *getFormat( NSMutableDictionary *context, NSString *key)
    NSLocale            *locale;
    NSNumberFormatter   *formatter;
    NSString            *format;
-   
+
    locale    = getLocale( context);
    formatter = getFormatter( context, MulleScionNumberFormatterKey, [NSNumberFormatter class]);
    format    = getFormat( context, MulleScionNumberFormatKey);
@@ -191,22 +191,22 @@ static NSString   *getFormat( NSMutableDictionary *context, NSString *key)
    {
       if( ! format)
          return( [self descriptionWithLocale:locale]);
-   
+
       formatter = [[NSNumberFormatter new] autorelease];
-#if ! TARGET_OS_IPHONE
+#if ! defined( TARGET_OS_IPHONE) || ! TARGET_OS_IPHONE
       if( [NSNumberFormatter defaultFormatterBehavior] == 1000)
          [formatter setLocalizesFormat:YES];
 #endif
-      
+
       [context setObject:formatter
                   forKey:MulleScionNumberFormatterKey];
    }
-#if ! TARGET_OS_IPHONE
+#if ! defined( TARGET_OS_IPHONE) || ! TARGET_OS_IPHONE
    [formatter setFormat:format];
 #else
    {
       NSArray   *components;
-      
+
       components = [format componentsSeparatedByString:@";"];
       if( [components count] == 3)
       {
@@ -232,7 +232,7 @@ static NSString   *getFormat( NSMutableDictionary *context, NSString *key)
    NSString          *format;
    BOOL              reformat;
    BOOL              relocalize;
-   
+
    locale    = [context objectForKey:MulleScionLocaleKey];
    format    = [[context objectForKey:MulleScionDateFormatKey] description];
    formatter = [context objectForKey:MulleScionDateFormatterKey];
@@ -245,13 +245,13 @@ static NSString   *getFormat( NSMutableDictionary *context, NSString *key)
       if( (reformat || relocalize) && [formatter formatterBehavior] == 1000)
          formatter = nil;
    }
-   
+
    if( ! formatter)
    {
       if( ! format)
          return( [self descriptionWithLocale:locale]);
-      
-#if ! TARGET_OS_IPHONE
+
+#if ! defined( TARGET_OS_IPHONE) || ! TARGET_OS_IPHONE
       if( [NSDateFormatter defaultFormatterBehavior] == 1000)
       {
          // preferred for strftime compatibility
@@ -262,11 +262,11 @@ static NSString   *getFormat( NSMutableDictionary *context, NSString *key)
          return( [formatter stringForObjectValue:self]);
       }
 #endif
-      
+
       formatter = [[NSDateFormatter new] autorelease];
       [context setObject:formatter
                   forKey:MulleScionDateFormatterKey];
-      
+
       reformat   = YES;
       relocalize = YES;
    }
@@ -275,7 +275,7 @@ static NSString   *getFormat( NSMutableDictionary *context, NSString *key)
       [formatter setDateFormat:format];
    if( relocalize)
       [formatter setLocale:locale];
-   
+
    return( [formatter stringFromDate:self]);
 }
 
