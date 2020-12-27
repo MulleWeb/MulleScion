@@ -16,43 +16,28 @@
 //    remove:             `mulle-sourcetree mark MulleFoundation no-header`
 //    rename:             `mulle-sde dependency|library set MulleFoundation include whatever.h`
 //    toggle #import:     `mulle-sourcetree mark MulleFoundation [no-]import`
-//    toggle localheader: `mulle-sourcetree mark MulleFoundation [no-]localheader`
 //    toggle public:      `mulle-sourcetree mark MulleFoundation [no-]public`
 //    toggle optional:    `mulle-sourcetree mark MulleFoundation [no-]require`
 //    remove for os:      `mulle-sourcetree mark MulleFoundation no-os-<osname>`
-# if defined( __has_include) && __has_include("MulleFoundation.h")
-#   import "MulleFoundation.h"   // MulleFoundation
-# else
-#   import <MulleFoundation/MulleFoundation.h>   // MulleFoundation
-# endif
+# import <MulleFoundation/MulleFoundation.h>   // MulleFoundation
 
 // How to tweak the following MulleObjCHTTPFoundation #import
 //    remove:             `mulle-sourcetree mark MulleObjCHTTPFoundation no-header`
 //    rename:             `mulle-sde dependency|library set MulleObjCHTTPFoundation include whatever.h`
 //    toggle #import:     `mulle-sourcetree mark MulleObjCHTTPFoundation [no-]import`
-//    toggle localheader: `mulle-sourcetree mark MulleObjCHTTPFoundation [no-]localheader`
 //    toggle public:      `mulle-sourcetree mark MulleObjCHTTPFoundation [no-]public`
 //    toggle optional:    `mulle-sourcetree mark MulleObjCHTTPFoundation [no-]require`
 //    remove for os:      `mulle-sourcetree mark MulleObjCHTTPFoundation no-os-<osname>`
-# if defined( __has_include) && __has_include("MulleObjCHTTPFoundation.h")
-#   import "MulleObjCHTTPFoundation.h"   // MulleObjCHTTPFoundation
-# else
-#   import <MulleObjCHTTPFoundation/MulleObjCHTTPFoundation.h>   // MulleObjCHTTPFoundation
-# endif
+# import <MulleObjCHTTPFoundation/MulleObjCHTTPFoundation.h>   // MulleObjCHTTPFoundation
 
 // How to tweak the following MulleObjCInetOSFoundation #import
 //    remove:             `mulle-sourcetree mark MulleObjCInetOSFoundation no-header`
 //    rename:             `mulle-sde dependency|library set MulleObjCInetOSFoundation include whatever.h`
 //    toggle #import:     `mulle-sourcetree mark MulleObjCInetOSFoundation [no-]import`
-//    toggle localheader: `mulle-sourcetree mark MulleObjCInetOSFoundation [no-]localheader`
 //    toggle public:      `mulle-sourcetree mark MulleObjCInetOSFoundation [no-]public`
 //    toggle optional:    `mulle-sourcetree mark MulleObjCInetOSFoundation [no-]require`
 //    remove for os:      `mulle-sourcetree mark MulleObjCInetOSFoundation no-os-<osname>`
-# if defined( __has_include) && __has_include("MulleObjCInetOSFoundation.h")
-#   import "MulleObjCInetOSFoundation.h"   // MulleObjCInetOSFoundation
-# else
-#   import <MulleObjCInetOSFoundation/MulleObjCInetOSFoundation.h>   // MulleObjCInetOSFoundation
-# endif
+# import <MulleObjCInetOSFoundation/MulleObjCInetOSFoundation.h>   // MulleObjCInetOSFoundation
 
 #ifdef __has_include
 # if __has_include( "_MulleScion-include.h")
