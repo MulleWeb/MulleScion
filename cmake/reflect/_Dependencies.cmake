@@ -15,7 +15,7 @@ endif()
 #
 # Generated from sourcetree: 145E1BC1-501C-441A-8463-F50E4E2B6512;MulleFoundation;no-singlephase;
 # Disable with : `mulle-sourcetree mark MulleFoundation no-link`
-# Disable for this platform: `mulle-sourcetree mark MulleFoundation no-cmake-platform-linux`
+# Disable for this platform: `mulle-sourcetree mark MulleFoundation no-cmake-platform-darwin`
 #
 if( NOT MULLE_FOUNDATION_LIBRARY)
    find_library( MULLE_FOUNDATION_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}MulleFoundation${CMAKE_STATIC_LIBRARY_SUFFIX} MulleFoundation NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
@@ -112,7 +112,7 @@ endif()
 #
 # Generated from sourcetree: C0E0634B-1CA4-43E3-BEFD-0094542DB54D;MulleObjCHTTPFoundation;no-singlephase;
 # Disable with : `mulle-sourcetree mark MulleObjCHTTPFoundation no-link`
-# Disable for this platform: `mulle-sourcetree mark MulleObjCHTTPFoundation no-cmake-platform-linux`
+# Disable for this platform: `mulle-sourcetree mark MulleObjCHTTPFoundation no-cmake-platform-darwin`
 #
 if( NOT MULLE_OBJC_HTTP_FOUNDATION_LIBRARY)
    find_library( MULLE_OBJC_HTTP_FOUNDATION_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}MulleObjCHTTPFoundation${CMAKE_STATIC_LIBRARY_SUFFIX} MulleObjCHTTPFoundation NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
@@ -209,7 +209,7 @@ endif()
 #
 # Generated from sourcetree: C8D51D49-80CF-406E-A07D-0E339B282AB2;MulleObjCInetOSFoundation;no-singlephase;
 # Disable with : `mulle-sourcetree mark MulleObjCInetOSFoundation no-link`
-# Disable for this platform: `mulle-sourcetree mark MulleObjCInetOSFoundation no-cmake-platform-linux`
+# Disable for this platform: `mulle-sourcetree mark MulleObjCInetOSFoundation no-cmake-platform-darwin`
 #
 if( NOT MULLE_OBJC_INET_OS_FOUNDATION_LIBRARY)
    find_library( MULLE_OBJC_INET_OS_FOUNDATION_LIBRARY NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}MulleObjCInetOSFoundation${CMAKE_STATIC_LIBRARY_SUFFIX} MulleObjCInetOSFoundation NO_CMAKE_SYSTEM_PATH NO_SYSTEM_ENVIRONMENT_PATH)
