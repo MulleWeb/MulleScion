@@ -35,7 +35,7 @@
 //
 #import "import.h"
 
-#define MULLE_SCION_VERSION   ((1859 << 20) | (1 << 8) | 7)
+#define MULLE_SCION_VERSION   ((1859 << 20) | (1 << 8) | 8)
 
 #import "MulleScionObjectModel.h"
 #import "MulleScionObjectModel+TraceDescription.h"
@@ -138,3 +138,10 @@
 #endif
 
 extern char   MulleScionFrameworkVersion[];
+
+#ifdef __has_include
+# if __has_include( "_MulleScion-versioncheck.h")
+#  include "_MulleScion-versioncheck.h"
+# endif
+#endif
+
