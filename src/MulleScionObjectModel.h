@@ -492,7 +492,7 @@ typedef enum
 
 enum
 {
-   FilterPlaintext          = 0x1,
+   FilterPlaintext           = 0x1,
    FilterOutput              = 0x2,
    FilterApplyStackedFilters = 0x4
 };
