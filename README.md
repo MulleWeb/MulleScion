@@ -7,7 +7,7 @@
 
 Build Status | Release Version
 -------------|-----------------------------------
-[![Build Status](https://travis-ci.org/MulleWeb/MulleScion.svg?branch=release)](https://travis-ci.org/MulleWeb/MulleScion) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/MulleWeb/MulleScion.svg) [![Build Status](https://travis-ci.org/MulleWeb/MulleScion.svg?branch=release)](https://travis-ci.org/MulleWeb/MulleScion)
+[![Build Status](https://github.com/MulleWeb/MulleScion.svg?branch=release)](https://github.com/MulleWeb/MulleScion/actions) | ![Mulle kybernetiK tag](https://img.shields.io/github/tag/MulleWeb/MulleScion.svg) [![Build Status](https://github.com/MulleWeb/MulleScion/actions/workflows/CI/badge.svg?branch=release)](https://github.com/MulleWeb/MulleScion/actions)
 
 
 > This is a fork of [mulle-kybernetik/MulleScion](//github.com/mulle-kybernetik/MulleScion)
