@@ -17,7 +17,7 @@ Build Status | Release Version
 
 It's **heavily** (very heavily) inspired by
 
-[TWIG](//twig.sensiolabs.org/) "The flexible, fast, and secure template
+[TWIG](//twig.symfony.com/) "The flexible, fast, and secure template
 engine for PHP"
 
 *MulleScion* is fairly flexible, reasonably fast and can be made as
@@ -144,7 +144,7 @@ DOCUMENTATION
 =============
 
 The documentation is contained in a companion project
-[mulle-scion](//github.com/mulle-scion).
+[mulle-scion](//github.com/MulleWeb/mulle-scion).
 
 MulleScion is very similar to TWIG, so you can glean much of relevance from
 <http://twig.sensiolabs.org>. If you see a feature in TWIG but don't see it in
