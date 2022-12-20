@@ -8,7 +8,7 @@
    "license" : "BSD-3-Clause",
    "repository" : {
       "type" : "git",
-      "url" : "MulleWeb/MulleScion"
+      "url" : "github:MulleWeb/MulleScion"
    },
    "dependencies" : {
       "MulleFoundation" : "git://github.com/MulleFoundation/MulleFoundation",
