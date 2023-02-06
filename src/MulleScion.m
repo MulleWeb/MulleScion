@@ -55,11 +55,13 @@ char  MulleScionFrameworkVersion[] = STRINGIFY( PROJECT_VERSION);
 + (BOOL) writeToOutput:(id <MulleScionOutput>) output
           templateFile:(NSObject <MulleScionStringOrURL> *) fileName
             dataSource:(id <MulleScionDataSource>) dataSource
+            searchPath:(NSArray *) searchPath
         localVariables:(NSDictionary *) locals
 {
    MulleScionTemplate   *template;
 
-   template = [[[MulleScionTemplate alloc] initWithContentsOfFile:fileName] autorelease];
+   template = [[[MulleScionTemplate alloc] initWithContentsOfFile:fileName
+                                                       searchPath:searchPath] autorelease];
    if( ! template)
       return( NO);
 
@@ -73,11 +75,13 @@ char  MulleScionFrameworkVersion[] = STRINGIFY( PROJECT_VERSION);
 
 + (NSString *) descriptionWithTemplateFile:(NSObject <MulleScionStringOrURL> *) fileName
                                 dataSource:(id <MulleScionDataSource>) dataSource
+                                searchPath:(NSArray *) searchPath
                             localVariables:(NSDictionary *) locals
 {
    MulleScionTemplate   *template;
 
-   template = [[[MulleScionTemplate alloc] initWithContentsOfFile:fileName] autorelease];
+   template = [[[MulleScionTemplate alloc] initWithContentsOfFile:fileName
+                                                       searchPath:searchPath] autorelease];
    if( ! template)
       return( nil);
    return( [template descriptionWithDataSource:dataSource
@@ -90,17 +94,20 @@ char  MulleScionFrameworkVersion[] = STRINGIFY( PROJECT_VERSION);
 {
    return( [self descriptionWithTemplateFile:fileName
                                   dataSource:dataSource
+                                  searchPath:nil
                               localVariables:nil]);
 }
 
 
 + (NSString *) descriptionWithUTF8Template:(unsigned char *) s
                                 dataSource:(id <MulleScionDataSource>) dataSource
+                                searchPath:(NSArray *) searchPath
                             localVariables:(NSDictionary *) locals
 {
    MulleScionTemplate   *template;
 
-   template = [[[MulleScionTemplate alloc] initWithUTF8String:s] autorelease];
+   template = [[[MulleScionTemplate alloc] initWithUTF8String:s
+                                                   searchPath:searchPath] autorelease];
    if( ! template)
       return( nil);
    return( [template descriptionWithDataSource:dataSource
@@ -113,6 +120,7 @@ char  MulleScionFrameworkVersion[] = STRINGIFY( PROJECT_VERSION);
 {
    return( [self descriptionWithUTF8Template:s
                                   dataSource:dataSource
+                                  searchPath:nil
                               localVariables:nil]);
 }
 
@@ -158,12 +166,14 @@ static id   acquirePropertyList( NSObject <MulleScionStringOrURL> *s)
 
 + (NSString *) descriptionWithTemplateFile:(NSObject <MulleScionStringOrURL> *) fileName
                           propertyListFile:(NSObject <MulleScionStringOrURL> *) plistFileName
+                                searchPath:(NSArray *) searchPath
                             localVariables:(NSDictionary *) locals
 {
    MulleScionTemplate   *template;
    id                    plist;
 
-   template = [[[MulleScionTemplate alloc] initWithContentsOfFile:fileName] autorelease];
+   template = [[[MulleScionTemplate alloc] initWithContentsOfFile:fileName
+                                                       searchPath:searchPath] autorelease];
    if( ! template)
       return( nil);
 
@@ -181,15 +191,18 @@ static id   acquirePropertyList( NSObject <MulleScionStringOrURL> *s)
 {
    return( [self descriptionWithTemplateFile:fileName
                             propertyListFile:plistFileName
+                                  searchPath:nil
                               localVariables:nil]);
 }
 
 
 - (id) initWithUTF8String:(unsigned char *) s
+               searchPath:(NSArray *) searchPath
 {
    MulleScionParser   *parser;
 
    parser = [MulleScionParser parserWithUTF8String:s];
+   [parser setSearchPath:searchPath];
 
    [self release];
    self = [[parser template] retain];
@@ -197,7 +210,15 @@ static id   acquirePropertyList( NSObject <MulleScionStringOrURL> *s)
 }
 
 
+- (id) initWithUTF8String:(unsigned char *) s
+{
+   return( [self initWithUTF8String:s
+                         searchPath:nil]);
+}
+
+
 - (id) _initWithContentsOfFile:(NSString *) fileName
+                    searchPath:(NSArray *) searchPath
 {
    MulleScionParser   *parser;
 #ifndef DONT_HAVE_MULLE_SCION_CACHING
@@ -222,6 +243,8 @@ static id   acquirePropertyList( NSObject <MulleScionStringOrURL> *s)
    }
 
    parser = [MulleScionParser parserWithContentsOfFile:fileName];
+   [parser setSearchPath:searchPath];
+
    self   = [[parser template] retain];
 
 #ifndef DONT_HAVE_MULLE_SCION_CACHING
@@ -238,7 +261,16 @@ static id   acquirePropertyList( NSObject <MulleScionStringOrURL> *s)
 }
 
 
+- (id) _initWithContentsOfFile:(NSString *) fileName
+{
+   return( [self _initWithContentsOfFile:fileName
+                              searchPath:nil]);
+}
+
+
+
 - (id) _initWithContentsOfURL:(NSURL *) url
+                   searchPath:(NSArray *) searchPath
 {
    MulleScionParser   *parser;
 #ifndef DONT_HAVE_MULLE_SCION_CACHING
@@ -263,6 +295,8 @@ static id   acquirePropertyList( NSObject <MulleScionStringOrURL> *s)
    }
 
    parser = [MulleScionParser parserWithContentsOfURL:url];
+   [parser setSearchPath:searchPath];
+
    self   = [[parser template] retain];
 
 #ifndef DONT_HAVE_MULLE_SCION_CACHING
@@ -279,22 +313,47 @@ static id   acquirePropertyList( NSObject <MulleScionStringOrURL> *s)
 }
 
 
+- (id) _initWithContentsOfURL:(NSURL *) url
+{
+   return( [self _initWithContentsOfURL:url
+                             searchPath:nil]);
+}
+
+
 - (id) initWithContentsOfFile:(NSObject <MulleScionStringOrURL> *) fileName
+                   searchPath:(NSArray *) searchPath
 {
    if( [fileName isKindOfClass:[NSURL class]])
-      return( [self _initWithContentsOfURL:(NSURL *) fileName]);
-   return( [self _initWithContentsOfFile:(NSString *) fileName]);
+      return( [self _initWithContentsOfURL:(NSURL *) fileName
+                                searchPath:searchPath]);
+   return( [self _initWithContentsOfFile:(NSString *) fileName
+                              searchPath:searchPath]);
+}
+
+
+- (id) initWithContentsOfFile:(NSObject <MulleScionStringOrURL> *) fileName
+{
+   return( [self initWithContentsOfFile:fileName
+                             searchPath:nil]);
+}
+
+
+- (id) initWithFile:(NSString *) fileName
+         searchPath:(NSArray *) searchPath
+{
+   if( [MulleScionTemplate isArchivedTemplatePath:fileName])
+      self = [self initWithContentsOfArchive:fileName];
+   else
+      self = [self _initWithContentsOfFile:fileName
+                                searchPath:searchPath];
+   return( self);
 }
 
 
 - (id) initWithFile:(NSString *) fileName
 {
-   if( [MulleScionTemplate isArchivedTemplatePath:fileName])
-      self = [self initWithContentsOfArchive:fileName];
-   else
-      self = [self _initWithContentsOfFile:fileName];
-
-   return( self);
+   return( [self initWithFile:fileName
+                   searchPath:nil]);
 }
 
 
@@ -314,12 +373,13 @@ static MulleScionPrinter  *createPrinterWithDatasource( id dataSource)
    NSString            *s;
 
    pool = [NSAutoreleasePool new];
+   {
+      printer = createPrinterWithDatasource( dataSource);
+      [printer setDefaultLocalVariables:locals];
+      s = [printer describeWithTemplate:self];
 
-   printer = createPrinterWithDatasource( dataSource);
-   [printer setDefaultLocalVariables:locals];
-   s = [printer describeWithTemplate:self];
-
-   [s retain];
+      [s retain];
+   }
    [pool release];
    return( [s autorelease]);
 }
@@ -333,10 +393,12 @@ static MulleScionPrinter  *createPrinterWithDatasource( id dataSource)
    NSAutoreleasePool   *pool;
 
    pool = [NSAutoreleasePool new];
-   printer = createPrinterWithDatasource( dataSource);
-   [printer setDefaultLocalVariables:locals];
-   [printer writeToOutput:output
-                 template:self];
+   {
+      printer = createPrinterWithDatasource( dataSource);
+      [printer setDefaultLocalVariables:locals];
+      [printer writeToOutput:output
+                    template:self];
+   }
    [pool release];
 }
 
@@ -378,27 +440,26 @@ static BOOL  checkCacheDirectory( NSString *path)
 MULLE_OBJC_DEPENDS_ON_LIBRARY( MulleFoundation);
 
 
+#ifndef PROFILE
 + (void) load
 {
    NSAutoreleasePool  *pool;
-#ifndef PROFILE
    NSString           *s;
-#endif
 
    pool = [NSAutoreleasePool new];
-#ifndef PROFILE
-   s = [[NSUserDefaults standardUserDefaults] stringForKey:MulleScionCacheDirectoryKey];
-   if( ! s)
-      s = [[[NSProcessInfo processInfo] environment] objectForKey:MulleScionCacheDirectoryKey];
-   if( s)
-      if( checkCacheDirectory( s))
+   {
+      s = [[NSUserDefaults standardUserDefaults] stringForKey:MulleScionCacheDirectoryKey];
+      if( ! s)
+         s = [[[NSProcessInfo processInfo] environment] objectForKey:MulleScionCacheDirectoryKey];
+      if( s && checkCacheDirectory( s))
       {
          [self setCacheDirectory:s];
          [self setCacheEnabled:YES];
       }
-#endif
+   }
    [pool release];
 }
+#endif
 
 
 //

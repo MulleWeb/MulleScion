@@ -60,7 +60,9 @@ typedef struct
 
 - (MulleScionTemplate *) templateWithContentsOfFile:(NSString *) fileName
                                              tables:(MulleScionParserTables *) tables
-                                          converter:(SEL) converterSel;
+                                          converter:(SEL) converterSel
+                                         searchPath:(NSArray *) searchPath
+                                           optional:(BOOL) optional;
 
 
 @end
@@ -68,9 +70,9 @@ typedef struct
 
 typedef struct
 {
-   void         *parser;
+   void                             *parser;
    __unsafe_unretained NSString     *fileName;
-   NSUInteger   lineNumber;
+   NSUInteger                       lineNumber;
    __unsafe_unretained NSString     *message;
 } parser_warning_info;
 

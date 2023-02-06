@@ -57,8 +57,9 @@
    NSParameterAssert( [data isKindOfClass:[NSData class]]);
    NSParameterAssert( [fileName isKindOfClass:[NSString class]] && [fileName length]);
 
-   data_     = [data retain];
-   fileName_ = [fileName copy];
+   data_           = [data retain];
+   fileName_       = [fileName copy];
+   debugFilePaths_ = getenv( "MULLESCION_DUMP_FILEPATHS") ? YES : NO;
 
    return( self);
 }
@@ -66,9 +67,10 @@
 
 - (void) dealloc
 {
+   [searchPath_ release];
+   [preprocessor_ release];
    [fileName_ release];
    [data_ release];
-   [preprocessor_ release];
 
    [super dealloc];
 }
@@ -129,7 +131,6 @@
                                fileName:@"unknown.scion"] autorelease];
    return( parser);
 }
-
 
 
 + (MulleScionParser *) parserWithContentsOfFile:(NSString *) path
@@ -300,10 +301,10 @@ static void   dump( MulleScionTemplate *self, char *env, NSString *blurb, SEL se
 }
 
 
-- (void) parser:(void *) parser
+- (void)   parser:(void *) parser
 warningInFileName:(NSString *) fileName
-     lineNumber:(NSUInteger) lineNumber
-         reason:(NSString *) reason
+       lineNumber:(NSUInteger) lineNumber
+           reason:(NSString *) reason
 {
    NSLog( @"warning: %@,%lu: %@", fileName ? fileName : @"template",
                                   (long) lineNumber, reason);
@@ -318,6 +319,19 @@ errorInFileName:(NSString *) fileName
    [NSException raise:NSInvalidArgumentException
                format:@"%@,%lu: %@", fileName ? fileName : @"template",
                                      (long) lineNumber, reason];
+}
+
+
+- (void) setSearchPath:(NSArray *) array
+{
+   [searchPath_ autorelease];
+   searchPath_ = [array copy];
+}
+
+
+- (NSArray *) searchPath
+{
+   return( searchPath_);
 }
 
 @end
