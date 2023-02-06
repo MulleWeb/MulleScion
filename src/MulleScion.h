@@ -72,24 +72,17 @@
  */
 @interface MulleScionTemplate( Convenience)
 
-- (id) initWithUTF8String:(unsigned char *) s;
-
-- (id) initWithFile:(NSString *) fileName;            // template or archive
-
-- (id) initWithContentsOfFile:(NSObject <MulleScionStringOrURL> *) fileName;
-
-- (NSString *) descriptionWithDataSource:(id) dataSource
-                          localVariables:(NSDictionary *) locals;
-
 + (NSString *) descriptionWithTemplateFile:(NSObject <MulleScionStringOrURL> *) location
                                 dataSource:(id <MulleScionDataSource>) dataSource;
 
 + (NSString *) descriptionWithTemplateFile:(NSObject <MulleScionStringOrURL> *) location
                                 dataSource:(id <MulleScionDataSource>) dataSource
+                                searchPath:(NSArray *) searchPath
                             localVariables:(NSDictionary *) locals;
 
 + (NSString *) descriptionWithTemplateFile:(NSObject <MulleScionStringOrURL> *) fileName
                           propertyListFile:(NSObject <MulleScionStringOrURL> *) plistFileName
+                                searchPath:(NSArray *) searchPath
                             localVariables:(NSDictionary *) locals;
 
 + (NSString *) descriptionWithTemplateFile:(NSObject <MulleScionStringOrURL> *) fileName
@@ -97,6 +90,7 @@
 
 + (NSString *) descriptionWithUTF8Template:(unsigned char *) s
                                 dataSource:(id <MulleScionDataSource>) dataSource
+                                searchPath:(NSArray *) searchPath
                             localVariables:(NSDictionary *) locals;
 
 
@@ -107,7 +101,25 @@
 + (BOOL) writeToOutput:(id <MulleScionOutput>) output
           templateFile:(NSObject <MulleScionStringOrURL> *) fileName
             dataSource:(id <MulleScionDataSource>) dataSource
+            searchPath:(NSArray *) searchPath
         localVariables:(NSDictionary *) locals;
+
+
+- (id) initWithUTF8String:(unsigned char *) s;
+- (id) initWithFile:(NSString *) fileName;            // template or archive
+- (id) initWithContentsOfFile:(NSObject <MulleScionStringOrURL> *) fileName;
+
+- (id) initWithUTF8String:(unsigned char *) s
+               searchPath:(NSArray *) searchPath;
+
+- (id) initWithFile:(NSString *) fileName            // template or archive
+         searchPath:(NSArray *) searchPath;
+
+- (id) initWithContentsOfFile:(NSObject <MulleScionStringOrURL> *) fileName
+                   searchPath:(NSArray *) searchPath;
+
+- (NSString *) descriptionWithDataSource:(id) dataSource
+                          localVariables:(NSDictionary *) locals;
 
 - (void) writeToOutput:(id <MulleScionOutput>) output
             dataSource:(id <MulleScionDataSource>) dataSource

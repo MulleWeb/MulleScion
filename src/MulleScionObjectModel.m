@@ -189,6 +189,12 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 }
 
 
+- (BOOL) needsParenthesis
+{
+   return( NO);
+}
+
+
 - (void) dealloc
 {
    [value_ release];
@@ -544,6 +550,13 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 }
 
 
+// if used in x AND y as x ? probably
+- (BOOL) needsParenthesis
+{
+   return( YES);
+}
+
+
 - (BOOL) isParameterAssignment
 {
    return( YES);
@@ -611,6 +624,13 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    [right_ release];
 
    [super dealloc];
+}
+
+
+// if used in x AND y as x ? definitely
+- (BOOL) needsParenthesis
+{
+   return( YES);
 }
 
 
@@ -706,6 +726,17 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 - (NSString *) operator
 {
    return( @"not");
+}
+
+@end
+
+#pragma mark -
+
+@implementation MulleScionParenthesis
+
+- (NSString *) operator
+{
+   return( @"()");
 }
 
 @end
@@ -811,11 +842,19 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    NSParameterAssert( [right isKindOfClass:[MulleScionExpression class]]);
 
    p = newMulleScionValueObject( self, nil, nr);
-   p->value_      = left;
-   p->middle_     = middle;
-   p->right_      = right;
+   p->value_  = left;
+   p->middle_ = middle;
+   p->right_  = right;
    return( p);
 }
+
+
+// if used in x AND y as x ? definitely
+- (BOOL) needsParenthesis
+{
+   return( YES);
+}
+
 
 @end
 

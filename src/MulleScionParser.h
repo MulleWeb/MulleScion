@@ -50,9 +50,11 @@
 
 @interface MulleScionParser : NSObject
 {
-   NSData     *data_;
-   NSString   *fileName_;
-   NSObject <MulleScionPreprocessor> *preprocessor_;
+   NSData                              *data_;
+   NSString                            *fileName_;
+   NSObject <MulleScionPreprocessor>   *preprocessor_;
+   NSArray                             *searchPath_;
+   BOOL                                debugFilePaths_;
 }
 
 
@@ -88,5 +90,10 @@ warningInFileName:(NSString *) fileName
 - (void) setPreprocessor:(NSObject <MulleScionPreprocessor> *) preprocessor;
 - (NSObject <MulleScionPreprocessor> *) preprocessor;
 - (NSData *) preprocessedData:(NSData *) data;
+
+- (void) setSearchPath:(NSArray *) array;
+- (NSArray *) searchPath;
+
+- (BOOL) debugFilePaths;
 
 @end

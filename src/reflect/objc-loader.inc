@@ -103,6 +103,9 @@
       { @selector( MulleScionParameterAssignment), @selector( NSCoding) },      // 4fc4f00b;MulleScionParameterAssignment;b67e77cf;NSCoding
       { @selector( MulleScionParameterAssignment), @selector( Printing) },      // 4fc4f00b;MulleScionParameterAssignment;11e5c20c;Printing
       { @selector( MulleScionParameterAssignment), MULLE_OBJC_NO_CATEGORYID },      // 4fc4f00b;MulleScionParameterAssignment;;
+      { @selector( MulleScionParenthesis), @selector( Printing) },      // ffb41e2b;MulleScionParenthesis;11e5c20c;Printing
+      { @selector( MulleScionParenthesis), @selector( TraceDescription) },      // ffb41e2b;MulleScionParenthesis;35e2b50e;TraceDescription
+      { @selector( MulleScionParenthesis), MULLE_OBJC_NO_CATEGORYID },      // ffb41e2b;MulleScionParenthesis;;
       { @selector( MulleScionParser), @selector( Parsing) },      // 7ef9555b;MulleScionParser;bd0f67fb;Parsing
       { @selector( MulleScionParser), MULLE_OBJC_NO_CATEGORYID },      // 7ef9555b;MulleScionParser;;
       { @selector( MulleScionPipe), @selector( Printing) },      // f868da64;MulleScionPipe;11e5c20c;Printing

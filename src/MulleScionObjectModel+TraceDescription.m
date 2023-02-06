@@ -509,6 +509,16 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( MulleObjCValueFoundation);
 @end
 
 
+@implementation MulleScionParenthesis( TraceDescription)
+
+- (NSString *) _expressionDescription
+{
+   return( [NSString stringWithFormat:@"(%@)",
+            [value_ _expressionDescription]]);
+}
+
+@end
+
 @implementation MulleScionBinaryOperatorExpression( TraceDescription)
 
 - (NSString *) _expressionDescription

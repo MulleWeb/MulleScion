@@ -106,6 +106,11 @@ MULLE_SCION_OBJECT_NEXT_POINTER_VISIBILITY
 
 - (id) value;
 
+
+// if parenthesese are needed as an argument for a binary or ternary expression
+// default: NO
+- (BOOL) needsParenthesis;
+
 @end
 
 
@@ -218,6 +223,10 @@ MULLE_SCION_OBJECT_NEXT_POINTER_VISIBILITY
 @interface MulleScionNot  : MulleScionUnaryOperatorExpression
 @end
 
+
+#pragma mark -
+@interface MulleScionParenthesis  : MulleScionUnaryOperatorExpression
+@end
 
 #pragma mark -
 @interface MulleScionBinaryOperatorExpression : MulleScionOperatorExpression

@@ -789,13 +789,13 @@ static void   *numberBuffer( char *type, NSNumber *value)
    }
 
    myType = (char *) [value objCType];
-   myType = _NSObjCSkipRuntimeTypeQualifier( myType);
-   if( strcmp( myType, type))
+   if( _mulle_objc_type_is_equal_to_type( myType, type))
       return( NULL);
 
    [value getValue:buf];
    return( buf);
 }
+
 
 // evaluateValue:localVariables:dataSource:
 - (id) evaluateValue:(id) target
@@ -878,8 +878,8 @@ static void   *numberBuffer( char *type, NSNumber *value)
 
       if( ! arg)
          MulleScionPrintingException( NSInvalidArgumentException, locals,
-                                     @"Method \"%@\" is not callable from MulleScion (argument #%ld)",
-          NSStringFromSelector( action_), (long) i - 2);
+                                     @"Method \"%@\" is not callable on \"%@\" from MulleScion (argument #%ld)",
+          NSStringFromSelector( action_), [target class], (long) i - 2);
 
       // unfortunately NSInvocation is too dumb for varargs
       [invocation setArgument:arg
@@ -1414,7 +1414,8 @@ static BOOL  isTrue( id value)
    if( value == MulleScionNull)
       return( NO);
 
-   flag = NO;
+   flag = YES;
+
    if( [value respondsToSelector:@selector( boolValue)])
    {
       flag = [value boolValue];
@@ -1423,13 +1424,18 @@ static BOOL  isTrue( id value)
          //
          // [@"foo" boolValue] gives NO, so check if
          // NSString really means it. we just know
-         // NO and 0
+         // NO and 0. If you want to check for empty string, use length
          //
          if( [value isKindOfClass:_nsStringClass])
             flag  = ! ([value isEqualToString:@"0"] ||
                        [value isEqualToString:@"NO"]);
       }
    }
+   else
+      if( [value respondsToSelector:@selector( count)])
+      {
+         flag = [value count] > 0;
+      }
 
    return( flag);
 }
@@ -1892,6 +1898,27 @@ done:
 
 #pragma mark -
 
+@implementation MulleScionParenthesis( Printing)
+
+- (id) evaluateValue:(id) value
+      localVariables:(NSMutableDictionary *) locals
+          dataSource:(id <MulleScionDataSource>) dataSource
+{
+   id   result;
+
+   NSParameterAssert( value);
+
+   result = [NSNumber numberWithBool:isTrue( value)];
+
+   TRACE_EVAL_BEGIN_END( self, value, result);
+   return( result);
+}
+
+@end
+
+
+#pragma mark -
+
 @implementation MulleScionAnd( Printing)
 
 - (id) evaluateValue:(id) value
@@ -2203,7 +2230,7 @@ done:
       choice = self->right_;
 
    result = [choice valueWithLocalVariables:locals
-                                dataSource:dataSource];
+                                 dataSource:dataSource];
    TRACE_EVAL_END( self, result);
    NSParameterAssert( result);
    return( result);
