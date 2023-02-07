@@ -160,6 +160,12 @@
 #endif
 
 
+- (BOOL) debugFilePaths
+{
+   return( debugFilePaths_);
+}
+
+
 - (NSString *) fileName
 {
    return( fileName_);
