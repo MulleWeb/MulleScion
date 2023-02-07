@@ -80,7 +80,9 @@ MULLE_SCION_OBJECT_NEXT_POINTER_VISIBILITY
 - (BOOL) isEndWhile;
 
 - (BOOL) isBlock;
+- (BOOL) isParentBlock;
 - (BOOL) isEndBlock;
+- (BOOL) isBlockType;
 
 - (BOOL) isPipe;
 - (BOOL) isDot;
@@ -305,6 +307,16 @@ typedef enum
 
 @end
 
+
+#pragma mark -
+
+@interface MulleScionParent : MulleScionIdentifierExpression
+
++ (id) newWithIdentifier:(NSString *) s
+              lineNumber:(NSUInteger) nr;
+@end
+
+
 #pragma mark -
 
 // is this really an expression ???
@@ -484,6 +496,11 @@ typedef enum
 #pragma mark -
 
 @interface MulleScionEndBlock : MulleScionTerminator
+@end
+
+#pragma mark -
+
+@interface MulleScionParentBlock : MulleScionObject
 @end
 
 #pragma mark -

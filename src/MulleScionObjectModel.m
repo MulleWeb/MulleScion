@@ -113,6 +113,8 @@
 
 - (BOOL) isBlock      { return( NO); }
 - (BOOL) isEndBlock   { return( NO); }
+- (BOOL) isParentBlock { return( NO); }
+- (BOOL) isBlockType  { return( NO); }
 
 - (BOOL) isPipe       { return( NO); }
 - (BOOL) isDot        { return( NO); }
@@ -1171,6 +1173,12 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 }
 
 
+- (BOOL) isBlockType
+{
+   return( YES);
+}
+
+
 - (NSString *) fileName
 {
    return( fileName_);
@@ -1188,6 +1196,25 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    return( [MulleScionEndBlock class]);
 }
 
+
+@end
+
+
+
+#pragma mark -
+
+@implementation MulleScionParentBlock
+
+- (BOOL) isBlockType
+{
+   return( YES);
+}
+
+- (BOOL) isParentBlock
+{
+   return( YES);
+}
+
 @end
 
 
@@ -1200,6 +1227,10 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    return( YES);
 }
 
+- (BOOL) isBlockType
+{
+   return( YES);
+}
 @end
 
 

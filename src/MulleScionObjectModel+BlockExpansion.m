@@ -46,12 +46,8 @@
    MulleScionObject  *curr;
 
    for( curr = self; curr; curr = curr->next_)
-   {
-      if( [curr->next_ isBlock])
+      if( [curr->next_ isBlockType])
          break;
-      if( [curr->next_ isEndBlock])
-         break;
-   }
    return( curr);
 }
 
@@ -69,11 +65,11 @@
 
 
 // replacement must be a copy
-- (MulleScionBlock *) replaceOwnedBlockWith:(MulleScionBlock *) NS_CONSUMED replacement
+- (MulleScionBlock *) replaceOwnedBlockWithBlock:(MulleScionBlock *) NS_CONSUMED replacement
 {
-   MulleScionBlock      *block;
-   MulleScionObject     *endBlock;
-   MulleScionObject     *endReplacement;
+   MulleScionBlock    *block;
+   MulleScionObject   *endBlock;
+   MulleScionObject   *endReplacement;
 
    NSParameterAssert( [replacement isBlock]);
    NSParameterAssert( [self->next_ isBlock]);
@@ -82,6 +78,7 @@
    block          = (MulleScionBlock *) self->next_;
    endBlock       = [block terminateToEnd:block->next_];
 
+   NSParameterAssert( [block isBlock]);
    NSParameterAssert( [endBlock isEndBlock]);
    NSParameterAssert( [endReplacement isEndBlock]);
 
@@ -89,9 +86,9 @@
    endReplacement->next_ = endBlock->next_;
    endBlock->next_       = nil;
 
-   [block release];
+   [block autorelease];
 
-   return( replacement);
+   return( block);
 }
 
 @end
@@ -103,44 +100,101 @@
 {
    NSString           *identifier;
    MulleScionBlock    *block;
+   MulleScionObject   *tail;
    MulleScionObject   *owner;
    MulleScionBlock    *chain;
+   MulleScionBlock    *oldChain;
    NSMutableArray     *stack;
+   NSMutableArray     *chainStack;
    NSAutoreleasePool  *pool;
+   NSUInteger         *level;
 
    pool  = [NSAutoreleasePool new];
-
-   stack = [NSMutableArray array];
-
-   owner = self;
-   while( (owner = [owner nextOwnerOfBlockCommand]))
    {
-      block = (MulleScionBlock *) owner->next_;
-      if( [block isEndBlock])
+      stack      = [NSMutableArray array];
+      chainStack = [NSMutableArray array];
+
+      oldChain = nil;
+      owner    = self;
+      while( (owner = [owner nextOwnerOfBlockCommand]))
       {
-         [stack removeLastObject];
-         owner = owner->next_;
-         continue;
+         block = (MulleScionBlock *) owner->next_;
+
+         if( [block isEndBlock])
+         {
+            if( [stack count] == 0)
+               [NSException raise:NSInvalidArgumentException
+                           format:@"%ld: stray endblock misses a preceeding block",
+                (long) [block lineNumber]];
+
+            oldChain = [chainStack mulleRemoveLastObject];
+            [stack removeLastObject];
+            owner = block;
+            continue;
+         }
+
+         if( [block isParentBlock])
+         {
+            if( [stack count] == 0)
+               [NSException raise:NSInvalidArgumentException
+                           format:@"%ld: stray parent() call misses a preceeding block",
+                (long) [block lineNumber]];
+
+            // get rid of block
+            owner->next_ = block->next_;
+            block->next_ = nil;
+            [block autorelease];
+
+            if( oldChain)
+            {
+               chain = [oldChain copyWithZone:NULL];
+               tail  = [chain tail];
+
+               // problem is though, we are reexpanding here
+               // we don't want to "rehit" the block though, but
+               // we got then a stray EndBlock coming up...
+               tail->next_         = owner->next_;
+               owner->next_        = chain;
+
+               // so skip BlockStart
+               owner = chain->next_;
+
+               // and fake up something on the stack for endBlock pop
+               [chainStack addObject:[chainStack lastObject]];
+               [stack addObject:[stack lastObject]];
+            }
+            // stay with owner
+            continue;
+         }
+
+         // walking through our list we found a block, check that we haven't
+         // done it yet (how anyway ?)
+         identifier = [block identifier];
+         if( [stack containsObject:identifier])
+            [NSException raise:NSInvalidArgumentException
+                        format:@"%ld: block \"%@\" has already been expanded by (%@)",
+             (long) [block lineNumber], identifier, [stack componentsJoinedByString:@", "]];
+         [stack addObject:identifier];
+
+         // get the overriding block from the table, if any
+         chain = [table objectForKey:identifier];
+         if( ! chain)
+         {
+            owner = block;
+            continue;
+         }
+
+         //
+         // for the parent() call we remember the chain that we are replacing
+         // so we can put it back in
+         //
+         chain    = [chain copyWithZone:NULL];
+         oldChain = [owner replaceOwnedBlockWithBlock:chain];
+         [chainStack addObject:oldChain];
+
+         owner    = chain;
       }
-
-      identifier = [block identifier];
-      if( [stack containsObject:identifier])
-         [NSException raise:NSInvalidArgumentException
-                     format:@"%ld: block \"%@\" has already been expanded by (%@)",
-          (long) [block lineNumber], identifier, [stack componentsJoinedByString:@", "]];
-      [stack addObject:identifier];
-
-      chain = [table objectForKey:identifier];
-      if( ! chain)
-      {
-         owner = block;
-         continue;
-      }
-
-      chain = [chain copyWithZone:NULL];
-      owner = [owner replaceOwnedBlockWith:chain];
    }
-
    [pool release];
 }
 
