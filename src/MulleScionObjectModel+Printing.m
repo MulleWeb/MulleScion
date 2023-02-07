@@ -1214,16 +1214,17 @@ static void   *numberBuffer( char *type, NSNumber *value)
 
 @implementation MulleScionCommand( Printing)
 
-- (MulleScionObject *) renderBlock:(MulleScionObject *) curr
+- (MulleScionObject *) renderBlock:(MulleScionObject *) block
                               into:(id <MulleScionOutput>) output
                     localVariables:(NSMutableDictionary *) locals
                         dataSource:(id <MulleScionDataSource>) dataSource
 {
-   Class   terminatorCls;
+   Class              terminatorCls;
+   MulleScionObject   *curr;
 
    terminatorCls = [self terminatorClass];
 
-   while( curr)
+   for( curr = block; curr;)
    {
       if( [curr isElse])
          return( curr);

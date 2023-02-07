@@ -1510,7 +1510,15 @@ static MulleScionObject  * NS_RETURNS_RETAINED
 
    NSCParameterAssert( parser_peek_character( p) == '(');
 
-   arguments       = parser_do_arguments( p);
+   arguments = parser_do_arguments( p);
+   if( [identifier isEqualToString:@"parent"])
+   {
+      if( [arguments count])
+         parser_error( p, "parent() takes not arguments");
+      p->wasMacroCall = YES;
+      return( [MulleScionParentBlock newWithLineNumber:p->memo.lineNumber]);
+   }
+
    macro           = [p->tables.macroTable objectForKey:identifier];
    p->wasMacroCall = macro != nil;
    if( p->wasMacroCall)
@@ -2268,6 +2276,7 @@ static char  *parser_best_match_for_string( parser *p, NSString *s)
 // grabs a whole block and put it into the table
 static void  parser_do_whole_block_to_block_table( parser *p)
 {
+   MulleScionBlock      *oldblock;
    MulleScionBlock      *block;
    MulleScionObject     *next;
    MulleScionObject     *node;

@@ -42,7 +42,7 @@
 
 - (MulleScionObject *) ownerOfBlockWithIdentifier:(NSString *) identifier;
 - (MulleScionObject *) nextOwnerOfBlockCommand;
-- (MulleScionObject *) replaceOwnedBlockWith:(MulleScionBlock *) NS_CONSUMED replacement;
+- (MulleScionBlock *) replaceOwnedBlockWithBlock:(MulleScionBlock *) NS_CONSUMED replacement;
 
 @end
 
