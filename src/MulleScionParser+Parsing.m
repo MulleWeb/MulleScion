@@ -2154,10 +2154,12 @@ typedef enum
 {
    ImplicitSetOpcode = 0,  // still used ??
 
+   FilterOpcode,  // apply is synonym for filter
    BlockOpcode,
    DefineOpcode,
    ElseOpcode,
    ElseforOpcode,
+   EndapplyOpcode,
    EndblockOpcode,
    EndfilterOpcode,
    EndforOpcode,
@@ -2183,10 +2185,12 @@ static char   *mnemonics[] =
 {
    "set",
 
+   "apply",
    "block",
    "define",
    "else",
    "elsefor",
+   "endapply",
    "endblock",
    "endfilter",
    "endfor",
