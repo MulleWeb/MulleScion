@@ -240,9 +240,9 @@ static NSMutableArray  *replaceVariablesWithIdentifierInArray( NSArray *array,
    if( ! result)
       result = self->arguments_;
    copy   = [MulleGetClass( self) newWithRetainedTarget:copy1
-                            methodName:NSStringFromSelector( self->action_)
-                             arguments:result
-                            lineNumber:[self lineNumber]];
+                                             methodName:NSStringFromSelector( self->action_)
+                                              arguments:result
+                                             lineNumber:[self lineNumber]];
    return( copy);
 }
 
@@ -265,7 +265,7 @@ static NSMutableArray  *replaceVariablesWithIdentifierInArray( NSArray *array,
       return( nil);
    
    copy = [MulleGetClass( self) newWithRetainedExpression:copy1
-                              lineNumber:[self lineNumber]];
+                                               lineNumber:[self lineNumber]];
    return( copy);
 }
 

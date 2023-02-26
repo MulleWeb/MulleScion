@@ -1,0 +1,47 @@
+{
+   project =
+   {
+      description="🌱 A modern template engine for Objective C";
+      domain="github";
+      name="MulleScion";
+      user="MulleWeb";
+      repo="MulleScion";
+      homepage="https://github.com/MulleWeb/MulleScion";
+      license="BSD-3-Clause"
+   };
+   dependencies =
+   (
+      {
+         description="💍 Umbrella library for the MulleFoundation";
+         domain="github";
+         name="MulleFoundation";
+         repo="MulleFoundation";
+         url="https://github.com/MulleFoundation/MulleFoundation";
+         user="MulleFoundation";
+      },
+      {
+         description="🎫 HTTP and HTML utility methods and classes for mulle-objc";
+         domain="github";
+         name="MulleObjCHTTPFoundation";
+         repo="MulleObjCHTTPFoundation";
+         url="https://github.com/MulleWeb/MulleObjCHTTPFoundation";
+         user="MulleWeb";
+      },
+      {
+         description="📠💻 OS specific extensions to NSHost and NSURL";
+         domain="github";
+         name="MulleObjCInetOSFoundation";
+         repo="MulleObjCInetOSFoundation";
+         url="https://github.com/MulleFoundation/MulleObjCInetOSFoundation";
+         user="MulleFoundation";
+      },
+      {
+         description="📒 Lists mulle-objc runtime information contained in executables.";
+         domain="github";
+         name="mulle-objc-list";
+         repo="mulle-objc-list";
+         url="https://github.com/mulle-objc/mulle-objc-list";
+         user="mulle-objc";
+      }
+   )
+}

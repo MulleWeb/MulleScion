@@ -89,15 +89,31 @@
               template:(MulleScionTemplate *) template
 {
    NSMutableDictionary   *locals;
-   
+   MulleScionObject      *curr;
+   extern char           MulleScionFrameworkVersion[];
+
    NSParameterAssert( [template isKindOfClass:[MulleScionTemplate class]]);
 
    locals = [template localVariablesWithDefaultValues:[self defaultLocalVariables]];
+
+   [locals setObject:output
+              forKey:MulleScionRenderOutputKey];
+#if __MULLE_OBJC__
+   [locals setObject:@"Mulle"
+             forKey:MulleScionFoundationKey];
+#else
+   [locals setObject:@"Apple"
+             forKey:MulleScionFoundationKey];
+#endif
+   [locals setObject:[NSString stringWithCString:MulleScionFrameworkVersion]
+              forKey:MulleScionVersionKey];
    
    NSParameterAssert( locals);  // could raise if Apple starts hating on nil
-   [template renderInto:output
-         localVariables:locals
-             dataSource:dataSource_];
+
+   for( curr = template; curr ;)
+      curr = [curr renderInto:output
+               localVariables:locals
+                   dataSource:dataSource_];
 }
 
 

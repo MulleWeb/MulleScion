@@ -170,3 +170,4 @@
       { @selector( NSValue), @selector( CheatAndHack) },      // 96deaa7d;NSValue;f5730f02;CheatAndHack
       { @selector( _MulleScionNull), @selector( MulleScionDescription) },      // 036e3d07;_MulleScionNull;04602b46;MulleScionDescription
       { @selector( _MulleScionNull), MULLE_OBJC_NO_CATEGORYID },      // 036e3d07;_MulleScionNull;;
+      { @selector( exists), MULLE_OBJC_NO_CATEGORYID },      // bbe55bd3;exists;;

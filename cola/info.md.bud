@@ -1,0 +1,66 @@
+## Info
+
+This is the general architecture of *MulleScion*
+
+![](dox/MulleScionDataFlow.png "Data Flow Sketch")
+
+*MulleScion* is happily used in a commercial project and has gone through
+enough iterations to pronounce it "ready for production".
+
+
+### HTML PREPROCESSOR
+
+There is a companion project
+[MulleScionHTMLPreprocessor](//github.com/MulleWeb/MulleScionHTMLPreprocessor)
+that uses HTML like tags, to make the template easier to reformat in
+HTML editors:
+
+``` html
+<html>
+  <!-- rendered by {{ [[NSProcessInfo processInfo] processName] }} on
+        {{ [NSDate date] }} -->
+  <body>
+    <for item in [NSTimeZone knownTimeZoneNames]>
+      <if item#.isFirst>
+        <table>
+          <tr><th>TimeZone</th></tr>
+      </if>
+        <tr><td>{{ item }}</td></tr>
+      <if item#.isLast>
+        </table>
+      </if>
+    <else/>
+      Sorry, no timezone info available.
+    </for>
+  </body>
+</html>
+```
+
+
+### Documentation
+
+The documentation is contained in a companion project
+[mulle-scion](//github.com/MulleWeb/mulle-scion).
+
+MulleScion is very similar to TWIG, so you can glean much of relevance from
+<http://twig.sensiolabs.org>. If you see a feature in TWIG but don't see it in
+the tests file, it's likely not there (but it's probably easily achieved some
+other way (using a `define` or a `macro` or an ObjC category on **NSString**).
+
+
+### LIMITATIONS
+
+Because you can execute arbitrary ObjC methods, and have access to Key Value
+Coding, MulleScion can pretty much do anything. *MulleScion* uses
+`NSInvocation` for method calls. That means there will be problems with variable
+arguments methods. Be wary of anything using structs and C-Arrays and
+C-strings, although *MulleScion* tries to be as helpful as possible.
+
+*MulleScion* does not do arithmetic or bitwise logic, quite on purpose.
+
+*MulleScion* `&&` and `||` have no operator precedence, use parentheses.
+
+*MulleScion* doesn't prevent you from trying stupid things.
+
+The documentation is not very good, actually it is just more or less a
+collection of test cases with comments...

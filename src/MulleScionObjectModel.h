@@ -66,6 +66,7 @@ MULLE_SCION_OBJECT_NEXT_POINTER_VISIBILITY
 - (BOOL) isIdentifier;
 - (BOOL) isTerminator;
 - (BOOL) isFunction;
+- (BOOL) isVariable;
 - (BOOL) isMethod;
 - (BOOL) isParameterAssignment;  // not a set though
 
@@ -96,6 +97,7 @@ MULLE_SCION_OBJECT_NEXT_POINTER_VISIBILITY
 - (Class) terminatorClass;
 
 - (NSUInteger) lineNumber;
+
 
 @end
 
@@ -142,6 +144,12 @@ MULLE_SCION_OBJECT_NEXT_POINTER_VISIBILITY
 
 #pragma mark -
 @interface MulleScionExpression : MulleScionValueObject
+
+// default is NSIntegerMax
+// use https://en.cppreference.com/w/c/language/operator_precedence
+// for operator precedence as far as applicable
+- (NSInteger) precedence;
+
 @end
 
 

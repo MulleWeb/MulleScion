@@ -99,7 +99,7 @@ char  MulleScionFrameworkVersion[] = STRINGIFY( PROJECT_VERSION);
 }
 
 
-+ (NSString *) descriptionWithUTF8Template:(unsigned char *) s
++ (NSString *) descriptionWithUTF8Template:(char *) s
                                 dataSource:(id <MulleScionDataSource>) dataSource
                                 searchPath:(NSArray *) searchPath
                             localVariables:(NSDictionary *) locals
@@ -115,7 +115,7 @@ char  MulleScionFrameworkVersion[] = STRINGIFY( PROJECT_VERSION);
 }
 
 
-+ (NSString *) descriptionWithUTF8Template:(unsigned char *) s
++ (NSString *) descriptionWithUTF8Template:(char *) s
                                 dataSource:(id <MulleScionDataSource>) dataSource
 {
    return( [self descriptionWithUTF8Template:s
@@ -196,13 +196,13 @@ static id   acquirePropertyList( NSObject <MulleScionStringOrURL> *s)
 }
 
 
-- (id) initWithUTF8String:(unsigned char *) s
+- (id) initWithUTF8String:(char *) s
                searchPath:(NSArray *) searchPath
 {
    MulleScionParser   *parser;
 
-   parser = [MulleScionParser parserWithUTF8String:s];
-   [parser setSearchPath:searchPath];
+   parser = [MulleScionParser parserWithUTF8String:s
+                                        searchPath:searchPath];
 
    [self release];
    self = [[parser template] retain];
@@ -210,7 +210,7 @@ static id   acquirePropertyList( NSObject <MulleScionStringOrURL> *s)
 }
 
 
-- (id) initWithUTF8String:(unsigned char *) s
+- (id) initWithUTF8String:(char *) s
 {
    return( [self initWithUTF8String:s
                          searchPath:nil]);
@@ -221,8 +221,8 @@ static id   acquirePropertyList( NSObject <MulleScionStringOrURL> *s)
                     searchPath:(NSArray *) searchPath
 {
    MulleScionParser   *parser;
+   NSString           *directory;
 #ifndef DONT_HAVE_MULLE_SCION_CACHING
-
    BOOL               isCaching;
    NSString           *cachePath;
 
@@ -242,9 +242,8 @@ static id   acquirePropertyList( NSObject <MulleScionStringOrURL> *s)
       // self = nil;
    }
 
-   parser = [MulleScionParser parserWithContentsOfFile:fileName];
-   [parser setSearchPath:searchPath];
-
+   parser = [MulleScionParser parserWithContentsOfFile:fileName
+                                            searchPath:searchPath];
    self   = [[parser template] retain];
 
 #ifndef DONT_HAVE_MULLE_SCION_CACHING
@@ -270,7 +269,6 @@ static id   acquirePropertyList( NSObject <MulleScionStringOrURL> *s)
 
 
 - (id) _initWithContentsOfURL:(NSURL *) url
-                   searchPath:(NSArray *) searchPath
 {
    MulleScionParser   *parser;
 #ifndef DONT_HAVE_MULLE_SCION_CACHING
@@ -295,8 +293,6 @@ static id   acquirePropertyList( NSObject <MulleScionStringOrURL> *s)
    }
 
    parser = [MulleScionParser parserWithContentsOfURL:url];
-   [parser setSearchPath:searchPath];
-
    self   = [[parser template] retain];
 
 #ifndef DONT_HAVE_MULLE_SCION_CACHING
@@ -313,19 +309,15 @@ static id   acquirePropertyList( NSObject <MulleScionStringOrURL> *s)
 }
 
 
-- (id) _initWithContentsOfURL:(NSURL *) url
-{
-   return( [self _initWithContentsOfURL:url
-                             searchPath:nil]);
-}
-
-
 - (id) initWithContentsOfFile:(NSObject <MulleScionStringOrURL> *) fileName
                    searchPath:(NSArray *) searchPath
 {
    if( [fileName isKindOfClass:[NSURL class]])
-      return( [self _initWithContentsOfURL:(NSURL *) fileName
-                                searchPath:searchPath]);
+   {
+      if( ! [(NSURL *) fileName isFileURL])
+         return( [self _initWithContentsOfURL:(NSURL *) fileName]);
+      fileName = [(NSURL *) fileName path];
+   }
    return( [self _initWithContentsOfFile:(NSString *) fileName
                               searchPath:searchPath]);
 }

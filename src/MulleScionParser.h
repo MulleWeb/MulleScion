@@ -58,12 +58,15 @@
 }
 
 
-+ (MulleScionParser *) parserWithUTF8String:(unsigned char *) s;
-+ (MulleScionParser *) parserWithContentsOfFile:(NSString *) fileName;
++ (MulleScionParser *) parserWithContentsOfFile:(NSString *) fileName
+                                     searchPath:(NSArray *) searchPath;
++ (MulleScionParser *) parserWithUTF8String:(char *) s
+                                 searchPath:(NSArray *) searchPath;
 + (MulleScionParser *) parserWithContentsOfURL:(NSURL *) url;
 
 - (id) initWithData:(NSData *) data
-           fileName:(NSString *) fileName;
+           fileName:(NSString *) fileName
+         searchPath:(NSArray *) searchPath;
 
 - (MulleScionTemplate *) template;
 - (NSDictionary *) dependencyTable;
@@ -73,10 +76,10 @@ errorInFileName:(NSString *) fileName
      lineNumber:(NSUInteger) lineNumber
          reason:(NSString *) reason;
 
-- (void) parser:(void *) parser
+- (void)   parser:(void *) parser
 warningInFileName:(NSString *) fileName
-     lineNumber:(NSUInteger) lineNumber
-         reason:(NSString *) reason;
+       lineNumber:(NSUInteger) lineNumber
+           reason:(NSString *) reason;
 
 - (NSString *) fileName;
 

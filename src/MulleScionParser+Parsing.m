@@ -49,6 +49,7 @@
 #  import <Foundation/NSDebug.h>
 # endif
 #endif
+#include "env-convenience.h"
 
 
 #ifdef DEBUG
@@ -149,7 +150,7 @@ enum
    MULLESCION_VERBATIM_INCLUDE_HASHBANG = 0x04,
    MULLESCION_DUMP_COMMANDS             = 0x08,
    MULLESCION_DUMP_EXPRESSIONS          = 0x10,
-   MULLESCION_DUMP_FILE_INCLUDES        = 0x20,
+//   MULLESCION_DUMP_FILE_INCLUDES        = 0x20,
    MULLESCION_DUMP_MACROS               = 0x40
 };
 
@@ -169,33 +170,6 @@ static void   parser_skip_initial_hashbang_line_if_present( parser *p)
 }
 
 
-static int   getenv_yes_no_default( char *name, int default_value)
-{
-   char   *s;
-
-   s = getenv( name);
-   if( ! s)
-      return( default_value);
-
-   switch( *s)
-   {
-   case 'f' :
-   case 'F' :
-   case 'n' :
-   case 'N' :
-   case '0' : return( 0);
-   }
-
-   return( 1);
-}
-
-
-static inline int  getenv_yes_no( char *name)
-{
-   return( getenv_yes_no_default( name, 0));
-}
-
-
 static void   parser_init( parser *p, unsigned char *buf, size_t len)
 {
    memset( p, 0, sizeof( parser));
@@ -211,7 +185,8 @@ static void   parser_init( parser *p, unsigned char *buf, size_t len)
    p->environment |= getenv_yes_no( "MULLESCION_VERBATIM_INCLUDE_HASHBANG") ? MULLESCION_VERBATIM_INCLUDE_HASHBANG : 0;
    p->environment |= getenv_yes_no( "MULLESCION_DUMP_COMMANDS") ? MULLESCION_DUMP_COMMANDS : 0;
    p->environment |= getenv_yes_no( "MULLESCION_DUMP_EXPRESSIONS") ? MULLESCION_DUMP_EXPRESSIONS : 0;
-   p->environment |= getenv_yes_no( "MULLESCION_DUMP_FILE_INCLUDES") ? MULLESCION_DUMP_FILE_INCLUDES : 0;
+// now done in MulleScionParser
+//   p->environment |= getenv_yes_no( "MULLESCION_DUMP_FILE_INCLUDES") ? MULLESCION_DUMP_FILE_INCLUDES : 0;
    p->environment |= getenv_yes_no( "MULLESCION_DUMP_MACROS") ? MULLESCION_DUMP_MACROS : 0;
 }
 
@@ -1881,10 +1856,14 @@ static void   check_parentheses_left_right( parser *p,
                                  MulleScionExpression *left,
                                  MulleScionExpression *right)
 {
+   // avoid error for x AND y AND z
+   if( [left precedence] <= [right precedence])
+      return;
+
    if( [left needsParenthesis])
-      parser_error( p, "left side of %s needs parentheses", name);
+      parser_error( p, "left side of \"%s\" needs parentheses", name);
    if( [right needsParenthesis])
-      parser_error( p, "right side of %s needs parentheses", name);
+      parser_error( p, "right side of \"%s\" needs parentheses", name);
 }
 
 
@@ -1893,8 +1872,11 @@ static void   check_parentheses_left( parser *p,
                                       MulleScionExpression *left,
                                       MulleScionExpression *right)
 {
+   if( [left precedence] <= [right precedence])
+      return;
+
    if( [left needsParenthesis])
-      parser_error( p, "left side of %s needs parentheses", name);
+      parser_error( p, "left side of \"%s\" needs parentheses", name);
 }
 
 
@@ -2154,7 +2136,7 @@ typedef enum
 {
    ImplicitSetOpcode = 0,  // still used ??
 
-   FilterOpcode,  // apply is synonym for filter
+   ApplyOpcode,  // apply is synonym for filter
    BlockOpcode,
    DefineOpcode,
    ElseOpcode,
@@ -2227,12 +2209,14 @@ static int   _parser_opcode_for_string( parser *p, NSString *s)
             if( [s isEqualToString:@"while"]) return( WhileOpcode);
             if( [s isEqualToString:@"block"]) return( BlockOpcode);
             if( [s isEqualToString:@"macro"]) return( MacroOpcode); break;
-   case 6 : if( [s isEqualToString:@"define"]) return( DefineOpcode);
+   case 6 : if( [s isEqualToString:@"apply"]) return( ApplyOpcode);
+            if( [s isEqualToString:@"define"]) return( DefineOpcode);
             if( [s isEqualToString:@"endfor"]) return( EndforOpcode);
             if( [s isEqualToString:@"filter"]) return( FilterOpcode); break;
    case 7 : if( [s isEqualToString:@"extends"]) return( ExtendsOpcode);
             if( [s isEqualToString:@"elsefor"]) return( ElseforOpcode); break;
-   case 8 : if( [s isEqualToString:@"endblock"]) return( EndblockOpcode);
+   case 8 : if( [s isEqualToString:@"endapply"]) return( EndapplyOpcode);
+            if( [s isEqualToString:@"endblock"]) return( EndblockOpcode);
             if( [s isEqualToString:@"endwhile"]) return( EndwhileOpcode);
             if( [s isEqualToString:@"endmacro"]) return( EndmacroOpcode);
             if( [s isEqualToString:@"includes"]) return( IncludesOpcode);
@@ -2418,6 +2402,7 @@ static MulleScionObject * NS_RETURNS_RETAINED
    BOOL                   verbatim;
    char                   *env;
    NSData                 *data;
+   NSArray                *searchPath;
    NSString               *converter;
    NSString               *fileName;
    NSString               *s;
@@ -2476,9 +2461,6 @@ retry:
       parser_error( p, "a filename was expected as a quoted string");
 
 env_string:
-   if( p->environment & MULLESCION_DUMP_FILE_INCLUDES)
-      fprintf( stderr, "-> opening \"%s\"\n", [fileName UTF8String]);
-
    if( verbatim)
    {
       data = [p->self templateDataWithContentsOfFile:fileName
@@ -2504,11 +2486,12 @@ env_string:
    parser_finish_command( p);
 
 NS_DURING
-   inferior = [p->self templateWithContentsOfFile:fileName
-                                           tables:&p->tables
-                                        converter:sel
-                                       searchPath:[p->self searchPath]
-                                         optional:optional];
+   searchPath = [p->self searchPath];
+   inferior   = [p->self templateWithContentsOfFile:fileName
+                                             tables:&p->tables
+                                          converter:sel
+                                         searchPath:searchPath
+                                           optional:optional];
 NS_HANDLER
    parser_error( p, "\n%@", [localException reason]);
 NS_ENDHANDLER
@@ -2692,14 +2675,15 @@ static MulleScionObject  * NS_RETURNS_RETAINED
    c = parser_peek_character( p);
    if( c != '=')
    {
-      if( [lexpr isIdentifier])
+      if( [lexpr isVariable])
       {
          identifier = [(MulleScionVariable *)  lexpr identifier];
          suggestion = parser_best_match_for_string( p, identifier);
          if( suggestion)
             parser_error( p, "unknown keyword \"%@\" (did you mean \"%s\" ?)", identifier, suggestion);
+         parser_error( p, "unknown keyword \"%@\"", identifier);
       }
-      parser_error( p, "unknown keyword (maybe you forgot the keyword \"set\" ?)");
+      parser_error( p, "unknown expression \"%@\" (maybe you forgot a leading \"set\" ?)", [lexpr traceDescription]);
    }
 
    parser_skip_peeked_character( p, '=');
@@ -3063,10 +3047,12 @@ static MulleScionObject * NS_RETURNS_RETAINED  parser_do_command( parser *p)
 
       switch( (int) op)
       {
+      case ApplyOpcode    : return( parser_do_filter( p, line));
       case BlockOpcode    : return( parser_do_block( p, line));
       case DefineOpcode   : return( parser_do_define( p, line));
       case ElseOpcode     : return( [MulleScionElse newWithLineNumber:line]);
       case ElseforOpcode  : return( [MulleScionElseFor newWithLineNumber:line]);
+      case EndapplyOpcode : return( [MulleScionEndFilter newWithLineNumber:line]);
       case EndblockOpcode : return( [MulleScionEndBlock newWithLineNumber:line]);
       case EndfilterOpcode: return( [MulleScionEndFilter newWithLineNumber:line]);
       case EndforOpcode   : return( [MulleScionEndFor newWithLineNumber:line]);
@@ -3431,7 +3417,7 @@ NS_ENDHANDLER
 {
    MulleScionTemplate  *root;
 
-   root = [[[MulleScionTemplate alloc] initWithFilename:[fileName_ lastPathComponent]] autorelease];
+   root = [[[MulleScionTemplate alloc] initWithFilename:fileName_] autorelease];
 
    [self parseData:data_
     intoRootObject:root
@@ -3480,13 +3466,17 @@ NS_ENDHANDLER
       return( data);
    }
 
-   dir  = [fileName_ stringByDeletingLastPathComponent];
-   data = [self templateDataWithContentsOfFile:fileName
-                                     directory:dir
-                                    actualPath:actualPath];
-   if( data)
-      return( data);
+// relative doesn't work out too well for mulle-template-composer
 
+//
+//   dir  = [fileName_ stringByDeletingLastPathComponent];
+//   data = [self templateDataWithContentsOfFile:fileName
+//                                     directory:dir
+//                                    actualPath:actualPath];
+//   if( data)
+//      return( data);
+
+   assert( self->searchPath_);
    for( dir in self->searchPath_)
    {
       data = [self templateDataWithContentsOfFile:fileName
@@ -3505,17 +3495,19 @@ NS_ENDHANDLER
    NSString   *s;
    NSData     *data;
 
-   if( ! [[fileName pathExtension] isEqualToString:@"scion"])
-   {
-      s    = [fileName stringByAppendingPathExtension:@"scion"];
-      data = [self _templateDataWithContentsOfFile:s
-                                        actualPath:actualPath];
-      if( data)
-         return( data);
-   }
-
    data = [self _templateDataWithContentsOfFile:fileName
                                      actualPath:actualPath];
+
+// just slows preceedings down...
+//   if( ! [[fileName pathExtension] isEqualToString:@"bud"])
+//   {
+//      s    = [fileName stringByAppendingPathExtension:@"bud"];
+//      data = [self _templateDataWithContentsOfFile:s
+//                                        actualPath:actualPath];
+//      if( data)
+//         return( data);
+//   }
+
    return( data);
 }
 
@@ -3538,6 +3530,7 @@ NS_ENDHANDLER
    {
       if( ! optional)
          return( nil);
+
       data = [NSData data];
       path = @"not found";
    }
@@ -3548,9 +3541,9 @@ NS_ENDHANDLER
                         withObject:nil];
 
    parser = [[[MulleScionParser alloc] initWithData:data
-                                           fileName:path] autorelease];
+                                           fileName:path
+                                         searchPath:searchPath] autorelease];
    [parser setPreprocessor:[self preprocessor]];
-   [parser setSearchPath:searchPath];
    template = [parser templateParsedWithTables:tables];
    return( template);
 }

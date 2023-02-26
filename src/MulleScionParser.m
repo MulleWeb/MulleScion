@@ -47,19 +47,40 @@
 #  import <Foundation/NSDebug.h>
 # endif
 #endif
+#include "env-convenience.h"
+
+
+#ifdef DEBUG
+//# define DEBUG_DUMP
+#endif
 
 
 @implementation MulleScionParser
 
 - (id) initWithData:(NSData *) data
            fileName:(NSString *) fileName
+         searchPath:(NSArray *) searchPath
 {
+   NSString   *directory;
+   NSString   *pwd;
+
    NSParameterAssert( [data isKindOfClass:[NSData class]]);
    NSParameterAssert( [fileName isKindOfClass:[NSString class]] && [fileName length]);
 
    data_           = [data retain];
    fileName_       = [fileName copy];
-   debugFilePaths_ = getenv( "MULLESCION_DUMP_FILEPATHS") ? YES : NO;
+   if( ! searchPath)
+   {
+      directory    = [fileName stringByDeletingLastPathComponent];
+      if( ! [fileName isAbsolutePath])
+      {
+         pwd       = [[NSFileManager defaultManager] currentDirectoryPath];
+         directory = [pwd stringByAppendingPathComponent:directory];
+      }
+      searchPath   = [NSArray arrayWithObject:directory];
+   }
+   searchPath_     = [searchPath copy];
+   debugFilePaths_ = getenv_yes_no( "MULLESCION_DUMP_FILE_INCLUDES") ? YES : NO;
 
    return( self);
 }
@@ -114,31 +135,38 @@
    }
 
    parser = [[[self alloc] initWithData:data
-                               fileName:[url path]] autorelease];
+                               fileName:[url path]
+                             searchPath:nil] autorelease];
    return( parser);
 }
 
 
-+ (MulleScionParser *) parserWithUTF8String:(unsigned char *) s
++ (MulleScionParser *) parserWithUTF8String:(char *) s
+                                 searchPath:(NSArray *) searchPath
 {
    NSData            *data;
    MulleScionParser  *parser;
 
-   data = [[[NSData alloc] initWithBytesNoCopy:(char *) s
-                                       length:strlen( (char *) s)
-                                 freeWhenDone:NO] autorelease];
+   data = [[[NSData alloc] initWithBytesNoCopy:s
+                                        length:mulle_utf8_strlen( (mulle_utf8_t *) s)
+                                  freeWhenDone:NO] autorelease];
    parser = [[[self alloc] initWithData:data
-                               fileName:@"unknown.scion"] autorelease];
+                               fileName:@"unknown.scion"
+                             searchPath:searchPath ? searchPath : @[ @"."]] autorelease];
    return( parser);
 }
 
 
 + (MulleScionParser *) parserWithContentsOfFile:(NSString *) path
+                                     searchPath:(NSArray *) searchPath
 {
    NSData            *data;
    MulleScionParser  *parser;
+   NSString          *string;
+   NSString          *directory;
+   NSArray           *searchPath;
 
-   data = [NSData dataWithContentsOfMappedFile:path];
+   data = [NSData dataWithContentsOfFile:path];
    if( ! data)
    {
       NSLog( @"Could not open template file \"%@\" (%@)", path,
@@ -147,7 +175,8 @@
    }
 
    parser = [[[self alloc] initWithData:data
-                               fileName:path] autorelease];
+                               fileName:path
+                             searchPath:searchPath] autorelease];
    return( parser);
 }
 
@@ -176,23 +205,27 @@ static void   _dump( MulleScionTemplate *self, NSString *path, NSString *blurb, 
 {
    NSFileHandle   *stream;
    NSData         *nl;
+   NSData         *data;
+   NSString       *s;
 
    stream = [NSFileHandle mulleErrorFileHandleWithFilename:path];
-   if( ! path)
+   if( ! stream)
    {
-      if( ! stream)
-         NSLog( @"failed to create trace/dump file \"%@\"", path);
+      NSLog( @"failed to create trace/dump file \"%@\"", path);
       return;
    }
 
    nl = [@"\n" dataUsingEncoding:NSUTF8StringEncoding];
    if( blurb)
    {
-      [stream writeData:[blurb dataUsingEncoding:NSUTF8StringEncoding]];
+      data = [blurb dataUsingEncoding:NSUTF8StringEncoding];
+      [stream writeData:data];
       [stream writeData:nl];
    }
 
-   [stream writeData:[[self performSelector:sel] dataUsingEncoding:NSUTF8StringEncoding]];
+   s    = [self performSelector:sel];
+   data = [s dataUsingEncoding:NSUTF8StringEncoding];
+   [stream writeData:data];
    [stream writeData:nl];
 
    if( blurb)
@@ -209,13 +242,19 @@ static void   dump( MulleScionTemplate *self, char *env, NSString *blurb, SEL se
    char                *s;
    NSString            *path;
 
+#ifndef DEBUG_DUMP
    s = getenv( env);
    if( ! s || ! *s)
       return;
+#else
+   s = "-";
+#endif
 
    pool = [NSAutoreleasePool new];
-   path = [NSString stringWithCString:s];
-   _dump( self, path, blurb, sel);
+   {
+      path = [NSString stringWithCString:s];
+      _dump( self, path, blurb, sel);
+   }
    [pool release];
 }
 
@@ -294,7 +333,7 @@ static void   dump( MulleScionTemplate *self, char *env, NSString *blurb, SEL se
    tables.macroTable      = [NSMutableDictionary dictionary];
    tables.blockTable      = [NSMutableDictionary dictionary];
 
-   root = [[[MulleScionTemplate alloc] initWithFilename:[fileName_ lastPathComponent]] autorelease];
+   root = [[[MulleScionTemplate alloc] initWithFilename:fileName_] autorelease];
 
    [self parseData:data_
     intoRootObject:root

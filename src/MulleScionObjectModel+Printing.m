@@ -531,46 +531,17 @@ static id  f_NSLocalizedString( id self, NSArray *arguments, NSMutableDictionary
                        dataSource:(id <MulleScionDataSource>) dataSource
 {
    MulleScionObject   *curr;
-   NSAutoreleasePool  *pool;
-   extern char        MulleScionFrameworkVersion[];
 
    NSAssert( [locals valueForKey:@"NSNotFound"], @"use -[MulleScionTemplate localVariablesWithDefaultValues:] to create the localVariables dictionary");
 
    TRACE_RENDER( self, s, locals, dataSource);
 
-   pool = [NSAutoreleasePool new];
-
-   //
-   // expose everything to the dataSource for max. hackability
-   // trusted (writing OK, reading ? your choice!)
-   //
    updateLineNumber( self, locals);
 
-   [locals setObject:output
-              forKey:MulleScionRenderOutputKey];
-   [locals setObject:value_
+   [locals setObject:[self fileName]
               forKey:MulleScionCurrentFileKey];
-#if __MULLE_OBJC__
-   [locals setObject:@"Mulle"
-             forKey:MulleScionFoundationKey];
-#else
-   [locals setObject:@"Apple"
-             forKey:MulleScionFoundationKey];
-#endif
-   [locals setObject:[NSString stringWithCString:MulleScionFrameworkVersion]
-              forKey:MulleScionVersionKey];
 
-   // must be provided, because it's too painful to always set it here
-
-   curr = self->next_;
-   while( curr)
-      curr = [curr renderInto:output
-               localVariables:locals
-                   dataSource:dataSource];
-
-   [pool release];
-
-   return( curr);
+   return( self->next_);
 }
 
 @end
@@ -2474,7 +2445,10 @@ static NSBundle  *searchForBundleInDirectory( NSFileManager *manager, NSString *
 #else
    if( ! [bundle load])
 #endif
-      MulleScionPrintingException( NSInvalidArgumentException, locals, @"could not %@ bundle with identifier \"%@\"", bundle ? @"load" : @"locate", identifier_);
+      MulleScionPrintingException( NSInvalidArgumentException,
+                                   locals,
+                                   @"could not %@ bundle with identifier \"%@\"",
+                                   bundle ? @"load" : @"locate", identifier_);
 
    [pool release];
 

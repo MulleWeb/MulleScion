@@ -97,6 +97,7 @@
 - (BOOL) isTemplate   { return( NO); }
 - (BOOL) isFunction   { return( NO); }
 - (BOOL) isMethod     { return( NO); }
+- (BOOL) isVariable   { return( NO); }
 - (BOOL) isParameterAssignment { return( NO); }
 
 - (BOOL) isSet        { return( NO); }
@@ -289,6 +290,12 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 #pragma mark -
 
 @implementation MulleScionExpression
+
+- (NSInteger) precedence
+{
+   return( 0);
+}
+
 @end
 
 
@@ -383,7 +390,7 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 }
 
 
-- (BOOL) hasIdentifier
+- (BOOL) isIdentifier
 {
    return( YES);
 }
@@ -395,12 +402,12 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 
 @implementation MulleScionVariable
 
-- (BOOL) isIdentifier
+- (BOOL) isLexpr
 {
    return( YES);
 }
 
-- (BOOL) isLexpr
+- (BOOL) isVariable
 {
    return( YES);
 }
@@ -444,6 +451,12 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 - (NSArray *) arguments
 {
    return( arguments_);
+}
+
+
+- (NSInteger) precedence
+{
+   return( 1);
 }
 
 @end
@@ -510,6 +523,11 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    return( [value_ isIdentifier] && [[(MulleScionVariable *) value_ identifier] isEqualToString:@"self"]);
 }
 
+- (NSInteger) precedence
+{
+   return( 1);
+}
+
 @end
 
 
@@ -564,6 +582,11 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    return( YES);
 }
 
+- (NSInteger) precedence
+{
+   return( 14);
+}
+
 @end
 
 
@@ -596,6 +619,11 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    p         = newMulleScionValueObject( self, nil, nr);
    p->value_ = expr;
    return( p);
+}
+
+- (NSInteger) precedence
+{
+   return( 2);
 }
 
 @end
@@ -671,6 +699,12 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    return( p);
 }
 
+
+- (NSInteger) precedence
+{
+   return( 14);
+}
+
 @end
 
 
@@ -712,6 +746,22 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    return( @"<unknown comparison>");
 }
 
+
+- (NSInteger) precedence
+{
+   switch( comparison_)
+   {
+   case MulleScionEqual                : return( 7);
+   case MulleScionNotEqual             : return( 7);
+   case MulleScionLessThan             : return( 6);
+   case MulleScionGreaterThan          : return( 6);
+   case MulleScionLessThanOrEqualTo    : return( 6);
+   case MulleScionGreaterThanOrEqualTo : return( 6);
+   case MulleScionNoComparison         : break;  // should never happen!
+   }
+   return( 99);
+}
+
 @end
 
 
@@ -730,6 +780,11 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    return( @"not");
 }
 
+- (NSInteger) precedence
+{
+   return( 2);
+}
+
 @end
 
 #pragma mark -
@@ -739,6 +794,12 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 - (NSString *) operator
 {
    return( @"()");
+}
+
+
+- (NSInteger) precedence
+{
+   return( 1);
 }
 
 @end
@@ -753,6 +814,12 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    return( @"and");
 }
 
+
+- (NSInteger) precedence
+{
+   return( 11);
+}
+
 @end
 
 
@@ -763,6 +830,11 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 - (NSString *) operator
 {
    return( @"or");
+}
+
+- (NSInteger) precedence
+{
+   return( 12);
 }
 
 @end
@@ -789,6 +861,12 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    return( YES);
 }
 
+
+- (NSInteger) precedence
+{
+   return( 1);
+}
+
 @end
 
 
@@ -807,6 +885,12 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    return( @"|");
 }
 
+
+- (NSInteger) precedence
+{
+   return( 16);
+}
+
 @end
 
 
@@ -823,6 +907,11 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 - (NSString *) operator
 {
    return( @".");
+}
+
+- (NSInteger) precedence
+{
+   return( 1);
 }
 
 @end
@@ -855,6 +944,11 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 - (BOOL) needsParenthesis
 {
    return( YES);
+}
+
+- (NSInteger) precedence
+{
+   return( 13);
 }
 
 
@@ -984,6 +1078,12 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 - (BOOL) isSet
 {
    return( YES);
+}
+
+
+- (NSInteger) precedence
+{
+   return( 14);
 }
 
 @end
@@ -1243,6 +1343,11 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    return( @"");
 }
 
+- (NSInteger) precedence
+{
+   return( 1);
+}
+
 @end
 
 
@@ -1253,6 +1358,11 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 - (NSString *) commandName
 {
    return( @"");
+}
+
+- (NSInteger) precedence
+{
+   return( 1);
 }
 
 @end

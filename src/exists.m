@@ -71,19 +71,19 @@ NSNumber  *doesFileExist( id filename, int mode)
 }
 
 
-+ (NSNumber *) any:(NSString *) arg
++ (NSNumber *) any:(id) arg
 {
    return( doesFileExist( arg, DontCare));
 }
 
 
-+ (NSNumber *) file:(NSString *) arg
++ (NSNumber *) file:(id) arg
 {
    return( doesFileExist( arg, MustBeFile));
 }
 
 
-+ (NSNumber *) directory:(NSString *) arg
++ (NSNumber *) directory:(id) arg
 {
    return( doesFileExist( arg, MustBeDirectory));
 }
