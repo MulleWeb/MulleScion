@@ -33,6 +33,7 @@ src/NSObject+KVC_Compatibility.m
 src/NSObject+MulleScionDescription.m
 src/NSString+MulleScion.m
 src/NSValue+CheatAndHack.m
+src/exists.m
 )
 
 #

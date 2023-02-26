@@ -78,6 +78,8 @@ src/NSFileHandle+MulleOutputFileHandle.h
 src/NSObject+KVC_Compatibility.h
 src/NSObject+MulleScionDescription.h
 src/NSString+MulleScion.h
+src/env-convenience.h
+src/exists.h
 src/reflect/_MulleScion-versioncheck.h
 )
 

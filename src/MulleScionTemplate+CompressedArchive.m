@@ -152,7 +152,7 @@ static id   _newWithContentsOfArchive( NSString *fileName, NSAutoreleasePool **p
    BOOL       isCompressed;
    BOOL       isKeyed;
 
-   data = [NSData dataWithContentsOfMappedFile:fileName];
+   data = [NSData dataWithContentsOfFile:fileName];
    if( ! get_archive_metadata_from_data( data, &isCompressed, &isKeyed, &length))
       return( nil);
 

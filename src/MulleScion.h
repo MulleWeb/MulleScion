@@ -35,7 +35,7 @@
 //
 #import "import.h"
 
-#define MULLE_SCION_VERSION   ((1859 << 20) | (1 << 8) | 10)
+#define MULLE_SCION_VERSION   ((1860 << 20) | (0 << 8) | 0)
 
 #import "MulleScionObjectModel.h"
 #import "MulleScionObjectModel+TraceDescription.h"
@@ -88,13 +88,13 @@
 + (NSString *) descriptionWithTemplateFile:(NSObject <MulleScionStringOrURL> *) fileName
                           propertyListFile:(NSObject <MulleScionStringOrURL> *) plistFileName;
 
-+ (NSString *) descriptionWithUTF8Template:(unsigned char *) s
++ (NSString *) descriptionWithUTF8Template:(char *) s
                                 dataSource:(id <MulleScionDataSource>) dataSource
                                 searchPath:(NSArray *) searchPath
                             localVariables:(NSDictionary *) locals;
 
 
-+ (NSString *) descriptionWithUTF8Template:(unsigned char *) s
++ (NSString *) descriptionWithUTF8Template:(char *) s
                                 dataSource:(id <MulleScionDataSource>) dataSource;
 
 
@@ -105,11 +105,11 @@
         localVariables:(NSDictionary *) locals;
 
 
-- (id) initWithUTF8String:(unsigned char *) s;
+- (id) initWithUTF8String:(char *) s;
 - (id) initWithFile:(NSString *) fileName;            // template or archive
 - (id) initWithContentsOfFile:(NSObject <MulleScionStringOrURL> *) fileName;
 
-- (id) initWithUTF8String:(unsigned char *) s
+- (id) initWithUTF8String:(char *) s
                searchPath:(NSArray *) searchPath;
 
 - (id) initWithFile:(NSString *) fileName            // template or archive

@@ -1,0 +1,34 @@
+## Example
+
+Here is a simple example, where ObjC code is embedded in a template:
+
+``` twig
+<html>
+   <!-- rendered by {{ [[NSProcessInfo processInfo] processName] }} on
+        {{ [NSDate date] }} -->
+   <body>
+     {% for item in [NSTimeZone knownTimeZoneNames] %}
+         {% if item#.isFirst %}
+         <table>
+            <tr><th>TimeZone</th></tr>
+         {% endif %}
+            <tr><td>{{ item }}</td></tr>
+         {% if item#.isLast %}
+         </table>
+         {% endif %}
+      {% else %}
+         Sorry, no timezone info available.
+      {% endfor %}
+   </body>
+</html>
+```
+
+Using MulleScion the creation of a string from your
+object using a template file is as easy as:
+
+``` objective-c
+   NSString  *output;
+
+   output = [MulleScionTemplate descriptionWithTemplateFile:@"test.scion"
+                                                 dataSource:self];
+```
