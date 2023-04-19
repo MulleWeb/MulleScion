@@ -1,3 +1,15 @@
+# 1860.0.0
+
+* ``__FILE__`` now keeps the complete filename and not just the lastPathComponent
+* added `apply` , `endapply` for some cheap twig compatibility
+* add apply/endapply as a synonym for filter
+* implement missing parent() function/macro for blocks
+* add exists class as a pseudo command
+* **API CHANGE** some methods now take an additional searchPath for the {%includes %} search
+* you can now say {% includes optionally ... %}
+* **LANGUAGE CHANGE** binary and ternary expressions require parenthesized expressions, if there is a possibility for ambiguity
+
+
 ### 1859.1.10
 
 * Various small improvements
