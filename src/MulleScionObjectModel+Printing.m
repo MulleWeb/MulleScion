@@ -530,8 +530,6 @@ static id  f_NSLocalizedString( id self, NSArray *arguments, NSMutableDictionary
                    localVariables:(NSMutableDictionary *) locals
                        dataSource:(id <MulleScionDataSource>) dataSource
 {
-   MulleScionObject   *curr;
-
    NSAssert( [locals valueForKey:@"NSNotFound"], @"use -[MulleScionTemplate localVariablesWithDefaultValues:] to create the localVariables dictionary");
 
    TRACE_RENDER( self, s, locals, dataSource);
@@ -784,7 +782,6 @@ static void   *numberBuffer( char *type, NSNumber *value)
    id                     *buf;
    id                     value;
    id                     result;
-   void                   *tmp;
    SEL                    sel;
    void                   *arg;
 

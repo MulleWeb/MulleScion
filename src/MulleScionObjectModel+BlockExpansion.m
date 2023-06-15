@@ -107,7 +107,6 @@
    NSMutableArray     *stack;
    NSMutableArray     *chainStack;
    NSAutoreleasePool  *pool;
-   NSUInteger         *level;
 
    pool  = [NSAutoreleasePool new];
    {

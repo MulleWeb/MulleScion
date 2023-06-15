@@ -147,8 +147,14 @@
    NSData            *data;
    MulleScionParser  *parser;
 
+   if( ! s)
+   {
+      [self release];
+      return( nil);
+   }
+
    data = [[[NSData alloc] initWithBytesNoCopy:s
-                                        length:mulle_utf8_strlen( (mulle_utf8_t *) s)
+                                        length:strlen( s)
                                   freeWhenDone:NO] autorelease];
    parser = [[[self alloc] initWithData:data
                                fileName:@"unknown.scion"
@@ -162,9 +168,6 @@
 {
    NSData            *data;
    MulleScionParser  *parser;
-   NSString          *string;
-   NSString          *directory;
-   NSArray           *searchPath;
 
    data = [NSData dataWithContentsOfFile:path];
    if( ! data)

@@ -9,6 +9,10 @@
  *
  *      mulle-sde environment set MULLE_MATCH_TO_C_RUN DISABLE
  */
+#ifndef mulle_scion_export_h__
+#define mulle_scion_export_h__
+
+
 #import "MulleCommonObjCRuntime.h"
 #import "MulleMutableLineNumber.h"
 #import "MulleObjCCompilerSettings.h"
@@ -32,3 +36,6 @@
 #import "NSObject+KVC_Compatibility.h"
 #import "NSObject+MulleScionDescription.h"
 #import "NSString+MulleScion.h"
+
+
+#endif

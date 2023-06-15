@@ -221,7 +221,6 @@ static id   acquirePropertyList( NSObject <MulleScionStringOrURL> *s)
                     searchPath:(NSArray *) searchPath
 {
    MulleScionParser   *parser;
-   NSString           *directory;
 #ifndef DONT_HAVE_MULLE_SCION_CACHING
    BOOL               isCaching;
    NSString           *cachePath;

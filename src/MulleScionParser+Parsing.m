@@ -1866,18 +1866,18 @@ static void   check_parentheses_left_right( parser *p,
       parser_error( p, "right side of \"%s\" needs parentheses", name);
 }
 
-
-static void   check_parentheses_left( parser *p,
-                                      char *name,
-                                      MulleScionExpression *left,
-                                      MulleScionExpression *right)
-{
-   if( [left precedence] <= [right precedence])
-      return;
-
-   if( [left needsParenthesis])
-      parser_error( p, "left side of \"%s\" needs parentheses", name);
-}
+//
+// static void   check_parentheses_left( parser *p,
+//                                       char *name,
+//                                       MulleScionExpression *left,
+//                                       MulleScionExpression *right)
+// {
+//    if( [left precedence] <= [right precedence])
+//       return;
+//
+//    if( [left needsParenthesis])
+//       parser_error( p, "left side of \"%s\" needs parentheses", name);
+// }
 
 
 static MulleScionExpression * NS_RETURNS_RETAINED
@@ -2264,7 +2264,6 @@ static char  *parser_best_match_for_string( parser *p, NSString *s)
 // grabs a whole block and put it into the table
 static void  parser_do_whole_block_to_block_table( parser *p)
 {
-   MulleScionBlock      *oldblock;
    MulleScionBlock      *block;
    MulleScionObject     *next;
    MulleScionObject     *node;
@@ -3456,7 +3455,6 @@ NS_ENDHANDLER
 {
    NSData     *data;
    NSString   *dir;
-   NSString   *path;
 
    if( [fileName isAbsolutePath])
    {
@@ -3492,7 +3490,7 @@ NS_ENDHANDLER
 - (NSData *) templateDataWithContentsOfFile:(NSString *) fileName
                                   actualPath:(NSString **) actualPath
 {
-   NSString   *s;
+//   NSString   *s;
    NSData     *data;
 
    data = [self _templateDataWithContentsOfFile:fileName
@@ -3521,7 +3519,6 @@ NS_ENDHANDLER
    MulleScionParser    *parser;
    MulleScionTemplate  *template;
    NSData              *data;
-   NSString            *dir;
    NSString            *path;
 
    data = [self templateDataWithContentsOfFile:fileName
