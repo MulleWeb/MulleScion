@@ -9,5 +9,12 @@
  *
  *      mulle-sde environment set MULLE_MATCH_TO_C_RUN DISABLE
  */
+#ifndef mulle_scion_provide_h__
+#define mulle_scion_provide_h__
+
+
 #include "env-convenience.h"
 #include "exists.h"
+
+
+#endif
