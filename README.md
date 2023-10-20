@@ -23,7 +23,7 @@ Here is a simple example, where ObjC code is embedded in a template:
 ``` twig
 <html>
    <!-- rendered by mulle-scion on
-        2023-04-07T21:49:58Z -->
+        2023-10-23T11:06:54Z -->
    <body>
    </body>
 </html>
@@ -60,7 +60,7 @@ HTML editors:
 ``` html
 <html>
   <!-- rendered by mulle-scion on
-        2023-04-07T21:49:58Z -->
+        2023-10-23T11:06:54Z -->
   <body>
     <for item in [NSTimeZone knownTimeZoneNames]>
       <if item#.isFirst>
@@ -139,10 +139,18 @@ mulle-sde install --prefix /usr/local \
 
 ### Manual Installation
 
-Install the [requirements](#Overview) and then install
-**MulleScion**
-with [cmake](https://cmake.org). Here `/usr/local` is chosen as the install
-prefix:
+Install the requirements:
+
+| Requirements                                 | Description
+|----------------------------------------------|-----------------------
+| [MulleFoundation](https://github.com/MulleFoundation/MulleFoundation)             | 💍 Umbrella library for the MulleFoundation
+| [MulleObjCHTTPFoundation](https://github.com/MulleWeb/MulleObjCHTTPFoundation)             | 🎫 HTTP and HTML utility methods and classes for mulle-objc
+| [MulleObjCInetOSFoundation](https://github.com/MulleFoundation/MulleObjCInetOSFoundation)             | 📠💻 OS specific extensions to NSHost and NSURL
+| [mulle-objc-list](https://github.com/mulle-objc/mulle-objc-list)             | 📒 Lists mulle-objc runtime information contained in executables.
+
+Download the latest [tar](https://github.com/MulleWeb/MulleScion/archive/refs/tags/latest.tar.gz) or [zip](https://github.com/MulleWeb/MulleScion/archive/refs/tags/latest.zip) archive and unpack it.
+
+Install **MulleScion** into `/usr/local` with [cmake](https://cmake.org):
 
 ``` sh
 cmake -B build \
