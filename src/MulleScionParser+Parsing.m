@@ -627,6 +627,85 @@ static void   parser_skip_whitespace( parser *p)
 }
 
 
+
+static void   parser_skip_whitespace_to_scion_comment_or_after_newline( parser *p)
+{
+   parser_memo     memo;
+   unsigned char   c;
+   unsigned char   d;
+
+   parser_memorize( p, &memo);
+
+   c = 0;
+   for( ; p->curr < p->sentinel;)
+   {
+      d = c;
+      c = *p->curr++;
+      switch( c)
+      {
+      case '\n' :
+         parser_nl( p);
+         return;
+
+      case '{'  :
+         // gimme one more
+         break;
+
+      case '#'  :
+         if( d == '{') // if we saw this before we only swallow for {#
+         {
+            p->curr -= 2; // get back to d
+            return;
+         }
+         parser_recall( p, &memo); // valid something keep whitespace
+         return;
+
+      default :
+         if( d == '{') // keep whitespace
+         {
+            p->curr -= 2; // get back to 'd'
+            return;
+         }
+
+         if( c > ' ')
+         {
+            parser_recall( p, &memo);
+            return;
+         }
+      }
+   }
+
+   // can happen if this is the very last character
+   if( c == '{')
+      p->curr -= 1;
+}
+
+
+
+static void   parser_skip_whitespace_until_after_newline( parser *p)
+{
+   unsigned char   c;
+
+   for( ; p->curr < p->sentinel;)
+   {
+      c = *p->curr++;
+      if( c == '\n')
+      {
+         parser_nl( p);
+         break;
+      }
+
+      if( c > ' ')
+      {
+         p->curr--;
+         break;
+      }
+   }
+}
+
+
+
+
 static void   parser_skip_whitespace_and_comments_always( parser *p)
 {
    unsigned char   c;
@@ -653,9 +732,9 @@ static void   parser_skip_whitespace_and_comments_always( parser *p)
 }
 
 
-static void   parser_skip_white_if_terminated_by_newline( parser *p)
+static void   parser_skip_whitespace_if_terminated_by_newline( parser *p)
 {
-   parser_memo   memo;
+   parser_memo     memo;
    unsigned char   c;
 
    assert( p->skipComments <= 0);
@@ -694,29 +773,6 @@ static void   parser_skip_after_newline( parser *p)
       }
    }
 }
-
-
-static void   parser_skip_white_until_after_newline( parser *p)
-{
-   unsigned char   c;
-
-   for( ; p->curr < p->sentinel;)
-   {
-      c = *p->curr++;
-      if( c == '\n')
-      {
-         parser_nl( p);
-         break;
-      }
-
-      if( c > ' ')
-      {
-         p->curr--;
-         break;
-      }
-   }
-}
-
 
 # pragma mark -
 # pragma mark scion tags
@@ -2105,7 +2161,7 @@ static void   parser_finish_comment( parser *p)
    macro_type  end_type;
 
    end_type = parser_skip_text_until_scion_end( p, '#');
-   parser_skip_white_if_terminated_by_newline( p);
+   parser_skip_whitespace_if_terminated_by_newline( p);
    parser_error_if_different_closer( p, end_type, comment);
 }
 
@@ -2120,16 +2176,29 @@ static void   parser_finish_expression( parser *p)
 }
 
 
+static void   parser_finish_command_and_line( parser *p)
+{
+   macro_type  end_type;
+
+   parser_skip_whitespace_and_comments_always( p);
+   end_type = parser_next_scion_end( p);
+   parser_skip_whitespace_until_after_newline( p);
+
+   parser_error_if_different_closer( p, end_type, command);
+}
+
+
 static void   parser_finish_command( parser *p)
 {
    macro_type  end_type;
 
    parser_skip_whitespace_and_comments_always( p);
    end_type = parser_next_scion_end( p);
-   parser_skip_white_until_after_newline( p);
+   parser_skip_whitespace_to_scion_comment_or_after_newline( p);
 
    parser_error_if_different_closer( p, end_type, command);
 }
+
 
 
 typedef enum
@@ -2275,7 +2344,7 @@ static void  parser_do_whole_block_to_block_table( parser *p)
    identifier = parser_do_identifier( p);
    if( ! [identifier length])
       parser_error( p, "an identifier was expected");
-   parser_finish_command( p);
+   parser_finish_command_and_line( p);
 
    block = [MulleScionBlock newWithIdentifier:identifier
                                      fileName:p->fileName
@@ -2482,7 +2551,7 @@ env_string:
                                               lineNumber:p->memo.lineNumber]);
    }
 
-   parser_finish_command( p);
+   parser_finish_command_and_line( p);
 
 NS_DURING
    searchPath = [p->self searchPath];
@@ -2877,7 +2946,7 @@ static MulleScionObject  * NS_RETURNS_RETAINED
       parser_error( p, "macro %@ is already defined", identifier);
 
    // macro %} must be a terminated by %}\n
-   parser_finish_command( p);
+   parser_finish_command_and_line( p);
 
    // do this once and store in parser
    if( p->environment & MULLESCION_DUMP_MACROS)
@@ -2959,7 +3028,7 @@ static MulleScionObject  * NS_RETURNS_RETAINED
    parser_memo   plaintext_end;
    NSString      *s;
 
-   parser_finish_command( p);
+   parser_finish_command_and_line( p);
    parser_memorize( p, &plaintext_start);
 
    if( ! parser_grab_text_until_command( p, "endverbatim"))

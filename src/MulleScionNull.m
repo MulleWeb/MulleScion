@@ -67,6 +67,8 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( MulleObjCValueFoundation);
 
 + (BOOL) mulleScionIsEqual:(id) other
 {
+   if( self == other)
+      return( YES);
    if( [other isKindOfClass:[NSNumber class]])
       return( [MulleScionZero isEqualToNumber:other]);
    // because it's zero
@@ -80,8 +82,9 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( MulleObjCValueFoundation);
       return( NSOrderedSame);
    if( [other isKindOfClass:[NSNumber class]])
       return( [MulleScionZero compare:other]);
-   // NSOrderedSame because it's zero
-   return( NSOrderedSame);
+
+   // NSOrderedAscending because we are smaller
+   return( NSOrderedAscending);
 }
 
 
