@@ -1813,27 +1813,27 @@ done:
 
    switch( comparison_)
    {
-      case MulleScionEqual    : flag = [value mulleScionIsEqual:otherValue]; break;
-      case MulleScionNotEqual : flag = ! [value mulleScionIsEqual:otherValue]; break;
+   case MulleScionEqual    : flag = [value mulleScionIsEqual:otherValue]; break;
+   case MulleScionNotEqual : flag = ! [value mulleScionIsEqual:otherValue]; break;
 
-      default                 :
-         comparisonResult = [value mulleScionCompare:otherValue];
-         switch( comparisonResult)
-         {
-         case NSOrderedSame       :
-            flag = (comparison_ == MulleScionLessThanOrEqualTo ||
-                    comparison_ == MulleScionGreaterThanOrEqualTo);
-            break;
+   default                 :
+      comparisonResult = [value mulleScionCompare:otherValue];
+      switch( comparisonResult)
+      {
+      case NSOrderedSame       :
+         flag = (comparison_ == MulleScionLessThanOrEqualTo ||
+                 comparison_ == MulleScionGreaterThanOrEqualTo);
+         break;
 
-         case NSOrderedAscending  :
-            flag = (comparison_ == MulleScionLessThan ||
-                    comparison_ == MulleScionLessThanOrEqualTo);
-            break;
-         case NSOrderedDescending :
-            flag = (comparison_ == MulleScionGreaterThan ||
-                    comparison_ == MulleScionGreaterThanOrEqualTo);
-            break;
-         }
+      case NSOrderedAscending  :
+         flag = (comparison_ == MulleScionLessThan ||
+                 comparison_ == MulleScionLessThanOrEqualTo);
+         break;
+      case NSOrderedDescending :
+         flag = (comparison_ == MulleScionGreaterThan ||
+                 comparison_ == MulleScionGreaterThanOrEqualTo);
+         break;
+      }
    }
    result = [NSNumber numberWithBool:flag];
 
