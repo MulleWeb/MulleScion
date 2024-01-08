@@ -38,9 +38,12 @@
 #import "import.h"
 
 
+@protocol MulleScionLocals;
+
+
 @interface NSObject( MulleScionDescription)
 
-- (NSString *) mulleScionDescriptionWithLocalVariables:(NSMutableDictionary *) context;
+- (NSString *) mulleScionDescriptionWithLocalVariables:(id <MulleScionLocals>) context;
 
 @end
 

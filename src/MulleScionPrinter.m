@@ -37,6 +37,7 @@
 
 #import "MulleScionPrinter.h"
 
+#import "MulleScionLocals.h"
 #import "MulleScionObjectModel.h"
 #import "MulleScionObjectModel+Printing.h"
 #import "MulleCommonObjCRuntime.h"
@@ -72,48 +73,105 @@
 }
 
 
-- (NSDictionary *) defaultLocalVariables
+- (id <MulleScionLocals>) defaultLocalVariables
 {
    return( defaultLocals_);
 }
 
 
-- (void) setDefaultLocalVariables:(NSDictionary *) dictionary
+- (void) setDefaultLocalVariables:(id <MulleScionLocals>) dictionary
 {
    [defaultLocals_ autorelease];
    defaultLocals_ = [dictionary copy];
 }
 
 
+- (void) addSingleLetterInstancesToLocalVariables:(id <MulleScionLocals>) locals
+{
+   char                   name[ 2];
+   char                   c;
+   SEL                    sel;
+   id                     instance;
+   Class                  class;
+   mulle_objc_classid_t   classID;
+
+   name[ 1] = 0;
+   for( c = 'A'; c <= 'Z'; c++)
+   {
+      name[ 0] = c;
+      // could use a static array for this really
+      classID = mulle_objc_classid_from_string( name);
+      class   = MulleObjCLookupClassByClassID( classID);
+      if( ! class)
+         continue;
+
+      sel = @selector( objectWithMulleScionLocalVariables:dataSource:);
+      if( ! [class respondsToSelector:sel])
+         continue;
+      instance = [class performSelector:sel
+                             withObject:locals
+                             withObject:dataSource_];
+      if( ! instance)
+      {
+         mulle_fprintf( stderr, "Class %@ didn't give an instance for %@",
+                                name,
+                                NSStringFromSelector( sel));
+         continue;
+      }
+
+      assert( [instance respondsToSelector:@selector( :)]);
+
+      // make accessible through locals... this means you can't access the
+      // class though anymore from script, as locals should have precedence
+      [locals setObject:instance
+         forReadOnlyKey:[NSString stringWithCString:name]];
+   }
+}
+
+
 - (void) writeToOutput:(id <MulleScionOutput>) output
               template:(MulleScionTemplate *) template
 {
-   NSMutableDictionary   *locals;
-   MulleScionObject      *curr;
-   extern char           MulleScionFrameworkVersion[];
+   id <MulleScionLocals>   locals;
+   MulleScionObject        *curr;
+   extern char             MulleScionFrameworkVersion[];
 
    NSParameterAssert( [template isKindOfClass:[MulleScionTemplate class]]);
 
-   locals = [template localVariablesWithDefaultValues:[self defaultLocalVariables]];
+   @autoreleasepool
+   {
+      locals = [template localVariablesWithDefaultValues:[self defaultLocalVariables]];
 
-   [locals setObject:output
-              forKey:MulleScionRenderOutputKey];
+      [locals setObject:output
+                 forKey:MulleScionRenderOutputKey];
 #if __MULLE_OBJC__
-   [locals setObject:@"Mulle"
-             forKey:MulleScionFoundationKey];
+      [locals setObject:@"Mulle"
+         forReadOnlyKey:MulleScionFoundationKey];
 #else
-   [locals setObject:@"Apple"
-             forKey:MulleScionFoundationKey];
+      [locals setObject:@"Apple"
+        forReadOnlyKey:MulleScionFoundationKey];
 #endif
-   [locals setObject:[NSString stringWithCString:MulleScionFrameworkVersion]
-              forKey:MulleScionVersionKey];
-   
-   NSParameterAssert( locals);  // could raise if Apple starts hating on nil
+      [locals setObject:[NSString stringWithCString:MulleScionFrameworkVersion]
+         forReadOnlyKey:MulleScionVersionKey];
 
-   for( curr = template; curr ;)
-      curr = [curr renderInto:output
-               localVariables:locals
-                   dataSource:dataSource_];
+      // look through single uppercase letter classes, try to find one which
+      // responds to our method, if yes generate a lowercase letter instance and
+      // plop it into locals
+
+      NSParameterAssert( locals);  // could raise if Apple starts hating on nil
+
+      [self addSingleLetterInstancesToLocalVariables:locals];
+
+      for( curr = template; curr ;)
+         curr = [curr renderInto:output
+                  localVariables:locals
+                      dataSource:dataSource_];
+
+      // so now references to single class should be cut, so those
+      // are free to die, which in turn can now release locals and
+      // the dataSource_
+      [locals removeAllObjects];
+   }
 }
 
 

@@ -73,6 +73,7 @@
       { @selector( MulleScionIndexing), @selector( Printing) },      // e0291dae;MulleScionIndexing;11e5c20c;Printing
       { @selector( MulleScionIndexing), @selector( TraceDescription) },      // e0291dae;MulleScionIndexing;35e2b50e;TraceDescription
       { @selector( MulleScionIndexing), MULLE_OBJC_NO_CATEGORYID },      // e0291dae;MulleScionIndexing;;
+      { @selector( MulleScionLocals), MULLE_OBJC_NO_CATEGORYID },      // 85aa0be2;MulleScionLocals;;
       { @selector( MulleScionLog), @selector( Printing) },      // dbea3c8e;MulleScionLog;11e5c20c;Printing
       { @selector( MulleScionLog), MULLE_OBJC_NO_CATEGORYID },      // dbea3c8e;MulleScionLog;;
       { @selector( MulleScionMacro), @selector( MacroExpansion) },      // 4736d5ed;MulleScionMacro;9ed6e240;MacroExpansion
@@ -156,6 +157,7 @@
       { @selector( NSDate), @selector( MulleScionDescription) },      // cfcedd21;NSDate;04602b46;MulleScionDescription
       { @selector( NSDictionary), @selector( TraceValueDescription) },      // 8b2abcad;NSDictionary;f69b003f;TraceValueDescription
       { @selector( NSFileHandle), @selector( MulleOutputFileHandle) },      // 01a8a865;NSFileHandle;f4e71bf3;MulleOutputFileHandle
+      { @selector( NSMutableDictionary), @selector( MulleScionLocals) },      // 2f2fa84a;NSMutableDictionary;85aa0be2;MulleScionLocals
       { @selector( NSNull), @selector( ExpressionDescription) },      // f0c42d79;NSNull;1f82ecf6;ExpressionDescription
       { @selector( NSNull), @selector( MulleScionDescription) },      // f0c42d79;NSNull;04602b46;MulleScionDescription
       { @selector( NSNumber), @selector( MulleScionDescription) },      // 8ba34f39;NSNumber;04602b46;MulleScionDescription

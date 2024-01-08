@@ -13,6 +13,7 @@ endif()
 set( SOURCES
 src/MulleMutableLineNumber.m
 src/MulleScionDataSourceProtocol.m
+src/MulleScionLocals.m
 src/MulleScionNull.m
 src/MulleScionObjectModel+BlockExpansion.m
 src/MulleScionObjectModel+Graphviz.m

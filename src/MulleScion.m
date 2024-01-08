@@ -56,7 +56,7 @@ char  MulleScionFrameworkVersion[] = STRINGIFY( PROJECT_VERSION);
           templateFile:(NSObject <MulleScionStringOrURL> *) fileName
             dataSource:(id <MulleScionDataSource>) dataSource
             searchPath:(NSArray *) searchPath
-        localVariables:(NSDictionary *) locals
+        localVariables:(id <MulleScionLocals>) locals
 {
    MulleScionTemplate   *template;
 
@@ -76,7 +76,7 @@ char  MulleScionFrameworkVersion[] = STRINGIFY( PROJECT_VERSION);
 + (NSString *) descriptionWithTemplateFile:(NSObject <MulleScionStringOrURL> *) fileName
                                 dataSource:(id <MulleScionDataSource>) dataSource
                                 searchPath:(NSArray *) searchPath
-                            localVariables:(NSDictionary *) locals
+                            localVariables:(id <MulleScionLocals>) locals
 {
    MulleScionTemplate   *template;
 
@@ -102,7 +102,7 @@ char  MulleScionFrameworkVersion[] = STRINGIFY( PROJECT_VERSION);
 + (NSString *) descriptionWithUTF8Template:(char *) s
                                 dataSource:(id <MulleScionDataSource>) dataSource
                                 searchPath:(NSArray *) searchPath
-                            localVariables:(NSDictionary *) locals
+                            localVariables:(id <MulleScionLocals>) locals
 {
    MulleScionTemplate   *template;
 
@@ -167,7 +167,7 @@ static id   acquirePropertyList( NSObject <MulleScionStringOrURL> *s)
 + (NSString *) descriptionWithTemplateFile:(NSObject <MulleScionStringOrURL> *) fileName
                           propertyListFile:(NSObject <MulleScionStringOrURL> *) plistFileName
                                 searchPath:(NSArray *) searchPath
-                            localVariables:(NSDictionary *) locals
+                            localVariables:(id <MulleScionLocals>) locals
 {
    MulleScionTemplate   *template;
    id                    plist;
@@ -357,7 +357,7 @@ static MulleScionPrinter  *createPrinterWithDatasource( id dataSource)
 
 
 - (NSString *) descriptionWithDataSource:(id) dataSource
-                          localVariables:(NSDictionary *) locals
+                          localVariables:(id <MulleScionLocals>) locals
 {
    MulleScionPrinter   *printer;
    NSAutoreleasePool   *pool;
@@ -378,7 +378,7 @@ static MulleScionPrinter  *createPrinterWithDatasource( id dataSource)
 
 - (void) writeToOutput:(id <MulleScionOutput>) output
             dataSource:(id <MulleScionDataSource>) dataSource
-        localVariables:(NSDictionary *) locals
+        localVariables:(id <MulleScionLocals>) locals
 {
    MulleScionPrinter   *printer;
    NSAutoreleasePool   *pool;

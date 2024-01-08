@@ -37,15 +37,16 @@
 
 #import "MulleScionObjectModel+Printing.h"
 #import "MulleScionNull.h"
+#import "MulleScionLocals.h"
 
 
-void  MULLE_NO_RETURN   MulleScionPrintingException( NSString *exceptionName, NSDictionary *locals, NSString *format, ...)
+void  MULLE_NO_RETURN   MulleScionPrintingException( NSString *exceptionName, id <MulleScionLocals> locals, NSString *format, ...)
 {
    va_list        args;
    NSString       *s;
 
    NSCParameterAssert( [exceptionName isKindOfClass:[NSString class]]);
-   NSCParameterAssert( [locals isKindOfClass:[NSDictionary class]]);
+   NSCParameterAssert( [locals conformsToProtocol:@protocol( MulleScionLocals)]);
    NSCParameterAssert( [format isKindOfClass:[NSString class]]);
 
    va_start( args, format);
@@ -57,14 +58,14 @@ void  MULLE_NO_RETURN   MulleScionPrintingException( NSString *exceptionName, NS
 
    [NSException raise:exceptionName
                format:@"%@ %@: %@",
-    [locals valueForKey:MulleScionCurrentFileKey],
-    [locals valueForKey:MulleScionCurrentLineKey],
+    [locals valueForKeyPath:MulleScionCurrentFileKey],
+    [locals valueForKeyPath:MulleScionCurrentLineKey],
     s];
    abort();
 }
 
 
-void  MulleScionPrintingValidateArgumentCount( NSArray *arguments, NSUInteger n,  NSDictionary *locals)
+void  MulleScionPrintingValidateArgumentCount( NSArray *arguments, NSUInteger n,  id <MulleScionLocals> locals)
 {
    NSUInteger   count;
 
@@ -74,14 +75,14 @@ void  MulleScionPrintingValidateArgumentCount( NSArray *arguments, NSUInteger n,
 
    MulleScionPrintingException( NSInvalidArgumentException, locals,
                                @"%@ expects %ld arguments (got %ld)",
-                               [locals valueForKey:MulleScionCurrentFunctionKey],
+                               [locals valueForKeyPath:MulleScionCurrentFunctionKey],
                                (long) n,
                                (long) count,
                                locals);
 }
 
 
-id   MulleScionPrintingValidatedArgument( NSArray *arguments, NSUInteger i,  Class cls, NSDictionary *locals)
+id   MulleScionPrintingValidatedArgument( NSArray *arguments, NSUInteger i,  Class cls, id <MulleScionLocals> locals)
 {
    id   value;
 
@@ -94,7 +95,7 @@ id   MulleScionPrintingValidatedArgument( NSArray *arguments, NSUInteger i,  Cla
 
    MulleScionPrintingException( NSInvalidArgumentException, locals,
                                @"%@ expects a %@ as argument #%ld",
-                               [locals valueForKey:MulleScionCurrentFunctionKey],
+                               [locals valueForKeyPath:MulleScionCurrentFunctionKey],
                                cls,
                                (long) i);
 }

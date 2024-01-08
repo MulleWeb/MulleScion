@@ -59,6 +59,7 @@ src/MulleMutableLineNumber.h
 src/MulleObjCCompilerSettings.h
 src/MulleObjCLoader+MulleScion.h
 src/MulleScionDataSourceProtocol.h
+src/MulleScionLocals.h
 src/MulleScionNull.h
 src/MulleScionObjectModel+BlockExpansion.h
 src/MulleScionObjectModel+MacroExpansion.h

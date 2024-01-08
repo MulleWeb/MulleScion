@@ -37,8 +37,10 @@
 
 #import "MulleScionDataSourceProtocol.h"
 
+#import "MulleScionLocals.h"
 #import "MulleScionObjectModel+Printing.h"
 #import "MulleScionPrintingException.h"
+#import <MulleObjC/NSDebug.h>
 
 
 @interface NSObject( OldMethods)
@@ -57,10 +59,10 @@
 @implementation NSObject( MulleScionDataSourceSupport)
 
 - (id) mulleScionValueForKeyPath:(NSString *) keyPath
-                  localVariables:(NSMutableDictionary *) locals
+                  localVariables:(id <MulleScionLocals>) locals
 {
    NSParameterAssert( [keyPath isKindOfClass:[NSString class]]);
-   NSParameterAssert( [locals isKindOfClass:[NSMutableDictionary class]]);
+   NSParameterAssert( [locals conformsToProtocol:@protocol( MulleScionLocals)]);
 
    return( [self valueForKeyPath:keyPath]);
 }
@@ -68,10 +70,10 @@
 
 - (id) mulleScionValueForKeyPath:(NSString *) keyPath
                           target:(id) target
-                  localVariables:(NSMutableDictionary *) locals
+                  localVariables:(id <MulleScionLocals>) locals
 {
    NSParameterAssert( [keyPath isKindOfClass:[NSString class]]);
-   NSParameterAssert( [locals isKindOfClass:[NSMutableDictionary class]]);
+   NSParameterAssert( [locals conformsToProtocol:@protocol( MulleScionLocals)]);
 
    if( target == self)
       return( [self mulleScionValueForKeyPath:keyPath
@@ -83,10 +85,10 @@
 // you can protect local variables too, but why ?
 //
 - (id) mulleScionValueForKeyPath:(NSString *) keyPath
-                inLocalVariables:(NSMutableDictionary *) locals
+                inLocalVariables:(id <MulleScionLocals>) locals
 {
    NSParameterAssert( [keyPath isKindOfClass:[NSString class]]);
-   NSParameterAssert( [locals isKindOfClass:[NSMutableDictionary class]]);
+   NSParameterAssert( [locals conformsToProtocol:@protocol( MulleScionLocals)]);
 
    return( [locals valueForKeyPath:keyPath]);
 }
@@ -125,8 +127,8 @@
       if( length)
       {
          c = [s characterAtIndex:0];
-         if( c >= 'A' && c <= 'Z')
-            NSLog( @"Did not find a class %@", s);
+         if( NSDebugEnabled && c >= 'A' && c <= 'Z')
+            NSLog( @"MulleScion did not find a class \"%@\"", s);
       }
    }
    return( cls);
@@ -135,13 +137,13 @@
 
 - (id) mulleScionPipeString:(NSString *) s
               throughMethod:(NSString *) identifier
-             localVariables:(NSMutableDictionary *) locals
+             localVariables:(id <MulleScionLocals>) locals
 {
    SEL   sel;
 
    NSParameterAssert( ! s || [s isKindOfClass:[NSString class]]);
    NSParameterAssert( [identifier isKindOfClass:[NSString class]]);
-   NSParameterAssert( [locals isKindOfClass:[NSMutableDictionary class]]);
+   NSParameterAssert( [locals conformsToProtocol:@protocol( MulleScionLocals)]);
 
    if( ! [identifier length])
       MulleScionPrintingException( NSInvalidArgumentException, locals, @"empty pipe identifier is invalid");
@@ -160,17 +162,17 @@
 
 - (id) mulleScionFunction:(NSString *) identifier
                 arguments:(NSArray *) arguments
-           localVariables:(NSMutableDictionary *) locals
+           localVariables:(id <MulleScionLocals>) locals
 {
-   id             (*f)( id, NSArray *, NSMutableDictionary *);
+   id             (*f)( id, NSArray *, id <MulleScionLocals>);
    NSDictionary   *functions;
 
    NSParameterAssert( [identifier isKindOfClass:[NSString class]]);
    NSParameterAssert( ! arguments || [arguments isKindOfClass:[NSArray class]]);
-   NSParameterAssert( [locals isKindOfClass:[NSMutableDictionary class]]);
+   NSParameterAssert( [locals conformsToProtocol:@protocol( MulleScionLocals)]);
 
    [locals setObject:identifier
-              forKey:MulleScionCurrentFunctionKey];
+      forReadOnlyKey:MulleScionCurrentFunctionKey];
 
    functions = [locals objectForKey:@"__FUNCTION_TABLE__"];
    f = [[functions objectForKey:identifier] pointerValue];
@@ -179,9 +181,9 @@
 
    [NSException raise:NSInvalidArgumentException
                format:@"\"%@\" %@: unknown function \"%@\"",
-    [locals valueForKey:MulleScionCurrentFileKey],
-    [locals valueForKey:MulleScionCurrentLineKey],
-    [locals valueForKey:MulleScionCurrentFunctionKey]];
+    [locals valueForKeyPath:MulleScionCurrentFileKey],
+    [locals valueForKeyPath:MulleScionCurrentLineKey],
+    [locals valueForKeyPath:MulleScionCurrentFunctionKey]];
 
    return( nil);
 }

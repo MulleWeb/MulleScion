@@ -9,8 +9,8 @@
  *
  *      mulle-sde environment set MULLE_MATCH_TO_C_RUN DISABLE
  */
-#ifndef mulle_scion_export_h__
-#define mulle_scion_export_h__
+#ifndef _mulle_scion__export_h__
+#define _mulle_scion__export_h__
 
 
 #import "MulleCommonObjCRuntime.h"
@@ -18,6 +18,7 @@
 #import "MulleObjCCompilerSettings.h"
 #import "MulleObjCLoader+MulleScion.h"
 #import "MulleScionDataSourceProtocol.h"
+#import "MulleScionLocals.h"
 #import "MulleScionNull.h"
 #import "MulleScionObjectModel+BlockExpansion.h"
 #import "MulleScionObjectModel+MacroExpansion.h"

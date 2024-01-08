@@ -38,6 +38,7 @@
 #import "NSObject+MulleScionDescription.h"
 #import "MulleObjCCompilerSettings.h"
 #import "MulleScionNull.h"
+#import "MulleScionLocals.h"
 
 
 NSString   *MulleScionDateFormatterKey        = @"MulleScionDateFormatter";
@@ -55,7 +56,7 @@ extern void  MULLE_NO_RETURN   MulleScionPrintingException( NSString *exceptionN
 
 @implementation NSObject( MulleScionDescription)
 
-- (NSString *) mulleScionDescriptionWithLocalVariables:(NSMutableDictionary *) context
+- (NSString *) mulleScionDescriptionWithLocalVariables:(id <MulleScionLocals>) context
 {
    return( [self description]);
 }
@@ -65,7 +66,7 @@ extern void  MULLE_NO_RETURN   MulleScionPrintingException( NSString *exceptionN
 
 @implementation NSNull( MulleScionDescription)
 
-- (NSString *) mulleScionDescriptionWithLocalVariables:(NSMutableDictionary *) context
+- (NSString *) mulleScionDescriptionWithLocalVariables:(id <MulleScionLocals>) context
 {
    NSString  *s;
 
@@ -80,7 +81,7 @@ extern void  MULLE_NO_RETURN   MulleScionPrintingException( NSString *exceptionN
 
 @implementation _MulleScionNull( MulleScionDescription)
 
-+ (NSString *) mulleScionDescriptionWithLocalVariables:(NSMutableDictionary *) context
++ (NSString *) mulleScionDescriptionWithLocalVariables:(id <MulleScionLocals>) context
 {
    NSString  *s;
 
@@ -95,7 +96,7 @@ extern void  MULLE_NO_RETURN   MulleScionPrintingException( NSString *exceptionN
 
 @implementation NSString( MulleScionDescription)
 
-- (NSString *) mulleScionDescriptionWithLocalVariables:(NSMutableDictionary *) context
+- (NSString *) mulleScionDescriptionWithLocalVariables:(id <MulleScionLocals>) context
 {
    NSString     *s;
    NSString     *cut;
@@ -125,7 +126,7 @@ extern void  MULLE_NO_RETURN   MulleScionPrintingException( NSString *exceptionN
 @end
 
 
-static NSLocale   *getLocale( NSMutableDictionary *context)
+static NSLocale   *getLocale( id <MulleScionLocals> context )
 {
    id   locale;
 
@@ -145,7 +146,7 @@ static NSLocale   *getLocale( NSMutableDictionary *context)
 }
 
 
-static id   getFormatter( NSMutableDictionary *context, NSString *key, Class cls)
+static id   getFormatter( id <MulleScionLocals> context , NSString *key, Class cls)
 {
    id   formatter;
 
@@ -157,12 +158,12 @@ static id   getFormatter( NSMutableDictionary *context, NSString *key, Class cls
       return( formatter);
 
    MulleScionPrintingException( NSInvalidArgumentException, @"%@ must be a %@",
-                          key, cls, context);
+                                                            key, cls, context);
    return( nil);
 }
 
 
-static NSString   *getFormat( NSMutableDictionary *context, NSString *key)
+static NSString   *getFormat( id <MulleScionLocals> context , NSString *key)
 {
    NSString *format;
 
@@ -178,7 +179,7 @@ static NSString   *getFormat( NSMutableDictionary *context, NSString *key)
 
 @implementation NSNumber( MulleScionDescription)
 
-- (NSString *) mulleScionDescriptionWithLocalVariables:(NSMutableDictionary *) context
+- (NSString *) mulleScionDescriptionWithLocalVariables:(id <MulleScionLocals>) context
 {
    NSLocale            *locale;
    NSNumberFormatter   *formatter;
@@ -225,7 +226,7 @@ static NSString   *getFormat( NSMutableDictionary *context, NSString *key)
 
 @implementation NSDate( MulleScionDescription)
 
-- (NSString *) mulleScionDescriptionWithLocalVariables:(NSMutableDictionary *) context
+- (NSString *) mulleScionDescriptionWithLocalVariables:(id <MulleScionLocals>) context
 {
    NSLocale          *locale;
    NSDateFormatter   *formatter;
@@ -233,9 +234,11 @@ static NSString   *getFormat( NSMutableDictionary *context, NSString *key)
    BOOL              reformat;
    BOOL              relocalize;
 
-   locale    = [context objectForKey:MulleScionLocaleKey];
-   format    = [[context objectForKey:MulleScionDateFormatKey] description];
-   formatter = [context objectForKey:MulleScionDateFormatterKey];
+   locale     = [context objectForKey:MulleScionLocaleKey];
+   format     = [[context objectForKey:MulleScionDateFormatKey] description];
+   formatter  = [context objectForKey:MulleScionDateFormatterKey];
+   relocalize = NO;
+   reformat   = NO;
 
    if( formatter)
    {
