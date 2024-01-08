@@ -38,9 +38,11 @@
 #define MULLE_SCION_VERSION   ((1860 << 20) | (0 << 8) | 1)
 
 #import "MulleScionObjectModel.h"
+#import "MulleScionObjectModel+Printing.h"
 #import "MulleScionObjectModel+TraceDescription.h"
 #import "MulleScionNull.h"
 
+#import "MulleScionLocals.h"
 #import "MulleScionDataSourceProtocol.h"
 #import "MulleScionOutputProtocol.h"
 #import "MulleScionParser.h"
@@ -78,12 +80,12 @@
 + (NSString *) descriptionWithTemplateFile:(NSObject <MulleScionStringOrURL> *) location
                                 dataSource:(id <MulleScionDataSource>) dataSource
                                 searchPath:(NSArray *) searchPath
-                            localVariables:(NSDictionary *) locals;
+                            localVariables:(id <MulleScionLocals>) locals;
 
 + (NSString *) descriptionWithTemplateFile:(NSObject <MulleScionStringOrURL> *) fileName
                           propertyListFile:(NSObject <MulleScionStringOrURL> *) plistFileName
                                 searchPath:(NSArray *) searchPath
-                            localVariables:(NSDictionary *) locals;
+                            localVariables:(id <MulleScionLocals>) locals;
 
 + (NSString *) descriptionWithTemplateFile:(NSObject <MulleScionStringOrURL> *) fileName
                           propertyListFile:(NSObject <MulleScionStringOrURL> *) plistFileName;
@@ -91,7 +93,7 @@
 + (NSString *) descriptionWithUTF8Template:(char *) s
                                 dataSource:(id <MulleScionDataSource>) dataSource
                                 searchPath:(NSArray *) searchPath
-                            localVariables:(NSDictionary *) locals;
+                            localVariables:(id <MulleScionLocals>) locals;
 
 
 + (NSString *) descriptionWithUTF8Template:(char *) s
@@ -102,7 +104,7 @@
           templateFile:(NSObject <MulleScionStringOrURL> *) fileName
             dataSource:(id <MulleScionDataSource>) dataSource
             searchPath:(NSArray *) searchPath
-        localVariables:(NSDictionary *) locals;
+        localVariables:(id <MulleScionLocals>) locals;
 
 
 - (id) initWithUTF8String:(char *) s;
@@ -119,11 +121,11 @@
                    searchPath:(NSArray *) searchPath;
 
 - (NSString *) descriptionWithDataSource:(id) dataSource
-                          localVariables:(NSDictionary *) locals;
+                          localVariables:(id <MulleScionLocals>) locals;
 
 - (void) writeToOutput:(id <MulleScionOutput>) output
             dataSource:(id <MulleScionDataSource>) dataSource
-        localVariables:(NSDictionary *) locals;
+        localVariables:(id <MulleScionLocals>) locals;
 
 @end
 

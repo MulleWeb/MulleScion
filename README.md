@@ -2,15 +2,15 @@
 
 #### 🌱 A modern template engine for Objective C
 
-
 (written in an oldfashioned way)
 
 > This is a fork of [mulle-kybernetik/MulleScion](//github.com/mulle-kybernetik/MulleScion)
 > tailored for use in mulle-sde projects
 
+
 | Release Version                                       | Release Notes
 |-------------------------------------------------------|--------------
-| ![Mulle kybernetiK tag](https://img.shields.io/github/tag//MulleScion.svg?branch=release) [![Build Status](https://github.com//MulleScion/workflows/CI/badge.svg?branch=release)](//github.com//MulleScion/actions)| [RELEASENOTES](RELEASENOTES.md) |
+| ![Mulle kybernetiK tag](https://img.shields.io/github/tag/MulleWeb/MulleScion.svg?branch=release) [![Build Status](https://github.com/MulleWeb/MulleScion/workflows/CI/badge.svg?branch=release)](//github.com/MulleWeb/MulleScion/actions) | [RELEASENOTES](RELEASENOTES.md) |
 
 
 
@@ -23,7 +23,7 @@ Here is a simple example, where ObjC code is embedded in a template:
 ``` twig
 <html>
    <!-- rendered by mulle-scion on
-        2023-10-23T11:06:54Z -->
+        2024-01-11T21:42:53Z -->
    <body>
    </body>
 </html>
@@ -60,7 +60,7 @@ HTML editors:
 ``` html
 <html>
   <!-- rendered by mulle-scion on
-        2023-10-23T11:06:54Z -->
+        2024-01-11T21:42:53Z -->
   <body>
     <for item in [NSTimeZone knownTimeZoneNames]>
       <if item#.isFirst>
@@ -107,15 +107,9 @@ C-strings, although *MulleScion* tries to be as helpful as possible.
 The documentation is not very good, actually it is just more or less a
 collection of test cases with comments...
 
-## Overview
-![Overview](overview.dot.svg)
+### You are here
 
-| Requirement                                  | Description
-|----------------------------------------------|-----------------------
-| [MulleFoundation](https://github.com/MulleFoundation/MulleFoundation)             | 💍 Umbrella library for the MulleFoundation
-| [MulleObjCHTTPFoundation](https://github.com/MulleWeb/MulleObjCHTTPFoundation)             | 🎫 HTTP and HTML utility methods and classes for mulle-objc
-| [MulleObjCInetOSFoundation](https://github.com/MulleFoundation/MulleObjCInetOSFoundation)             | 📠💻 OS specific extensions to NSHost and NSURL
-| [mulle-objc-list](https://github.com/mulle-objc/mulle-objc-list)             | 📒 Lists mulle-objc runtime information contained in executables.
+![Overview](overview.dot.svg)
 
 
 ## Add
@@ -161,7 +155,7 @@ cmake --build build --config Release &&
 cmake --install build --config Release
 ```
 
-## Platforms and Compilers
+### Platforms and Compilers
 
 All platforms and compilers supported by
 [mulle-c11](//github.com/mulle-c/mulle-c11).
@@ -169,6 +163,6 @@ All platforms and compilers supported by
 
 ## Author
 
-[Nat!](https://mulle-kybernetik.com/weblog) for Mulle kybernetiK
-[@hons82 (Hannes)]()
+[Nat!](https://mulle-kybernetik.com/weblog) for Mulle kybernetiK  
+[@hons82 (Hannes)]()  
 

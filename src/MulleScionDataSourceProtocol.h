@@ -36,6 +36,8 @@
 
 #import "import.h"
 
+@protocol MulleScionLocals;
+
 //
 // You use these methods if you want to control, what a template
 // can access from your dataSource (e.g. a customer writing his own templates).
@@ -51,23 +53,24 @@
 - (id) valueForKeyPath:(NSString *) keyPath;
 
 //
-// control access to your dataSource
+// control access to your dataSource, localVariables should not inspected
+// for "keyPath". Use it for auxiliary state (unlikely)
 //
 - (id) mulleScionValueForKeyPath:(NSString *) keyPath
-                  localVariables:(NSMutableDictionary *) locals;
+                  localVariables:(id <MulleScionLocals>) locals;
 
 //
-// control access to any other object, except those in localVariables
+// Control access to any other object, except those in localVariables
 //
 - (id) mulleScionValueForKeyPath:(NSString *) keyPath
                           target:(id) target
-                  localVariables:(NSMutableDictionary *) locals;
+                  localVariables:(id <MulleScionLocals>) locals;
 
 //
 // control access to localVariables (just for completeness)
 //
 - (id) mulleScionValueForKeyPath:(NSString *) keyPath
-                inLocalVariables:(NSMutableDictionary *) locals;
+                inLocalVariables:(id <MulleScionLocals>) locals;
 
 //
 // control access to methods
@@ -85,14 +88,14 @@
 //
 - (id) mulleScionPipeString:(NSString *) s
               throughMethod:(NSString *) identifier
-             localVariables:(NSMutableDictionary *) locals;
+             localVariables:(id <MulleScionLocals>) locals;
 
 //
 // implement and control access to built in functions
 //
 - (id) mulleScionFunction:(NSString *) identifier
                 arguments:(NSArray *) arguments
-           localVariables:(NSMutableDictionary *) locals;
+           localVariables:(id <MulleScionLocals>) locals;
 
 @end
 

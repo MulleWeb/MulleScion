@@ -38,10 +38,11 @@
 #import "import.h"
 #import "MulleObjCCompilerSettings.h"
 
+@protocol MulleScionLocals;
 
-void  MULLE_NO_RETURN   MulleScionPrintingException( NSString *exceptionName, NSDictionary *locals, NSString *format, ...);
+void  MULLE_NO_RETURN   MulleScionPrintingException( NSString *exceptionName, id <MulleScionLocals> locals, NSString *format, ...);
 
 // these methods expect locals to contain the function name in
 // locals with key MulleScionCurrentFunctionKey
-void  MulleScionPrintingValidateArgumentCount( NSArray *arguments, NSUInteger n,  NSDictionary *locals);
-id    MulleScionPrintingValidatedArgument( NSArray *arguments, NSUInteger i,  Class cls, NSDictionary *locals);
+void  MulleScionPrintingValidateArgumentCount( NSArray *arguments, NSUInteger n, id <MulleScionLocals> locals);
+id    MulleScionPrintingValidatedArgument( NSArray *arguments, NSUInteger i,  Class cls, id <MulleScionLocals> locals);

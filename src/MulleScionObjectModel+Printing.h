@@ -43,10 +43,12 @@
 @interface MulleScionObject( Printing)
 
 - (MulleScionObject *) renderInto:(id <MulleScionOutput>) output
-                   localVariables:(NSMutableDictionary *) locals
+                   localVariables:(id <MulleScionLocals>) locals
                        dataSource:(id <MulleScionDataSource>) dataSource;
 @end
 
+
+extern NSString   *MulleScionArgumentsKey;
 
 extern NSString   *MulleScionRenderOutputKey;
 extern NSString   *MulleScionCurrentFileKey;
@@ -65,27 +67,28 @@ extern NSString   *MulleScionForCloserKey;
 extern NSString   *MulleScionEvenKey;
 extern NSString   *MulleScionOddKey;
 
+@class MulleScionLocals;
 
 @interface MulleScionTemplate( Printing)
 
-- (NSMutableDictionary *) localVariablesWithDefaultValues:(NSDictionary *) defaults;
-+ (NSMutableDictionary *) mulleScionDefaultBuiltinFunctionTable;
+- (id <MulleScionLocals>) localVariablesWithDefaultValues:(id <MulleScionLocals>) defaults;
++ (id <MulleScionLocals>) mulleScionDefaultBuiltinFunctionTable;
 
 @end
 
 
 NSString  *MulleScionFilteredString( NSString *value,
-                                    NSMutableDictionary *locals,
-                                    id <MulleScionDataSource> dataSource,
-                                    NSUInteger bit);
+                                     id <MulleScionLocals> locals,
+                                     id <MulleScionDataSource> dataSource,
+                                     NSUInteger bit);
 
 void   MulleScionRenderString( NSString *value,
                                id <MulleScionOutput> output,
-                               NSMutableDictionary *locals,
+                               id <MulleScionLocals> locals,
                                id <MulleScionDataSource> dataSource);
 
 void   MulleScionRenderPlaintextString( NSString *value,
                                         id <MulleScionOutput> output,
-                                        NSMutableDictionary *locals,
+                                        id <MulleScionLocals> locals,
                                         id <MulleScionDataSource> dataSource);
 
