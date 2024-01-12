@@ -1,3 +1,11 @@
+### 1860.0.1
+
+* new class (and protoocl) MulleLocals to supply local variables. This has the advantage over the NSMutableDictionary (which is still compatible), that you write protect some constants such as NSAscending
+* **NEW FEATURE**: single letter classes. Classes whose name are a single letter receive special treatment. This allows a form of language extension with classes. e.g. foo="abcde" [S:"foo/b/x"] could be used like a bash substitution
+* fix white{%%} space being consumed by %}
+* nil == nil now returns YES and not NO, also comparisons of the form nil >= object are valid
+* in syntax like %} {# #} the space between the %} and the comment {# is deemed not worth preserving anymore
+
 # 1860.0.0
 
 * ``__FILE__`` now keeps the complete filename and not just the lastPathComponent
