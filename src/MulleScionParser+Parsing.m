@@ -894,7 +894,7 @@ static int   parser_grab_text_until_selector_end( parser *p, int partial)
       if( c >= 'a' && c <= 'z')
          continue;
 
-      if( c == '_')
+      if( c == '_'  || c == '$')
          continue;
 
       if( c == ':')
