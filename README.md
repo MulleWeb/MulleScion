@@ -23,7 +23,7 @@ Here is a simple example, where ObjC code is embedded in a template:
 ``` twig
 <html>
    <!-- rendered by mulle-scion on
-        2024-01-13T15:12:39Z -->
+        2024-01-14T00:57:58Z -->
    <body>
    </body>
 </html>
@@ -60,7 +60,7 @@ HTML editors:
 ``` html
 <html>
   <!-- rendered by mulle-scion on
-        2024-01-13T15:12:39Z -->
+        2024-01-14T00:57:58Z -->
   <body>
     <for item in [NSTimeZone knownTimeZoneNames]>
       <if item#.isFirst>
