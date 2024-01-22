@@ -2,6 +2,7 @@
 
 Here is a simple example, where ObjC code is embedded in a template:
 
+{% verbatim %}
 ``` twig
 <html>
    <!-- rendered by {{ [[NSProcessInfo processInfo] processName] }} on
@@ -22,6 +23,7 @@ Here is a simple example, where ObjC code is embedded in a template:
    </body>
 </html>
 ```
+{% endverbatim %}
 
 Using MulleScion the creation of a string from your
 object using a template file is as easy as:

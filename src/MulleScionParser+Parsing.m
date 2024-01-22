@@ -295,6 +295,13 @@ static NSString   *parser_diagnostic_string( parser *p, NSString *reason)
    s_len = i;
 
       // terminal escape sequences
+#ifdef RED
+# undef RED
+#endif
+#ifdef NONE
+# undef NONE
+#endif
+
 #if HAVE_TERMINAL
 #define RED   "\033[01;31m"
 #define NONE  "\033[00m"
