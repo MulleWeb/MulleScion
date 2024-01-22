@@ -1,3 +1,7 @@
+### 1860.0.2
+
+* compile fix for COSMOPOLITAN
+
 ### 1860.0.1
 
 * new class (and protoocl) MulleLocals to supply local variables. This has the advantage over the NSMutableDictionary (which is still compatible), that you write protect some constants such as NSAscending
