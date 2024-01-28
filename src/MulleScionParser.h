@@ -72,14 +72,18 @@
 - (NSDictionary *) dependencyTable;
 
 - (void) parser:(void *) parser
-errorInFileName:(NSString *) fileName
+          error:(NSString *) reason
+       fileName:(NSString *) fileName
+           line:(NSString *) line
      lineNumber:(NSUInteger) lineNumber
-         reason:(NSString *) reason;
+    columnNumber:(NSUInteger) lineNumber;
 
 - (void)   parser:(void *) parser
-warningInFileName:(NSString *) fileName
+          warning:(NSString *) reason
+         fileName:(NSString *) fileName
+             line:(NSString *) line
        lineNumber:(NSUInteger) lineNumber
-           reason:(NSString *) reason;
+     columnNumber:(NSUInteger) lineNumber;
 
 - (NSString *) fileName;
 
