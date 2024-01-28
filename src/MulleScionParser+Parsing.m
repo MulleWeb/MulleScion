@@ -950,6 +950,7 @@ static void   parser_grab_text_until_keypath_end( parser *p)
          break;
 }
 
+
 static inline  int  is_identifier_char( unsigned int c, int isfirst)
 {
    if( c >= 'a' && c <= 'z')
@@ -1151,6 +1152,7 @@ static unsigned char   parser_peek2_character( parser *p)
    return( p->curr + 1 < p->sentinel ? p->curr[ 1] : 0);
 }
 
+
 static unsigned char   parser_peek3_character( parser *p)
 {
    return( p->curr + 2 < p->sentinel ? p->curr[ 2] : 0);
@@ -1182,7 +1184,7 @@ static void   parser_undo_character( parser *p)
 }
 
 
-static inline void  parser_skip_peeked_character( parser *p, char c)
+static inline void   parser_skip_peeked_character( parser *p, char c)
 {
    assert( p->curr < p->sentinel);
    assert( *p->curr == c);
@@ -1286,12 +1288,14 @@ static MulleScionExpression * NS_RETURNS_RETAINED
 static inline MulleScionExpression * NS_RETURNS_RETAINED
    parser_do_unary_expression( parser *p);
 
+
 static NSMutableDictionary  *parser_do_dictionary( parser *p)
 {
    NSMutableDictionary    *dict;
    MulleScionExpression   *expr;
    MulleScionExpression   *keyExpr;
-   unsigned char           c;
+   unsigned char          c;
+   BOOL                   oldStyle;
 
    NSCParameterAssert( parser_peek_character( p) == '{');
    parser_skip_peeked_character( p, '{');   // skip '"'
@@ -1320,19 +1324,36 @@ static NSMutableDictionary  *parser_do_dictionary( parser *p)
             parser_error( p, "a comma or closing curly brackets was expected");
       }
 
-      expr = parser_do_expression( p);
+      keyExpr  = parser_do_expression( p);
+      if( ! [keyExpr isDictionaryKey])
+         parser_error( p, "a number or string as a key was expected");
 
       parser_skip_whitespace( p);
       c = parser_peek_character( p);
-      if( c != ',')
-         parser_error( p, "a comma and a key was expected");
 
-      parser_skip_peeked_character( p, ',');
-      keyExpr = parser_do_expression( p);
-      if( ! [keyExpr isDictionaryKey])
-         parser_error( p, "a number or string as a key was expected");
-      [dict setObject:expr
-               forKey:[keyExpr value]];
+      //
+      // used to parse this in [NSDictionary initWithObjectsAndKeys:]
+      // fashion, but the new default is as @{ key: value}, like you'd do
+      // in Objective-C
+      //
+      oldStyle = c == ',';
+      if( oldStyle)
+         parser_skip_peeked_character( p, ',');
+      else
+      {
+         if( c != ':')
+            parser_error( p, "a colon ':' and a value were expected");
+         parser_skip_peeked_character( p, ':');
+      }
+
+      expr = parser_do_expression( p);
+      if( oldStyle)
+         [dict setObject:keyExpr
+                  forKey:[expr value]];
+      else
+         [dict setObject:expr
+                  forKey:[keyExpr value]];
+
       [keyExpr release];
       [expr release];
    }
@@ -1574,7 +1595,6 @@ static MulleScionFunction  * NS_RETURNS_RETAINED
    arguments = parser_do_arguments( p);
    return( _parser_do_function( p, identifier, arguments));
 }
-
 
 
 static MulleScionFunction  * NS_RETURNS_RETAINED
@@ -3122,30 +3142,30 @@ static MulleScionObject * NS_RETURNS_RETAINED  parser_do_command( parser *p)
 
       switch( (int) op)
       {
-      case ApplyOpcode    : return( parser_do_filter( p, line));
-      case BlockOpcode    : return( parser_do_block( p, line));
-      case DefineOpcode   : return( parser_do_define( p, line));
-      case ElseOpcode     : return( [MulleScionElse newWithLineNumber:line]);
-      case ElseforOpcode  : return( [MulleScionElseFor newWithLineNumber:line]);
-      case EndapplyOpcode : return( [MulleScionEndFilter newWithLineNumber:line]);
-      case EndblockOpcode : return( [MulleScionEndBlock newWithLineNumber:line]);
-      case EndfilterOpcode: return( [MulleScionEndFilter newWithLineNumber:line]);
-      case EndforOpcode   : return( [MulleScionEndFor newWithLineNumber:line]);
-      case EndifOpcode    : return( [MulleScionEndIf newWithLineNumber:line]);
-      case EndmacroOpcode : return( parser_do_endmacro( p, line));
+      case ApplyOpcode       : return( parser_do_filter( p, line));
+      case BlockOpcode       : return( parser_do_block( p, line));
+      case DefineOpcode      : return( parser_do_define( p, line));
+      case ElseOpcode        : return( [MulleScionElse newWithLineNumber:line]);
+      case ElseforOpcode     : return( [MulleScionElseFor newWithLineNumber:line]);
+      case EndapplyOpcode    : return( [MulleScionEndFilter newWithLineNumber:line]);
+      case EndblockOpcode    : return( [MulleScionEndBlock newWithLineNumber:line]);
+      case EndfilterOpcode   : return( [MulleScionEndFilter newWithLineNumber:line]);
+      case EndforOpcode      : return( [MulleScionEndFor newWithLineNumber:line]);
+      case EndifOpcode       : return( [MulleScionEndIf newWithLineNumber:line]);
+      case EndmacroOpcode    : return( parser_do_endmacro( p, line));
       case EndverbatimOpcode : parser_error( p, "stray endverbatim command");
-      case EndwhileOpcode : return( [MulleScionEndWhile newWithLineNumber:line]);
-      case ExtendsOpcode  : return( parser_do_extends( p));
-      case FilterOpcode   : return( parser_do_filter( p, line));
-      case ForOpcode      : return( parser_do_for( p, line));
-      case IfOpcode       : return( parser_do_if( p, line));
-      case IncludesOpcode : return( parser_do_includes( p, YES));
-      case LogOpcode      : return( parser_do_log( p, line));
-      case MacroOpcode    : return( parser_do_macro( p, line));
-      case RequiresOpcode : return( parser_do_requires( p, line));
-      case SetOpcode      : return( parser_do_set( p, line));
-      case VerbatimOpcode : return( parser_do_verbatim( p, line));
-      case WhileOpcode    : return( parser_do_while( p, line));
+      case EndwhileOpcode    : return( [MulleScionEndWhile newWithLineNumber:line]);
+      case ExtendsOpcode     : return( parser_do_extends( p));
+      case FilterOpcode      : return( parser_do_filter( p, line));
+      case ForOpcode         : return( parser_do_for( p, line));
+      case IfOpcode          : return( parser_do_if( p, line));
+      case IncludesOpcode    : return( parser_do_includes( p, YES));
+      case LogOpcode         : return( parser_do_log( p, line));
+      case MacroOpcode       : return( parser_do_macro( p, line));
+      case RequiresOpcode    : return( parser_do_requires( p, line));
+      case SetOpcode         : return( parser_do_set( p, line));
+      case VerbatimOpcode    : return( parser_do_verbatim( p, line));
+      case WhileOpcode       : return( parser_do_while( p, line));
       }
 
       //
