@@ -1,3 +1,9 @@
+# 1861.0.0
+
+* the parser and warning method signature has changed, as well as the default output of MulleScion when handling them. This makes errors much more scrutable.
+* allows @{ key: value} NSDictionay initialization (the old comma list will still work, though, but there its { value, key }
+
+
 ### 1860.0.2
 
 * compile fix for COSMOPOLITAN

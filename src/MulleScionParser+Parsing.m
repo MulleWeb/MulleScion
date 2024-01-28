@@ -63,19 +63,24 @@
 - (void) parserWarning:(parser_warning_info *) info
 {
    [self parser:info->parser
-warningInFileName:info->fileName ? info->fileName : @"template"
+        warning:info->message
+       fileName:info->fileName ? info->fileName : @"template"
+           line:info->line
      lineNumber:info->lineNumber
-         reason:info->message];
+   columnNumber:info->columnNumber];
 }
 
 
 - (void) parserError:(parser_error_info *) info
 {
    [self parser:info->parser
-errorInFileName:info->fileName ? info->fileName : @"template"
+          error:info->message
+       fileName:info->fileName ? info->fileName : @"template"
+           line:info->line
      lineNumber:info->lineNumber
-         reason:info->message];
+   columnNumber:info->columnNumber];
 }
+
 
 // parse it a little like Twig
 // {# comment #}
@@ -115,31 +120,36 @@ typedef struct _parser_memo
 } parser_memo;
 
 
+typedef void   parser_error_callback_t( id self, SEL sel, parser_error_info *info);
+typedef void   parser_warning_callback_t( id self, SEL sel, parser_warning_info *info);
+
+
 typedef struct _parser
 {
-   unsigned char            *buf;
-   unsigned char            *sentinel;
+   unsigned char              *buf;
+   unsigned char              *sentinel;
 
-   unsigned char            *curr;
-   NSUInteger               lineNumber;
+   unsigned char              *curr;
+   NSUInteger                 lineNumber;
 
-   parser_memo              memo;
-   parser_memo              memo_scion;
-   parser_memo              memo_interesting;
+   parser_memo                memo;
+   parser_memo                memo_scion;
+   parser_memo                memo_interesting;
 
-   MulleScionObject         *first;
+   MulleScionObject           *first;
 
-   void                     (*parser_do_error)( id self, SEL sel, parser_warning_info *parser);
-   void                     (*parser_do_warning)( id self, SEL sel, parser_error_info *parser);
-   id                       self;
-   SEL                      sel;
-   int                      skipComments;
-   int                      inMacro;
-   int                      wasMacroCall;
-   unsigned int             environment;
-   NSString                 *fileName;
-   MulleScionParserTables   tables;
-   NSMutableArray           *converterStack;
+   parser_error_callback_t    *parser_do_error;
+   parser_warning_callback_t  *parser_do_warning;
+
+   id                         self;
+   SEL                        sel;
+   int                        skipComments;
+   int                        inMacro;
+   int                        wasMacroCall;
+   unsigned int               environment;
+   NSString                   *fileName;
+   MulleScionParserTables     tables;
+   NSMutableArray             *converterStack;
 } parser;
 
 
@@ -249,8 +259,48 @@ static inline void   parser_set_filename( parser *p, NSString *s)
 }
 
 
+static NSUInteger   parser_diagnostic_columnNumber( parser *p)
+{
+   unsigned char  *line_start;
+
+   for( line_start = p->curr; line_start > p->buf; line_start--)
+   {
+      if( line_start[ -1] == '\r' || line_start[ -1] == '\n')
+         break;
+   }
+
+   // we wanna draw a marker like this
+   // ⟰ there (but not here anymore)
+   //
+   return( (NSUInteger) (p->curr - line_start));
+}
+
+
+static NSString   *parser_diagnostic_line( parser *p)
+{
+   unsigned char  *line_start;
+   unsigned char  *line_end;
+
+   for( line_end = p->curr; line_end < p->sentinel; line_end++)
+   {
+      if( *line_end == '\r' || *line_end == '\n')
+         break;
+   }
+
+   for( line_start = p->curr; line_start > p->buf; line_start--)
+   {
+      if( line_start[ -1] == '\r' || line_start[ -1] == '\n')
+         break;
+   }
+   return( [NSString mulleStringWithUTF8Characters:(char *) line_start
+                                            length:line_end - line_start]);
+}
+
+
 static NSString   *parser_diagnostic_string( parser *p, NSString *reason)
 {
+   return( reason);
+#if 0
    NSString       *s;
    size_t         p_len;
    size_t         s_len;
@@ -327,10 +377,11 @@ static NSString   *parser_diagnostic_string( parser *p, NSString *reason)
 
    s = [NSString stringWithFormat:@"at '%c' near \"%@\", %@", *p->curr, s, reason];
    return( s);
+#endif
 }
 
 
-static void  parser_warning( parser *p, char *c_format, ...)
+static void   parser_warning( parser *p, char *c_format, ...)
 {
    NSString              *reason;
    parser_warning_info   info;
@@ -344,10 +395,12 @@ static void  parser_warning( parser *p, char *c_format, ...)
                                     arguments:args] autorelease];
    va_end( args);
 
-   info.parser     = p;
-   info.lineNumber = p->memo.lineNumber;
-   info.message    = parser_diagnostic_string( p, reason);
-   info.fileName   = p->fileName;
+   info.parser       = p;
+   info.lineNumber   = p->memo.lineNumber;
+   info.columnNumber = parser_diagnostic_columnNumber( p);
+   info.message      = parser_diagnostic_string( p, reason);
+   info.line         = parser_diagnostic_line( p);
+   info.fileName     = p->fileName;
 
    (*p->parser_do_warning)( p->self, p->sel, &info);
 }
@@ -356,7 +409,8 @@ static void  parser_warning( parser *p, char *c_format, ...)
 //
 // there is no return, stuff just leaks and we abort
 //
-static void  MULLE_NO_RETURN  parser_error( parser *p, char *c_format, ...)
+MULLE_NO_RETURN
+static void   parser_error( parser *p, char *c_format, ...)
 {
    NSString            *reason;
    parser_error_info   info;
@@ -370,10 +424,12 @@ static void  MULLE_NO_RETURN  parser_error( parser *p, char *c_format, ...)
                                     arguments:args] autorelease];
    va_end( args);
 
-   info.parser     = p;
-   info.lineNumber = p->memo.lineNumber;
-   info.message    = parser_diagnostic_string( p, reason);
-   info.fileName   = p->fileName;
+   info.parser       = p;
+   info.lineNumber   = p->memo.lineNumber;
+   info.columnNumber = parser_diagnostic_columnNumber( p);
+   info.message      = parser_diagnostic_string( p, reason);
+   info.line         = parser_diagnostic_line( p);
+   info.fileName     = p->fileName;
 
    (*p->parser_do_error)( p->self, p->sel, &info);
    abort();

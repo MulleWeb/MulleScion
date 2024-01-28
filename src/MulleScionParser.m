@@ -349,24 +349,64 @@ static void   dump( MulleScionTemplate *self, char *env, NSString *blurb, SEL se
 }
 
 
-- (void)   parser:(void *) parser
-warningInFileName:(NSString *) fileName
-       lineNumber:(NSUInteger) lineNumber
-           reason:(NSString *) reason
+static NSString   *output_line( NSString *fileName,
+                                NSString *line,
+                                NSUInteger lineNumber,
+                                NSUInteger columnNumber,
+                                NSString *reason)
 {
-   NSLog( @"warning: %@,%lu: %@", fileName ? fileName : @"template",
-                                  (long) lineNumber, reason);
+   NSString         *s;
+   NSMutableArray   *array;
+   NSUInteger       lineNumberLength;
+
+   array = [NSMutableArray array];
+   s     = [NSString stringWithFormat:@"%@,%tu: %@",
+                                      fileName ? fileName : @"template",
+                                      lineNumber,
+                                      reason];
+   [array addObject:s];
+   if( line)
+   {
+      s = [NSString stringWithFormat:@"   %tu | %@", lineNumber, line];
+      [array addObject:s];
+
+      if( columnNumber != (NSUInteger) -1)
+      {
+         // # is strlen... then
+         // #s - (#"   " + #" | " + #line) ->  #lineNumber
+         lineNumberLength = [s length] - 3 - 3 - [line length];
+         s = [NSString stringWithFormat:@"   %*s | %*s%c",
+                                        (int) lineNumberLength, "",
+                                        (int) columnNumber, "",
+                                        '^'];
+         [array addObject:s];
+      }
+   }
+   return( [array componentsJoinedByString:@"\n"]);
 }
 
 
-- (void) parser:(void *) parser
-errorInFileName:(NSString *) fileName
-     lineNumber:(NSUInteger) lineNumber
-         reason:(NSString *) reason
+- (void)   parser:(void *) parser
+          warning:(NSString *) reason
+         fileName:(NSString *) fileName
+             line:(NSString *) line
+       lineNumber:(NSUInteger) lineNumber
+     columnNumber:(NSUInteger) columnNumber
+{
+   NSLog( @"warning: %@", output_line( fileName, line, lineNumber, columnNumber, reason));
+}
+
+
+- (void)   parser:(void *) parser
+            error:(NSString *) reason
+         fileName:(NSString *) fileName
+             line:(NSString *) line
+       lineNumber:(NSUInteger) lineNumber
+     columnNumber:(NSUInteger) columnNumber
 {
    [NSException raise:NSInvalidArgumentException
-               format:@"%@,%lu: %@", fileName ? fileName : @"template",
-                                     (long) lineNumber, reason];
+               format:@"%@",
+                       output_line( fileName, line, lineNumber, columnNumber, reason)];
 }
 
 

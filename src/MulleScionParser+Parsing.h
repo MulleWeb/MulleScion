@@ -73,7 +73,9 @@ typedef struct
    void                             *parser;
    __unsafe_unretained NSString     *fileName;
    NSUInteger                       lineNumber;
+   NSUInteger                       columnNumber;
    __unsafe_unretained NSString     *message;
+   __unsafe_unretained NSString     *line;
 } parser_warning_info;
 
 typedef parser_warning_info   parser_error_info;
