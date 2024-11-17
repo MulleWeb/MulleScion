@@ -54,6 +54,7 @@
 {
 //   [_dictionary release];
    [_readOnlyKeys release];
+   _readOnlyKeys = nil; // needed for super dealloc
    [super dealloc];
 }
 
@@ -62,9 +63,8 @@
 {
    MulleScionLocals   *copy;
 
-   copy                = [self mutableCopy];
-   copy->_readOnlyKeys = [[NSMutableSet alloc] initWithSet:_readOnlyKeys];
-//   copy->_dictionary   = [[NSMutableDictionary alloc] initWithDictionary:_dictionary];
+   copy = [[self class] new];
+   [copy addEntriesFromLocals:self];
    return( copy);
 }
 
@@ -109,6 +109,7 @@
    [super removeAllObjects];
 }
 
+
 - (void) removeObjectForReadOnlyKey:(NSString *) key;
 {
 //   [_dictionary removeObjectForKey:key];
@@ -130,24 +131,18 @@
 
 - (void) addEntriesFromLocals:(id <MulleScionLocals>) other
 {
-   if( ! other)
-      return;
+   id   key;
+   id   value;
+
+   for( key in other)
+   {
+      value = [other objectForKey:key];
+      [super setObject:value
+                forKey:key];
+   }
 
    if( [other isKindOfClass:[MulleScionLocals class]])
-   {
       [_readOnlyKeys unionSet:((MulleScionLocals *) other)->_readOnlyKeys];
-      [self addEntriesFromDictionary:(NSDictionary *) other];
-//      [self addEntriesFromDictionary:((MulleScionLocals *) other)->_dictionary];
-      return;
-   }
-
-   if( [other isKindOfClass:[NSDictionary class]])
-   {
-      [self addEntriesFromDictionary:(NSDictionary *) other];
-      return;
-   }
-
-   abort();
 }
 
 #if 0

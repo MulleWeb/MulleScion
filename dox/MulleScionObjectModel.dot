@@ -25,6 +25,7 @@ MulleScionPipe-> MulleScionBinaryOperatorExpression;
 MulleScionIndexing-> MulleScionBinaryOperatorExpression;
 MulleScionComparison-> MulleScionBinaryOperatorExpression;
 MulleScionDot-> MulleScionBinaryOperatorExpression;
+MulleScionConcat-> MulleScionBinaryOperatorExpression;
 MulleScionFunction-> MulleScionIdentifierExpression;
 MulleScionParameterAssignment-> MulleScionIdentifierExpression;
 MulleScionAssignmentExpression-> MulleScionExpression;

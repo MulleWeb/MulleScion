@@ -69,6 +69,7 @@ MULLE_SCION_OBJECT_NEXT_POINTER_VISIBILITY
 - (BOOL) isVariable;
 - (BOOL) isMethod;
 - (BOOL) isParameterAssignment;  // not a set though
+- (BOOL) isConcat;
 
 - (BOOL) isIf;
 - (BOOL) isElse;
@@ -302,6 +303,15 @@ typedef enum
 
 #pragma mark -
 
+//
+// used in "foo" ~ bar ~ " xxx"
+//
+@interface MulleScionConcat : MulleScionBinaryOperatorExpression
+@end
+
+
+#pragma mark -
+
 @interface MulleScionFunction : MulleScionIdentifierExpression
 {
    NSArray   *arguments_;
@@ -341,6 +351,8 @@ typedef enum
 - (MulleScionExpression *) expression;
 
 @end
+
+
 
 
 #pragma mark -

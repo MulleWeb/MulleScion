@@ -1,3 +1,37 @@
+## 1861.1.0
+
+feat: improve error handling and dictionary syntax
+
+* Twig ~ string concatenation now supported
+* NSString gains a -matches: method for simple and readable regexp match
+* NSLog() can now be used to print trace info to stderr
+* You can now say `defined(x)` in addition to `defined( "x")`
+* Enhanced error reporting and handling
+  - Improve parser warning/error method signatures for better error context
+  - Make error messages more scrutable with better formatting
+  - Add line number and column information to error output
+
+* Add modern dictionary initialization syntax
+  - Support @{ key: value } style dictionary initialization
+  - Maintain backwards compatibility with comma-separated syntax
+  - Update parser to handle both syntaxes
+
+* Improve variable handling and constants
+  - Add new MulleLocals class and protocol for local variables
+  - Support write-protected constants like NSAscending
+  - Keep compatibility with NSMutableDictionary
+
+* Add single-letter class language extensions
+  - Special handling for single letter class names
+  - Enable bash-like substitution syntax (e.g. [S:"foo/b/x"])
+  - Extend template language capabilities
+
+* Fix comparison and whitespace handling
+  - Fix nil == nil to return YES instead of NO
+  - Allow nil >= object comparisons
+  - Optimize whitespace handling between %} and comments
+
+
 # 1861.0.0
 
 * the parser and warning method signature has changed, as well as the default output of MulleScion when handling them. This makes errors much more scrutable.

@@ -99,6 +99,7 @@
 - (BOOL) isMethod     { return( NO); }
 - (BOOL) isVariable   { return( NO); }
 - (BOOL) isParameterAssignment { return( NO); }
+- (BOOL) isConcat     { return( NO); }
 
 - (BOOL) isSet        { return( NO); }
 
@@ -915,6 +916,31 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 }
 
 @end
+
+
+@implementation MulleScionConcat
+
+
+- (BOOL) isConcat
+{
+   return( YES);
+}
+
+
+- (NSString *) operator
+{
+   return( @"~");
+}
+
+
+- (NSInteger) precedence
+{
+   return( 1); // guess
+}
+
+
+@end
+
 
 
 #pragma mark -
