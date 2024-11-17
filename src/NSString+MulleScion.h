@@ -42,4 +42,6 @@
 - (NSString *) htmlEscapedString;
 - (NSString *) urlEscapedString;
 
+- (BOOL) matches:(NSString *) regex;
+
 @end

@@ -94,6 +94,7 @@
 // implement and control access to built in functions
 //
 - (id) mulleScionFunction:(NSString *) identifier
+          evaledArguments:(NSArray *) evaledArguments
                 arguments:(NSArray *) arguments
            localVariables:(id <MulleScionLocals>) locals;
 

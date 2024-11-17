@@ -390,63 +390,154 @@ static void   updateLineNumber( MulleScionObject *self, id <MulleScionLocals> lo
 
 
 
-static id  f_filter( id self, NSArray *arguments, id <MulleScionLocals> locals)
+static id  f_filter( id self, NSArray *evaledArguments, NSArray *arguments, id <MulleScionLocals> locals)
 {
    NSString   *string;
    id         value;
 
-   MulleScionPrintingValidateArgumentCount( arguments, 1, locals);
-   value  = MulleScionPrintingValidatedArgument( arguments, 0, Nil, locals);
+   MulleScionPrintingValidateArgumentCount( evaledArguments, 1, locals);
+   value  = MulleScionPrintingValidatedArgument( evaledArguments, 0, Nil, locals);
    string = [value mulleScionDescriptionWithLocalVariables:locals];
    string = MulleScionFilteredString( string, locals, self, FilterOutput);
    return( string);
 }
 
 
-static id  f_defined( id self, NSArray *arguments, id <MulleScionLocals> locals)
+static id  f_defined( id self, NSArray *evaledArguments, NSArray *arguments, id <MulleScionLocals> locals)
 {
    id     value;
    BOOL   flag;
 
    MulleScionPrintingValidateArgumentCount( arguments, 1, locals);
-   value = MulleScionPrintingValidatedArgument( arguments, 0, [NSString class], locals);
-   flag  = [self mulleScionValueForKeyPath:value
-                            localVariables:locals] != nil;
-   if( ! flag)
-      flag = [locals valueForKeyPath:value] != nil;
+   value = [arguments :0];
+   if( [value isVariable])
+      value = [value identifier];
+   else
+      value = MulleScionPrintingValidatedArgument( evaledArguments, 0, [NSString class], locals);
+
+   flag  = [locals valueForKeyPath:value] != nil;
    return( [NSNumber numberWithBool:flag]);
 }
 
 
-static id  f_NSMakeRange( id self, NSArray *arguments, id <MulleScionLocals> locals)
+static id  f_NSMakeRange( id self, NSArray *evaledArguments, NSArray *arguments, id <MulleScionLocals> locals)
 {
    NSRange   range;
 
-   MulleScionPrintingValidateArgumentCount( arguments, 2, locals);
-   range.location = [MulleScionPrintingValidatedArgument( arguments, 0, [NSNumber class], locals) unsignedIntegerValue];
-   range.length   = [MulleScionPrintingValidatedArgument( arguments, 1, [NSNumber class], locals) unsignedIntegerValue];
+   MulleScionPrintingValidateArgumentCount( evaledArguments, 2, locals);
+   range.location = [MulleScionPrintingValidatedArgument( evaledArguments, 0, [NSNumber class], locals) unsignedIntegerValue];
+   range.length   = [MulleScionPrintingValidatedArgument( evaledArguments, 1, [NSNumber class], locals) unsignedIntegerValue];
 
    return( [NSValue valueWithRange:range]);
 }
 
 
-static id  f_NSStringFromRange( id self, NSArray *arguments, id <MulleScionLocals> locals)
+// written almost completely by cody
+static NSUInteger   validateNSLogFormat( NSString *format, id <MulleScionLocals> locals)
+{
+   NSRange      range;
+   NSRange      searchRange;
+   NSUInteger   count;
+   NSUInteger   nextCharIndex;
+   unichar      nextChar;
+   NSUInteger   length;
+
+   if( format == nil)
+      MulleScionPrintingException( NSInvalidArgumentException, locals,
+                                  @"format cannot be nil");
+
+   count       = 0;
+   length      = [format length];
+   searchRange = NSMakeRange( 0, length);
+
+   while( searchRange.location < length)
+   {
+      range = [format rangeOfString:@"%"
+                          options:0
+                            range:searchRange];
+
+      if( range.location == NSNotFound)
+         break;
+
+      nextCharIndex = range.location + 1;
+
+      if( nextCharIndex >= length)
+         MulleScionPrintingException( NSInvalidArgumentException, locals,
+                                     @"incomplete format specifier at end of string");
+
+      nextChar = [format characterAtIndex:nextCharIndex];
+
+      while( nextCharIndex < length &&
+             ((nextChar >= '0' && nextChar <= '9') || nextChar == '.'))
+      {
+         nextCharIndex++;
+         if( nextCharIndex < length)
+            nextChar = [format characterAtIndex:nextCharIndex];
+      }
+
+      if( nextChar != '@')
+         MulleScionPrintingException( NSInvalidArgumentException, locals,
+                                     @"invalid format specifier '%%%c' found. only '%%@' is allowed",
+                                     nextChar);
+      count++;
+      searchRange.location = nextCharIndex + 1;
+      searchRange.length   = length - searchRange.location;
+   }
+
+   return( count);
+}
+
+
+
+static id   f_NSLog( id self, NSArray *evaledArguments, NSArray *arguments, id <MulleScionLocals> locals)
+{
+   NSString            *format;
+   mulle_vararg_list   varargs;
+   mulle_vararg_list   p;
+   NSUInteger          i;
+   NSUInteger          n;
+   NSUInteger          m;
+
+   n      = [evaledArguments count];
+   format = MulleScionPrintingValidatedArgument( evaledArguments, 0, [NSString class], locals);
+   m      = validateNSLogFormat( format, locals);
+   if( (n - 1) != m)
+      MulleScionPrintingException( NSInvalidArgumentException, locals,
+                                  @"format \"%@\" expects %td arguments but gets %td",
+                                  format, m, n - 1);
+
+   mulle_vararg_builder_do( buf, n * sizeof( id))
+   {
+      varargs = mulle_vararg_list_make( buf);
+      p       = varargs;
+      for( i = 1; i < n; i++)
+         mulle_vararg_push_id( p, [evaledArguments :i]);
+
+      mulle_mvfprintf( stderr, [format UTF8String], varargs);
+      fputc( '\n', stderr);
+   }
+   return( nil);
+}
+
+
+
+static id  f_NSStringFromRange( id self, NSArray *evaledArguments, NSArray *arguments, id <MulleScionLocals> locals)
 {
    NSRange   range;
 
-   MulleScionPrintingValidateArgumentCount( arguments, 1, locals);
-   range = [MulleScionPrintingValidatedArgument( arguments, 0, [NSValue class], locals) rangeValue];
+   MulleScionPrintingValidateArgumentCount( evaledArguments, 1, locals);
+   range = [MulleScionPrintingValidatedArgument( evaledArguments, 0, [NSValue class], locals) rangeValue];
    return( NSStringFromRange( range));
 }
 
 
-static id  f_NSLocalizedString( id self, NSArray *arguments, id <MulleScionLocals> locals)
+static id  f_NSLocalizedString( id self, NSArray *evaledArguments, NSArray *arguments, id <MulleScionLocals> locals)
 {
    NSString   *s1;
 
-   MulleScionPrintingValidateArgumentCount( arguments, 2, locals);
+   MulleScionPrintingValidateArgumentCount( evaledArguments, 2, locals);
 
-   s1 = MulleScionPrintingValidatedArgument( arguments, 0, [NSString class], locals);
+   s1 = MulleScionPrintingValidatedArgument( evaledArguments, 0, [NSString class], locals);
 
    return( NSLocalizedString( s1, nil));
 }
@@ -457,6 +548,8 @@ static id  f_NSLocalizedString( id self, NSArray *arguments, id <MulleScionLocal
    MulleScionLocals  *dictionary;
 
    dictionary = [MulleScionLocals object];
+   [dictionary setObject:[NSValue valueWithPointer:f_NSLog]
+          forReadOnlyKey:@"NSLog"];
    [dictionary setObject:[NSValue valueWithPointer:f_NSStringFromRange]
           forReadOnlyKey:@"NSStringFromRange"];
    [dictionary setObject:[NSValue valueWithPointer:f_NSMakeRange]
@@ -664,8 +757,9 @@ static id   MulleScionValueForKeyPath( NSString *keyPath,
    }
 
    result = [dataSource mulleScionFunction:value_
-                                 arguments:array
-                           localVariables:locals];
+                           evaledArguments:array
+                                 arguments:arguments_
+                            localVariables:locals];
    if( ! result)
       result = MulleScionNull;
    return( result);
@@ -1957,6 +2051,32 @@ done:
    }
 
    result = [NSNumber numberWithBool:flag];
+
+   TRACE_EVAL_END( self, result);
+
+   return( result);
+}
+
+@end
+
+
+#pragma mark -
+
+@implementation MulleScionConcat( Printing)
+
+- (id) evaluateValue:(id) value
+      localVariables:(id <MulleScionLocals>) locals
+          dataSource:(id <MulleScionDataSource>) dataSource
+{
+   id   otherValue;
+   id   result;
+
+   NSParameterAssert( value);
+   TRACE_EVAL_BEGIN( self, value);
+
+   otherValue = [self->right_ valueWithLocalVariables:locals
+                                           dataSource:dataSource];
+   result = value ? [value stringByAppendingString:otherValue] : otherValue;
 
    TRACE_EVAL_END( self, result);
 

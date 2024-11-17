@@ -25,6 +25,8 @@
       { @selector( MulleScionComparison), @selector( NSCoding) },      // 49a3663b;MulleScionComparison;b67e77cf;NSCoding
       { @selector( MulleScionComparison), @selector( Printing) },      // 49a3663b;MulleScionComparison;11e5c20c;Printing
       { @selector( MulleScionComparison), MULLE_OBJC_NO_CATEGORYID },      // 49a3663b;MulleScionComparison;;
+      { @selector( MulleScionConcat), @selector( Printing) },      // a71f622a;MulleScionConcat;11e5c20c;Printing
+      { @selector( MulleScionConcat), MULLE_OBJC_NO_CATEGORYID },      // a71f622a;MulleScionConcat;;
       { @selector( MulleScionConditional), @selector( NSCoding) },      // 3aa237a3;MulleScionConditional;b67e77cf;NSCoding
       { @selector( MulleScionConditional), @selector( Printing) },      // 3aa237a3;MulleScionConditional;11e5c20c;Printing
       { @selector( MulleScionConditional), @selector( TraceDescription) },      // 3aa237a3;MulleScionConditional;35e2b50e;TraceDescription

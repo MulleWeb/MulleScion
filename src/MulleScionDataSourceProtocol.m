@@ -161,23 +161,25 @@
 
 
 - (id) mulleScionFunction:(NSString *) identifier
+          evaledArguments:(NSArray *) evaledArguments
                 arguments:(NSArray *) arguments
            localVariables:(id <MulleScionLocals>) locals
 {
-   id             (*f)( id, NSArray *, id <MulleScionLocals>);
+   id             (*f)( id, NSArray *, NSArray *, id <MulleScionLocals>);
    NSDictionary   *functions;
 
    NSParameterAssert( [identifier isKindOfClass:[NSString class]]);
+   NSParameterAssert( ! evaledArguments || [evaledArguments isKindOfClass:[NSArray class]]);
    NSParameterAssert( ! arguments || [arguments isKindOfClass:[NSArray class]]);
    NSParameterAssert( [locals conformsToProtocol:@protocol( MulleScionLocals)]);
 
    [locals setObject:identifier
       forReadOnlyKey:MulleScionCurrentFunctionKey];
 
-   functions = [locals objectForKey:@"__FUNCTION_TABLE__"];
+   functions = [locals objectForKey:MulleScionFunctionTableKey];
    f = [[functions objectForKey:identifier] pointerValue];
    if( f)
-      return( (*f)( self, arguments, locals));
+      return( (*f)( self, evaledArguments, arguments, locals));
 
    [NSException raise:NSInvalidArgumentException
                format:@"\"%@\" %@: unknown function \"%@\"",

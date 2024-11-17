@@ -49,4 +49,10 @@
    return( [self stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]);
 }
 
+
+- (BOOL) matches:(NSString *) regex
+{
+   return( [self mulleRangeOfPattern:regex].length != 0);
+}
+
 @end

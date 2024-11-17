@@ -2071,6 +2071,7 @@ static MulleScionExpression * NS_RETURNS_RETAINED
                  return( left);
               operator = (char) comparator;
               break;
+   case '~' :
    case '?' :
    case '.' : // the irony, that I have to support "modern" ObjC to do C :)
               parser_skip_peeked_character( p, operator);
@@ -2112,6 +2113,12 @@ static MulleScionExpression * NS_RETURNS_RETAINED
 
    case '?' :
       return( parser_do_conditional( p, left, right));
+
+   case '~' :
+      // check_parentheses_left_right( p, "~", left, right);
+      return( [MulleScionConcat newWithRetainedLeftExpression:left
+                                      retainedRightExpression:right
+                                                   lineNumber:p->memo.lineNumber]);
 
    case '|' :
       if( ! [right isMethod] && ! [right isPipe] && ! [right isIdentifier])
@@ -2822,6 +2829,9 @@ static MulleScionObject  * NS_RETURNS_RETAINED
    NSString              *identifier;
 
    NSCParameterAssert( [lexpr isFunction] || [lexpr isIndexing] || [lexpr isIdentifier]);
+
+   if( [lexpr isFunction])
+      return( lexpr);
 
    c = parser_peek_character( p);
    if( c != '=')
