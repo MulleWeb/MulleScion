@@ -10,7 +10,7 @@
 
 | Release Version                                       | Release Notes
 |-------------------------------------------------------|--------------
-| ![Mulle kybernetiK tag](https://img.shields.io/github/tag/MulleWeb/MulleScion.svg?branch=release) [![Build Status](https://github.com/MulleWeb/MulleScion/workflows/CI/badge.svg?branch=release)](//github.com/MulleWeb/MulleScion/actions) | [RELEASENOTES](RELEASENOTES.md) |
+| ![Mulle kybernetiK tag](https://img.shields.io/github/tag/MulleWeb/MulleScion.svg) [![Build Status](https://github.com/MulleWeb/MulleScion/workflows/CI/badge.svg)](//github.com/MulleWeb/MulleScion/actions) | [RELEASENOTES](RELEASENOTES.md) |
 
 
 
@@ -22,9 +22,21 @@ Here is a simple example, where ObjC code is embedded in a template:
 
 ``` twig
 <html>
-   <!-- rendered by mulle-scion on
-        2024-01-14T00:57:58Z -->
+   <!-- rendered by {{ [[NSProcessInfo processInfo] processName] }} on
+        {{ [NSDate date] }} -->
    <body>
+     {% for item in [NSTimeZone knownTimeZoneNames] %}
+         {% if item#.isFirst %}
+         <table>
+            <tr><th>TimeZone</th></tr>
+         {% endif %}
+            <tr><td>{{ item }}</td></tr>
+         {% if item#.isLast %}
+         </table>
+         {% endif %}
+      {% else %}
+         Sorry, no timezone info available.
+      {% endfor %}
    </body>
 </html>
 ```
@@ -60,7 +72,7 @@ HTML editors:
 ``` html
 <html>
   <!-- rendered by mulle-scion on
-        2024-01-14T00:57:58Z -->
+        2024-12-11T16:48:52Z -->
   <body>
     <for item in [NSTimeZone knownTimeZoneNames]>
       <if item#.isFirst>
