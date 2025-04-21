@@ -44,10 +44,17 @@
 
 @implementation MulleScionObject( VariableSubstitution)
 
-- (id) replaceVariableWithIdentifier:(NSString *)identifier
-                      withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
+- (id) newExpandedVariableWithIdentifier:(NSString *) identifier
+                          withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
 {
    return( nil);
+}
+
+- (id) replaceVariableWithIdentifier:(NSString *) identifier
+                      withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
+{
+   return( [self newExpandedVariableWithIdentifier:identifier
+                                    withExpression:expr]);
 }
 
 @end
@@ -55,8 +62,8 @@
 
 @implementation MulleScionIdentifierExpression( VariableSubstitution)
 
-- (id) replaceVariableWithIdentifier:(NSString *) identifier
-                      withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
+- (id) newExpandedVariableWithIdentifier:(NSString *) identifier
+                          withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
 {
    if( ! [[self identifier] isEqualToString:identifier])
       return( nil);
@@ -71,7 +78,7 @@
 @end
 
 
-static NSMutableDictionary  *replaceVariablesWithIdentifierInDictionary( NSDictionary *dictionary,
+static NSMutableDictionary  *expandedVariablesWithIdentifierInDictionary( NSDictionary *dictionary,
                                                                          NSString *identifier,
                                                                          MulleScionExpression *expr)
 {
@@ -97,10 +104,10 @@ static NSMutableDictionary  *replaceVariablesWithIdentifierInDictionary( NSDicti
       NSCParameterAssert( ! obj->next_);
       NSCParameterAssert( ! key->next_);
       
-      keyCopy = [key replaceVariableWithIdentifier:identifier
-                                    withExpression:expr];
-      copy    = [obj replaceVariableWithIdentifier:identifier
-                                    withExpression:expr];
+      keyCopy = [key newExpandedVariableWithIdentifier:identifier
+                                        withExpression:expr];
+      copy    = [obj newExpandedVariableWithIdentifier:identifier
+                                        withExpression:expr];
       
       if( copy || keyCopy)
          hasChanges = YES;
@@ -119,9 +126,9 @@ static NSMutableDictionary  *replaceVariablesWithIdentifierInDictionary( NSDicti
 }
 
 
-static NSMutableArray  *replaceVariablesWithIdentifierInArray( NSArray *array,
-                                                               NSString *identifier,
-                                                               MulleScionExpression *expr)
+static NSMutableArray  *expandedVariablesWithIdentifierInArray( NSArray *array,
+                                                                NSString *identifier,
+                                                                MulleScionExpression *expr)
 {
    NSEnumerator       *rover;
    NSMutableArray     *result;
@@ -138,8 +145,8 @@ static NSMutableArray  *replaceVariablesWithIdentifierInArray( NSArray *array,
    {
       NSCParameterAssert( ! obj->next_);
       
-      copy = [obj replaceVariableWithIdentifier:identifier
-                                 withExpression:expr];
+      copy = [obj newExpandedVariableWithIdentifier:identifier
+                                     withExpression:expr];
       if( copy)
       {
          [result addObject:copy];
@@ -155,13 +162,13 @@ static NSMutableArray  *replaceVariablesWithIdentifierInArray( NSArray *array,
 
 @implementation MulleScionArray( VariableSubstitution)
 
-- (id) replaceVariableWithIdentifier:(NSString *) identifier
-                      withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
+- (id) newExpandedVariableWithIdentifier:(NSString *) identifier
+                          withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
 {
    NSArray           *result;
    MulleScionArray   *copy;
    
-   result = replaceVariablesWithIdentifierInArray( self->value_, identifier, expr);
+   result = expandedVariablesWithIdentifierInArray( self->value_, identifier, expr);
    if( ! result)
       return( nil);
    
@@ -176,13 +183,13 @@ static NSMutableArray  *replaceVariablesWithIdentifierInArray( NSArray *array,
 
 @implementation MulleScionDictionary( VariableSubstitution)
    
-- (id) replaceVariableWithIdentifier:(NSString *) identifier
-                      withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
+- (id) newExpandedVariableWithIdentifier:(NSString *) identifier
+                          withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
 {
    NSDictionary           *result;
    MulleScionDictionary   *copy;
    
-   result = replaceVariablesWithIdentifierInDictionary( self->value_, identifier, expr);
+   result = expandedVariablesWithIdentifierInDictionary( self->value_, identifier, expr);
    if( ! result)
       return( nil);
    
@@ -196,13 +203,13 @@ static NSMutableArray  *replaceVariablesWithIdentifierInArray( NSArray *array,
 
 @implementation MulleScionFunction( VariableSubstitution)
 
-- (id) replaceVariableWithIdentifier:(NSString *) identifier
-                      withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
+- (id) newExpandedVariableWithIdentifier:(NSString *) identifier
+                          withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
 {
    NSArray              *result;
    MulleScionFunction   *copy;
    
-   result = replaceVariablesWithIdentifierInArray(  self->arguments_, identifier, expr);
+   result = expandedVariablesWithIdentifierInArray(  self->arguments_, identifier, expr);
    if( ! result)
       return( nil);
    
@@ -217,8 +224,8 @@ static NSMutableArray  *replaceVariablesWithIdentifierInArray( NSArray *array,
 
 @implementation MulleScionMethod( VariableSubstitution)
 
-- (id) replaceVariableWithIdentifier:(NSString *) identifier
-                      withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
+- (id) newExpandedVariableWithIdentifier:(NSString *) identifier
+                          withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
 {
    NSArray                *result;
    MulleScionMethod       *copy;
@@ -226,10 +233,10 @@ static NSMutableArray  *replaceVariablesWithIdentifierInArray( NSArray *array,
 
    copy1 = nil;
    if( ! [value_ isIdentifier])
-      copy1  = [value_ replaceVariableWithIdentifier:identifier
-                                      withExpression:expr];
+      copy1  = [value_ newExpandedVariableWithIdentifier:identifier
+                                          withExpression:expr];
 
-   result = replaceVariablesWithIdentifierInArray( self->arguments_, identifier, expr);
+   result = expandedVariablesWithIdentifierInArray( self->arguments_, identifier, expr);
    
    if( ! copy1 && ! result)
       return( nil);
@@ -252,15 +259,14 @@ static NSMutableArray  *replaceVariablesWithIdentifierInArray( NSArray *array,
 
 @implementation MulleScionUnaryOperatorExpression( VariableSubstitution)
 
-- (id) replaceVariableWithIdentifier:(NSString *) identifier
-                      withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
+- (id) newExpandedVariableWithIdentifier:(NSString *) identifier
+                          withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
 {
    MulleScionUnaryOperatorExpression   *copy;
    MulleScionExpression                *copy1;
    
-   copy1 = [value_ replaceVariableWithIdentifier:identifier
-                                  withExpression:expr];
-   
+   copy1 = [value_ newExpandedVariableWithIdentifier:identifier
+                                      withExpression:expr];
    if( ! copy1)
       return( nil);
    
@@ -274,18 +280,17 @@ static NSMutableArray  *replaceVariablesWithIdentifierInArray( NSArray *array,
 
 @implementation MulleScionBinaryOperatorExpression( VariableSubstitution)
 
-- (id) replaceVariableWithIdentifier:(NSString *) identifier
-                      withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
+- (id) newExpandedVariableWithIdentifier:(NSString *) identifier
+                          withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
 {
    MulleScionBinaryOperatorExpression   *copy;
    MulleScionExpression                 *copy1;
    MulleScionExpression                 *copy2;
    
-   copy1 = [value_ replaceVariableWithIdentifier:identifier
-                                  withExpression:expr];
-   copy2 = [right_ replaceVariableWithIdentifier:identifier
-                                 withExpression:expr];
-
+   copy1 = [value_ newExpandedVariableWithIdentifier:identifier
+                                      withExpression:expr];
+   copy2 = [right_ newExpandedVariableWithIdentifier:identifier
+                                      withExpression:expr];
    if( ! copy1 && ! copy2)
       return( nil);
 
@@ -309,17 +314,17 @@ static NSMutableArray  *replaceVariablesWithIdentifierInArray( NSArray *array,
 //
 @implementation MulleScionPipe( VariableSubstitution)
 
-- (id) replaceVariableWithIdentifier:(NSString *) identifier
-                      withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
+- (id) newExpandedVariableWithIdentifier:(NSString *) identifier
+                          withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
 {
    MulleScionPipe          *copy;
    MulleScionExpression    *copy1;
    MulleScionExpression    *copy2;
 
-   copy1 = [value_ replaceVariableWithIdentifier:identifier
-                                  withExpression:expr];
-   copy2 = [right_ replaceVariableWithIdentifier:identifier
-                                  withExpression:expr];
+   copy1 = [value_ newExpandedVariableWithIdentifier:identifier
+                                      withExpression:expr];
+   copy2 = [right_ newExpandedVariableWithIdentifier:identifier
+                                      withExpression:expr];
    if( copy2 && ! [copy2 isMethod] && ! [copy2 isPipe] && ! [copy2 isIdentifier])
    {
       [copy2 release];
@@ -342,17 +347,17 @@ static NSMutableArray  *replaceVariablesWithIdentifierInArray( NSArray *array,
 
 @implementation MulleScionDot( VariableSubstitution)
 
-- (id) replaceVariableWithIdentifier:(NSString *) identifier
-                      withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
+- (id) newExpandedVariableWithIdentifier:(NSString *) identifier
+                          withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
 {
    MulleScionDot           *copy;
    MulleScionExpression    *copy1;
    MulleScionExpression    *copy2;
    
-   copy1 = [value_ replaceVariableWithIdentifier:identifier
-                                  withExpression:expr];
-   copy2 = [right_ replaceVariableWithIdentifier:identifier
-                                  withExpression:expr];
+   copy1 = [value_ newExpandedVariableWithIdentifier:identifier
+                                      withExpression:expr];
+   copy2 = [right_ newExpandedVariableWithIdentifier:identifier
+                                      withExpression:expr];
    if( copy2 && ! [copy2 isMethod] && ! [copy2 isPipe] && ! [copy2 isDot] && ! [copy2 isIdentifier])
    {
       [copy2 release];
@@ -374,20 +379,20 @@ static NSMutableArray  *replaceVariablesWithIdentifierInArray( NSArray *array,
 
 @implementation MulleScionConditional( VariableSubstitution)
 
-- (id) replaceVariableWithIdentifier:(NSString *) identifier
-                      withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
+- (id) newExpandedVariableWithIdentifier:(NSString *) identifier
+                          withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
 {
    MulleScionConditional   *copy;
    MulleScionExpression    *copy1;
    MulleScionExpression    *copy2;
    MulleScionExpression    *copy3;
    
-   copy1 = [value_ replaceVariableWithIdentifier:identifier
-                                  withExpression:expr];
-   copy2 = [middle_ replaceVariableWithIdentifier:identifier
-                                  withExpression:expr];
-   copy3 = [right_ replaceVariableWithIdentifier:identifier
-                                  withExpression:expr];
+   copy1 = [value_ newExpandedVariableWithIdentifier:identifier
+                                      withExpression:expr];
+   copy2 = [middle_ newExpandedVariableWithIdentifier:identifier
+                                       withExpression:expr];
+   copy3 = [right_ newExpandedVariableWithIdentifier:identifier
+                                      withExpression:expr];
    
    if( ! copy1 && ! copy2 && ! copy3)
       return( nil);
@@ -400,9 +405,9 @@ static NSMutableArray  *replaceVariablesWithIdentifierInArray( NSArray *array,
       copy3 = [right_ copyWithZone:NULL];
    
    copy = [MulleGetClass( self) newWithRetainedLeftExpression:copy1
-                    retainedMiddleExpression:copy2
-                     retainedRightExpression:copy3
-                                  lineNumber:[self lineNumber]];
+                                     retainedMiddleExpression:copy2
+                                      retainedRightExpression:copy3
+                                                   lineNumber:[self lineNumber]];
    return( copy);
 }
 
@@ -411,28 +416,28 @@ static NSMutableArray  *replaceVariablesWithIdentifierInArray( NSArray *array,
 
 @implementation MulleScionAssignmentExpression( VariableSubstitution)
 
-- (id) replaceVariableWithIdentifier:(NSString *) identifier
-                      withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
+- (void) dealloc
 {
-   MulleScionSet           *copy;
-   MulleScionExpression    *copy1;
-   MulleScionExpression    *copy2;
+   [right_ release];
+   [super dealloc];
+}
+
+- (id) newExpandedVariableWithIdentifier:(NSString *) identifier
+                          withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
+{
+   MulleScionAssignmentExpression   *copy;
+   MulleScionExpression             *copy1;
+   MulleScionExpression             *copy2;
    
-   // not useful, and also can make problems if the identifier changes
-   // to null or something
-   
-   //   copy1 = [lexpr_ replaceVariableWithIdentifier:identifier
-   //                                  withExpression:expr];
-   copy2 = [right_ replaceVariableWithIdentifier:identifier
-                                       withExpression:expr];
-   
+   copy2 = [right_ newExpandedVariableWithIdentifier:identifier
+                                      withExpression:expr];
    if( ! copy2)
       return( nil);
    
    copy1 = [value_ copyWithZone:NULL];
    copy  = [MulleGetClass( self) newWithRetainedLeftExpression:copy1
-                      retainedRightExpression:copy2
-                                   lineNumber:[self lineNumber]];
+                                       retainedRightExpression:copy2
+                                                    lineNumber:[self lineNumber]];
    return( copy);
 }
 
@@ -441,28 +446,22 @@ static NSMutableArray  *replaceVariablesWithIdentifierInArray( NSArray *array,
 
 @implementation MulleScionSet( VariableSubstitution)
 
-- (id) replaceVariableWithIdentifier:(NSString *) identifier
-                     withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
+- (id) newExpandedVariableWithIdentifier:(NSString *) identifier
+                          withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
 {
-   MulleScionSet           *copy;
-   MulleScionExpression    *copy2;
-   MulleScionExpression    *copy1;
-   
-   // not useful, and also can make problems if the identifier changes
-   // to null or something
-   
-   //   copy1 = [lexpr_ replaceVariableWithIdentifier:identifier
-   //                                  withExpression:expr];
-   copy2 = [right_ replaceVariableWithIdentifier:identifier
-                                 withExpression:expr];
-   
+   MulleScionSet          *copy;
+   MulleScionExpression   *copy2;
+   MulleScionExpression   *copy1;
+
+   copy2 = [right_ newExpandedVariableWithIdentifier:identifier
+                                      withExpression:expr];
    if( ! copy2)
       return( nil);
    
    copy1 = [left_ copyWithZone:NULL];
    copy  = [MulleGetClass( self) newWithRetainedLeftExpression:copy1
-                      retainedRightExpression:copy2
-                                   lineNumber:[self lineNumber]];
+                                       retainedRightExpression:copy2
+                                                    lineNumber:[self lineNumber]];
    return( copy);
 }
 
@@ -471,20 +470,19 @@ static NSMutableArray  *replaceVariablesWithIdentifierInArray( NSArray *array,
 
 @implementation MulleScionExpressionCommand( VariableSubstitution)
 
-- (id) replaceVariableWithIdentifier:(NSString *) identifier
-                      withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
+- (id) newExpandedVariableWithIdentifier:(NSString *) identifier
+                          withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
 {
    MulleScionUnaryOperatorExpression   *copy;
    MulleScionExpression                *copy1;
    
-   copy1 = [expression_ replaceVariableWithIdentifier:identifier
-                                       withExpression:expr];
-   
+   copy1 = [expression_ newExpandedVariableWithIdentifier:identifier
+                                           withExpression:expr];
    if( ! copy1)
       return( nil);
    
    copy = [MulleGetClass( self) newWithRetainedExpression:copy1
-                              lineNumber:[self lineNumber]];
+                                               lineNumber:[self lineNumber]];
    return( copy);
 }
 
@@ -496,23 +494,22 @@ static NSMutableArray  *replaceVariablesWithIdentifierInArray( NSArray *array,
 
 @implementation MulleScionMacro( MacroExpansion)
 
-- (id) replaceVariableWithIdentifier:(NSString *) identifier
-                      withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
+- (id) newExpandedVariableWithIdentifier:(NSString *) identifier
+                          withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
 {
    MulleScionUnaryOperatorExpression   *copy;
    MulleScionFunction                  *copy1;
    
-   copy1 = [function_ replaceVariableWithIdentifier:identifier
-                                     withExpression:expr];
-   
+   copy1 = [function_ newExpandedVariableWithIdentifier:identifier
+                                         withExpression:expr];
    if( ! copy1)
       return( nil);
 
    copy = [MulleGetClass( self) newWithIdentifier:identifier_
-                        function:copy1
-                            body:body_
-                        fileName:value_
-                      lineNumber:[self lineNumber]];
+                                         function:copy1
+                                             body:body_
+                                         fileName:value_
+                                       lineNumber:[self lineNumber]];
    [copy1 release];
    return( copy);
 }
@@ -529,19 +526,19 @@ typedef struct
                                            fileName:(NSString *) fileName
                                          lineNumber:(NSUInteger) line
 {
-   id                   expr;
-   MulleScionTemplate   *copy;
-   MulleScionObject     *next;
-   MulleScionObject     *curr;
-   MulleScionObject     *prev;
-   MulleScionObject     *replacement;
-   NSEnumerator         *rover;
-   NSString             *identifier;
-   identifier_expr_assoc  *assoc;
-   identifier_expr_assoc  *sentinel;
-   identifier_expr_assoc  *p;
-   NSUInteger             n;
-   NSNull                 *null;
+   id                      expr;
+   MulleScionTemplate      *copy;
+   MulleScionObject        *next;
+   MulleScionObject        *curr;
+   MulleScionObject        *prev;
+   MulleScionObject        *replacement;
+   NSEnumerator            *rover;
+   NSString                *identifier;
+   identifier_expr_assoc   *assoc;
+   identifier_expr_assoc   *sentinel;
+   identifier_expr_assoc   *p;
+   NSUInteger              n;
+   NSNull                  *null;
    
    n     = [parameters count];
    assoc = [[NSMutableData dataWithLength:n * sizeof(identifier_expr_assoc)] mutableBytes];
@@ -576,8 +573,8 @@ typedef struct
       
       for( p = assoc; p < sentinel; p++)
       {
-         replacement = [curr replaceVariableWithIdentifier:p->identifier
-                                            withExpression:p->expr];
+         replacement = [curr newExpandedVariableWithIdentifier:p->identifier
+                                                withExpression:p->expr];
          if( replacement)
          {
             assert( prev);  // must be because, copy starts with a template

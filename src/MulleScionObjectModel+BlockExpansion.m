@@ -65,7 +65,7 @@
 
 
 // replacement must be a copy
-- (MulleScionBlock *) replaceOwnedBlockWithBlock:(MulleScionBlock *) NS_CONSUMED replacement
+- (MulleScionBlock *) replaceOwnedBlockWithRetainedBlock:(MulleScionBlock *) NS_CONSUMED replacement
 {
    MulleScionBlock    *block;
    MulleScionObject   *endBlock;
@@ -89,6 +89,12 @@
    [block autorelease];
 
    return( block);
+}
+
+
+- (MulleScionBlock *) replaceOwnedBlockWithBlock:(MulleScionBlock *) NS_CONSUMED replacement
+{
+   return( [self replaceOwnedBlockWithRetainedBlock:replacement]);
 }
 
 @end
@@ -188,7 +194,7 @@
          // so we can put it back in
          //
          chain    = [chain copyWithZone:NULL];
-         oldChain = [owner replaceOwnedBlockWithBlock:chain];
+         oldChain = [owner replaceOwnedBlockWithRetainedBlock:chain];
          [chainStack addObject:oldChain];
 
          owner    = chain;

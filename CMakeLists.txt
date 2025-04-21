@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 3.15)
 
-project( MulleScion VERSION 1861.1.0 LANGUAGES C)
+project( MulleScion VERSION 1861.2.0 LANGUAGES C)
 
 
 

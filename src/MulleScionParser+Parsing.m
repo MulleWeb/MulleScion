@@ -2423,12 +2423,12 @@ static char  *parser_best_match_for_string( parser *p, NSString *s)
 // grabs a whole block and put it into the table
 static void  parser_do_whole_block_to_block_table( parser *p)
 {
-   MulleScionBlock      *block;
-   MulleScionObject     *next;
-   MulleScionObject     *node;
-   NSString             *identifier;
-   NSUInteger           stack;
-   macro_type           last_type;
+   MulleScionBlock    *block;
+   MulleScionObject   *next;
+   MulleScionObject   *node;
+   NSString           *identifier;
+   NSUInteger         stack;
+   macro_type         last_type;
 
    parser_skip_whitespace( p);
    identifier = parser_do_identifier( p);

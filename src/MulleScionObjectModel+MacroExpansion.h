@@ -55,9 +55,12 @@
 // will return nil, if the object itself needs not to be exchanged
 // but may have changed internally! So operate on a copy!
 //
-- (id) replaceVariableWithIdentifier:(NSString *) identifier
-                      withExpression:(MulleScionExpression *) expr  NS_RETURNS_RETAINED;
+- (id) newExpandedVariableWithIdentifier:(NSString *) identifier
+                          withExpression:(MulleScionExpression *) expr  NS_RETURNS_RETAINED;
 
+// deprecated in favor of: -newExpandedVariableWithIdentifier:withExpression:
+- (id) replaceVariableWithIdentifier:(NSString *) identifier
+                      withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED MULLE_C_DEPRECATED;
 
 @end
 

@@ -42,7 +42,11 @@
 
 - (MulleScionObject *) ownerOfBlockWithIdentifier:(NSString *) identifier;
 - (MulleScionObject *) nextOwnerOfBlockCommand;
-- (MulleScionBlock *) replaceOwnedBlockWithBlock:(MulleScionBlock *) NS_CONSUMED replacement;
+- (MulleScionBlock *) replaceOwnedBlockWithRetainedBlock:(MulleScionBlock *) NS_CONSUMED replacement;
+
+// just as above but less telling
+
+- (MulleScionBlock *) replaceOwnedBlockWithBlock:(MulleScionBlock *) NS_CONSUMED replacement  MULLE_C_DEPRECATED;
 
 @end
 
