@@ -41,7 +41,7 @@
 @class MulleScionTemplate;
 
 
-@protocol MulleScionPreprocessor
+@protocol MulleScionPreprocessor < MulleObjCThreadSafe>
 
 - (NSData *) preprocessedData:(NSData *) data;
 

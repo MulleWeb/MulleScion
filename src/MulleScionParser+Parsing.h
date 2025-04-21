@@ -64,7 +64,6 @@ typedef struct
                                          searchPath:(NSArray *) searchPath
                                            optional:(BOOL) optional;
 
-
 @end
 
 

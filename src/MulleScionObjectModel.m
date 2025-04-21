@@ -966,11 +966,21 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 }
 
 
+- (void) dealloc
+{
+   [middle_ release];
+   [right_ release];
+
+   [super dealloc];
+}
+
+
 // if used in x AND y as x ? definitely
 - (BOOL) needsParenthesis
 {
    return( YES);
 }
+
 
 - (NSInteger) precedence
 {
@@ -1095,6 +1105,15 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 }
 
 
+- (void) dealloc
+{
+   [left_ release];
+   [right_ release];
+
+   [super dealloc];
+}
+
+
 - (NSString *) commandName
 {
    return( @""); // O RLY ?
@@ -1175,6 +1194,7 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
 - (void) dealloc
 {
    [expression_ release];
+
    [super dealloc];
 }
 
@@ -1506,11 +1526,14 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    return( p);
 }
 
+
 - (void) dealloc
 {
    [identifier_ release];
+
    [super dealloc];
 }
+
 
 - (NSString *) identifier
 {
