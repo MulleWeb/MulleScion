@@ -86,3 +86,6 @@ coverage*.html
 cola/wilted/
 *-build-*/
 *.bak
+.mulle/etc/make/build-dir
+*.exe
+vgcore.*

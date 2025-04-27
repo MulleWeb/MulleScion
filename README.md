@@ -8,9 +8,9 @@
 > tailored for use in mulle-sde projects
 
 
-| Release Version                                       | Release Notes
-|-------------------------------------------------------|--------------
-| ![Mulle kybernetiK tag](https://img.shields.io/github/tag/MulleWeb/MulleScion.svg) [![Build Status](https://github.com/MulleWeb/MulleScion/workflows/CI/badge.svg)](//github.com/MulleWeb/MulleScion/actions) | [RELEASENOTES](RELEASENOTES.md) |
+| Release Version                                       | Release Notes  | AI Documentation
+|-------------------------------------------------------|----------------|---------------
+| ![Mulle kybernetiK tag](https://img.shields.io/github/tag/MulleWeb/MulleScion.svg) [![Build Status](https://github.com/MulleWeb/MulleScion/workflows/CI/badge.svg)](//github.com/MulleWeb/MulleScion/actions) | [RELEASENOTES](RELEASENOTES.md) | [DeepWiki for MulleScion](https://deepwiki.com/MulleWeb/MulleScion)
 
 
 
@@ -72,7 +72,7 @@ HTML editors:
 ``` html
 <html>
   <!-- rendered by mulle-scion on
-        2024-12-11T16:48:52Z -->
+        2025-04-26T22:36:03Z -->
   <body>
     <for item in [NSTimeZone knownTimeZoneNames]>
       <if item#.isFirst>
