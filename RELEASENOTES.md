@@ -1,3 +1,11 @@
+## 1861.2.0
+
+
+* fix some leaks found by new tests
+* deprecated -replaceOwnedBlockWithBlock: in favor of -replaceOwnedBlockWithRetainedBlock:
+* deprecated -replaceVariableWithIdentifier:withExpression: in favor of -newExpandedVariableWithIdentifier:withExpression:
+
+
 ## 1861.1.0
 
 feat: improve error handling and dictionary syntax
