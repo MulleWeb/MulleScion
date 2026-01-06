@@ -275,8 +275,8 @@ NSString  *MulleScionFilteredString( NSString *value,
 {
    id             filter;
    NSString       *filtered;
-   NSEnumerator   *rover;
-   NSEnumerator   *modeRover;
+   id<NSEnumerator>  rover;
+   id<NSEnumerator>  modeRover;
    NSUInteger     mask;
 
    NSCParameterAssert( ! value || [value isKindOfClass:[NSString class]]);
@@ -741,7 +741,7 @@ static id   MulleScionValueForKeyPath( NSString *keyPath,
 - (id) valueWithLocalVariables:(id <MulleScionLocals>) locals
                     dataSource:(id <MulleScionDataSource>) dataSource
 {
-   NSEnumerator           *rover;
+   id<NSEnumerator>       rover;
    NSMutableArray         *array;
    MulleScionExpression   *expr;
    id                     argument;
@@ -1170,7 +1170,7 @@ static void   *numberBuffer( char *type, NSNumber *value)
 - (id) valueWithLocalVariables:(id <MulleScionLocals>) locals
                     dataSource:(id <MulleScionDataSource>) dataSource
 {
-   NSEnumerator          *rover;
+   id<NSEnumerator>      rover;
    NSMutableArray        *array;
    id                    value;
    MulleScionExpression  *expr;
@@ -1581,7 +1581,7 @@ static BOOL  isTrue( id value)
    MulleScionObject      *curr;
    MulleScionObject      *memo;
    NSAutoreleasePool     *pool;
-   NSEnumerator          *rover;
+   id<NSEnumerator>      rover;
    NSMutableDictionary   *info;
    NSString              *closer;
    NSString              *even;
@@ -2538,7 +2538,7 @@ static NSBundle  *searchForBundleInDirectory( NSFileManager *manager, NSString *
    NSBundle             *bundle;
    NSArray              *directories;
    NSString             *path;
-   NSEnumerator         *rover;
+   id<NSEnumerator>     rover;
    NSFileManager        *manager;
 
    TRACE_RENDER( self, s, locals, dataSource);

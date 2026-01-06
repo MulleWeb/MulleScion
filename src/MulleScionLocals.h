@@ -60,6 +60,11 @@
 
 - (void) addEntriesFromLocals:(id <MulleScionLocals>) other;
 
+// Fast enumeration support
+- (NSUInteger) countByEnumeratingWithState:(NSFastEnumerationState *) state
+                                   objects:(id *) buffer
+                                     count:(NSUInteger) len;
+
 @end
 
 

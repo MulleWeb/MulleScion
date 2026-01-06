@@ -2922,7 +2922,7 @@ static MulleScionFilter  * NS_RETURNS_RETAINED
 {
    MulleScionExpression   *expr;
    NSMutableArray         *array;
-   NSEnumerator           *rover;
+   id<NSEnumerator>       rover;
    NSString               *keyword;
    NSUInteger             flags;
    MulleScionVariable     *var;

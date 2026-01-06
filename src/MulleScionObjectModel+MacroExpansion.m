@@ -79,10 +79,10 @@
 
 
 static NSMutableDictionary  *expandedVariablesWithIdentifierInDictionary( NSDictionary *dictionary,
-                                                                         NSString *identifier,
-                                                                         MulleScionExpression *expr)
+                                                                          NSString *identifier,
+                                                                          MulleScionExpression *expr)
 {
-   NSEnumerator          *rover;
+   id<NSEnumerator>      rover;
    NSMutableDictionary   *result;
    MulleScionObject      *obj;
    MulleScionObject      *copy;
@@ -117,7 +117,9 @@ static NSMutableDictionary  *expandedVariablesWithIdentifierInDictionary( NSDict
       if( ! keyCopy)
          keyCopy = [key retain];
       [result setObject:copy
-                 forKey:keyCopy];
+                 forKey:(id) keyCopy]; // TODO: this is actually a misuse.
+                                       // we pass a MulleScionObject claiming it to be immutable
+                                       // it's technically not, or ?
       
       [copy release];
       [keyCopy release];
@@ -130,7 +132,7 @@ static NSMutableArray  *expandedVariablesWithIdentifierInArray( NSArray *array,
                                                                 NSString *identifier,
                                                                 MulleScionExpression *expr)
 {
-   NSEnumerator       *rover;
+   id<NSEnumerator>   rover;
    NSMutableArray     *result;
    MulleScionObject   *obj;
    MulleScionObject   *copy;
@@ -416,12 +418,6 @@ static NSMutableArray  *expandedVariablesWithIdentifierInArray( NSArray *array,
 
 @implementation MulleScionAssignmentExpression( VariableSubstitution)
 
-- (void) dealloc
-{
-   [right_ release];
-   [super dealloc];
-}
-
 - (id) newExpandedVariableWithIdentifier:(NSString *) identifier
                           withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
 {
@@ -532,7 +528,7 @@ typedef struct
    MulleScionObject        *curr;
    MulleScionObject        *prev;
    MulleScionObject        *replacement;
-   NSEnumerator            *rover;
+   id<NSEnumerator>        rover;
    NSString                *identifier;
    identifier_expr_assoc   *assoc;
    identifier_expr_assoc   *sentinel;
@@ -598,7 +594,7 @@ typedef struct
 {
    NSMutableDictionary             *parameters;
    MulleScionIdentifierExpression  *expr;
-   NSEnumerator                    *rover;
+   id<NSEnumerator>                rover;
    id                              value;
    NSString                        *identifier;
    NSMutableArray                  *identifiers;
@@ -639,7 +635,7 @@ typedef struct
 {
    NSMutableDictionary             *parameters;
    MulleScionIdentifierExpression  *expr;
-   NSEnumerator                    *rover;
+   id<NSEnumerator>                rover;
    id                              value;
    NSString                        *identifier;
    NSMutableArray                  *identifiers;

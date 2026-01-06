@@ -128,7 +128,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( MulleObjCValueFoundation);
    id                item;
    id                old;
    NSMutableString   *s;
-   NSEnumerator      *rover;
+   id<NSEnumerator>  rover;
 
    // this code gets around the if in the while, there is no other point to
    // this, just sport :D
@@ -162,7 +162,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( MulleObjCValueFoundation);
    id                oldKey;
    id                oldValue;
    NSMutableString   *s;
-   NSEnumerator      *rover;
+   id<NSEnumerator>  rover;
 
    // this code gets arounf the if in the while, there is no other point to
    // this, just sport :D
@@ -409,7 +409,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( MulleObjCValueFoundation);
 - (NSString *) _expressionDescription
 {
    NSMutableString   *s;
-   NSEnumerator      *rover;
+   id<NSEnumerator>  rover;
    id                key, value;
 
    s = [NSMutableString object];
