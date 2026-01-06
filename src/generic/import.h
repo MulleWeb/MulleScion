@@ -25,4 +25,30 @@
 
 /* You can add some more import statements here */
 
+#ifndef MULLE_OBJC_NSENUMERATOR_PROTOCOL_COMPATIBILITY
+#define MULLE_OBJC_NSENUMERATOR_PROTOCOL_COMPATIBILITY
+
+#ifndef __MULLE_OBJC__
+// Make Apple platforms compatible with protocol-based enumerators
+@protocol NSEnumerator
+- (id) nextObject;
+- (NSArray *) allObjects;
+@end
+
+@interface NSEnumerator (MulleObjCProtocolCompat) <NSEnumerator>
+@end
+
+// Make Apple platforms compatible with protocol-based arrays
+@protocol NSArray
+- (NSUInteger) count;
+- (id) objectAtIndex:(NSUInteger) index;
+- (NSEnumerator *) objectEnumerator;
+@end
+
+@interface NSArray (MulleObjCProtocolCompat) <NSArray>
+@end
+#endif
+
+#endif
+
 #endif

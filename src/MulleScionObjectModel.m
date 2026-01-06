@@ -700,6 +700,12 @@ NS_RETURNS_RETAINED static id   newMulleScionValueObject( Class self, id value, 
    return( p);
 }
 
+- (void) dealloc
+{
+   [right_ release];
+   [super dealloc];
+}
+
 
 - (NSInteger) precedence
 {
