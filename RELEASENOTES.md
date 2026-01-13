@@ -1,3 +1,7 @@
+### 1861.2.1
+
+Various small improvements
+
 ## 1861.2.0
 
 
