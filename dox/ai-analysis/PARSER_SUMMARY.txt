@@ -1,0 +1,384 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║               MulleScion C Parser - Executive Summary                       ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+PROJECT: MulleScion Template Engine
+LOCATION: /home/src/srcO/MulleWeb/MulleScion/
+LANGUAGE: Objective-C with embedded C parser
+TYPE: Library
+PARSER SIZE: ~3,710 lines (MulleScionParser+Parsing.m)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT IT DOES:
+  Parses Twig-like template syntax into an Abstract Syntax Tree (AST)
+  Supports:
+    • Template expressions: {{ variable }}
+    • Commands: {% if/for/block/macro %}
+    • Comments: {# ... #}
+    • Template inheritance: {% extends %} + {% block %}
+    • Macros: {% macro name(args) %} ... {% endmacro %}
+    • File includes: {% includes "file" %}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+KEY ARCHITECTURAL PATTERNS:
+
+1. EMBEDDED C IN OBJECTIVE-C
+   Main parser is pure C (static functions)
+   Wrapped by Objective-C class (MulleScionParser)
+   Bridge callbacks for error handling
+
+2. RECURSIVE DESCENT
+   Expression parsing is recursive, but **does not implement a full precedence ladder**;
+   it relies on AST `precedence`/`needsParenthesis` checks to require parentheses.
+   Command parsing with opcode dispatch table
+   Left-recursive transformation avoided
+
+3. MANUAL TOKENIZATION
+   No external lexer/scanner tools
+   Character-by-character parsing
+   Position tracking with "memos"
+
+4. POSITION CHECKPOINTING
+   Save/restore position for lookahead
+   Used for backtracking on parse failures
+   Enables multi-path exploration
+
+5. LINKED-LIST AST
+   Not tree-based - linked list via next_ pointer
+   Each node knows its line number
+   Suitable for linear template execution
+
+6. CALLBACK-BASED ERROR HANDLING
+   C function pointers → Objective-C selectors
+   Includes line/column/context information
+   Can continue parsing on errors (ignore mode)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PARSER STATE MACHINE:
+
+    typedef struct {
+        unsigned char *buf;           // Input buffer
+        unsigned char *curr;          // Current position
+        unsigned char *sentinel;      // Buffer end
+        NSUInteger lineNumber;        // Line tracking
+        parser_memo memo;             // Checkpoints
+        MulleScionObject *first;      // Parsed chain
+        MulleScionParserTables tables; // Symbol tables
+    } parser;
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PARSING PHASES:
+
+1. INITIALIZATION
+   • parser_init() - Zero out state, set buffer pointers
+   • Load environment variable flags
+   • Skip initial hashbang if present
+
+2. MAIN LOOP - _parser_next_object()
+   • Grab plain text until {{ or {% or {#
+   • Determine tag type
+   • Dispatch to expression/command/comment parser
+   • Create MulleScionObject node
+   • Link into tree
+
+3. CHARACTER-LEVEL TOKENIZATION
+   • parser_peek/next/undo_character()
+   • parser_grab_text_until_*() functions
+   • Manual scanning with line tracking
+
+4. EXPRESSION PARSING
+   • parser_do_expression() + _parser_do_expression(): unary parse + right-recursive operator attachment
+   • No binary arithmetic operators (+ - * / %) in the current expression parser
+   • Literals: numbers, strings, booleans
+   • Collections: arrays @(), dictionaries @{}
+   • Access: keypaths, method calls [target selector:arg]
+   • Operators: arithmetic, logical, comparison
+   • Special: selector(name), not, parent()
+
+5. COMMAND PARSING
+   • parser_do_command() with opcode dispatch
+   • Control: if/else/endif, for/endfor, while/endwhile
+   • Blocks: block/endblock for inheritance
+   • Macros: macro/endmacro definitions
+   • Includes: includes, extends, requires
+   • Variables: set, define
+   • Output: filter/apply for transformations
+   • Special: verbatim (literal text), log (debug)
+
+6. AST CONSTRUCTION
+   • Each parsed element becomes MulleScionObject subclass
+   • Linked list via next_ pointer
+   • Line numbers preserved for diagnostics
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CORE FUNCTIONS (100+ static functions):
+
+INITIALIZATION:
+  parser_init()
+
+MAIN LOOP:
+  _parser_next_object()
+
+CHARACTER I/O:
+  parser_next_character()
+  parser_peek_character()
+  parser_peek2_character()
+  parser_undo_character()
+
+TOKENIZATION:
+  parser_grab_text_until_number_end()
+  parser_grab_text_until_identifier_end()
+  parser_grab_text_until_quote()
+  parser_grab_text_until_scion_start()
+  parser_skip_text_until_scion_end()
+  parser_grab_text_until_command()
+
+WHITESPACE:
+  parser_skip_whitespace()
+  parser_skip_whitespace_until_after_newline()
+  parser_skip_whitespace_and_comments_always()
+
+EXPRESSIONS:
+  parser_do_expression()
+  parser_do_number()
+  parser_do_string()
+  parser_do_identifier()
+  parser_do_keypath()
+  parser_do_method()
+  parser_do_function()
+  parser_do_selector()
+  parser_do_dictionary()
+  parser_do_array()
+
+COMMANDS:
+  parser_do_command()
+  parser_do_if()
+  parser_do_for()
+  parser_do_while()
+  parser_do_block()
+  parser_do_macro()
+  parser_do_includes()
+  parser_do_extends()
+  parser_do_set()
+  parser_do_define()
+  parser_do_filter()
+  parser_do_verbatim()
+
+POSITION MEMOS:
+  parser_memorize()
+  parser_recall()
+
+ERROR HANDLING:
+  parser_error()
+  parser_warning()
+  parser_diagnostic_columnNumber()
+  parser_diagnostic_line()
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ENVIRONMENT FLAGS (parsed via getenv):
+
+  MULLESCION_ALLOW_GETENV_INCLUDES
+    → Allow unquoted environment-variable *names* in `{% includes ... %}` / `{% extends ... %}`.
+      If the first token after `includes`/`extends` is an identifier (not a quoted string) and
+      `getenv(identifier)` returns a value, that value is used as the filename.
+
+  MULLESCION_NO_HASHBANG
+    → Don't skip #!/... first line of scripts
+
+  MULLESCION_VERBATIM_INCLUDE_HASHBANG
+    → Preserve hashbang in included files
+
+  MULLESCION_DUMP_COMMANDS
+    → Print stderr debug output for commands
+
+  MULLESCION_DUMP_EXPRESSIONS
+    → Print stderr debug output for expressions
+
+  MULLESCION_DUMP_MACROS
+    → Print stderr debug output for macro expansions
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+AST NODE TYPES (MulleScionObject hierarchy):
+
+MulleScionObject (base)
+├─ MulleScionTemplate (root)
+├─ MulleScionPlainText
+├─ MulleScionExpression (abstract)
+│  ├─ MulleScionNumber
+│  ├─ MulleScionString
+│  ├─ MulleScionVariable
+│  ├─ MulleScionArray
+│  ├─ MulleScionDictionary
+│  ├─ MulleScionMethod
+│  ├─ MulleScionFunction
+│  ├─ MulleScionSelector
+│  ├─ MulleScionNot
+│  └─ ... (more)
+├─ MulleScionCommand (abstract)
+│  ├─ MulleScionIf
+│  ├─ MulleScionElse
+│  ├─ MulleScionEndIf
+│  ├─ MulleScionFor
+│  ├─ MulleScionEndFor
+│  ├─ MulleScionWhile
+│  ├─ MulleScionEndWhile
+│  ├─ MulleScionBlock
+│  ├─ MulleScionParentBlock
+│  ├─ MulleScionEndBlock
+│  ├─ MulleScionMacro
+│  ├─ (endmacro is a parse terminator; not represented as an AST node)
+│  ├─ MulleScionFilter
+│  ├─ MulleScionEndFilter
+│  └─ ... (more)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SPECIAL FEATURES:
+
+1. MACRO EXPANSION
+   • Macros stored in symbol table
+   • Parameters replaced during expansion
+   • Supports nested macro calls
+   • Recursive expansion possible
+
+2. TEMPLATE INHERITANCE
+   • {% extends "base.html" %} in child
+   • {% block name %} in both parent/child
+   • Named blocks in child override parent
+   • Supports multiple inheritance levels
+
+3. FILE INCLUDES
+   • {% includes "file.html" %} for inline inclusion
+   • {% requires "file.html" %} for dependency tracking
+   • Search path array support
+   • Environment variable substitution (if enabled)
+
+4. VERBATIM BLOCKS
+   • {% verbatim %} ... {% endverbatim %}
+   • Output literal text without parsing
+   • Preserves {{ and {% and {# as-is
+
+5. OUTPUT FILTERS
+   • {% filter capitalize %} ... {% endfilter %}
+   • Apply transformations to captured output
+   • Multiple filters can chain
+
+6. LINE NUMBER TRACKING
+   • Every parsed object knows its source line
+   • Used for accurate error reporting
+   • Column position also computed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SOURCE CODE ORGANIZATION:
+
+MulleScionParser.h                106 lines  - Public API
+MulleScionParser.m                425 lines  - Parser class (ObjC wrapper)
+MulleScionParser+Parsing.h         81 lines  - Parsing extension interface
+MulleScionParser+Parsing.m      3,710 lines  - CORE C PARSER (all parsing logic)
+
+MulleScionObjectModel.h           300+ lines - AST node base definitions
+MulleScionObjectModel.m         1,000+ lines - AST node implementations
+MulleScionObjectModel+*.m       3,000+ lines - Extensions (macros, printing)
+
+(Note: The core parser + wrapper is ~4.3K lines; the full engine including the object model and printing code is much larger.)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DESIGN DECISIONS:
+
+✓ Pure C parser for speed/portability
+✓ Manual tokenization for control
+✓ Position memos instead of complex state stack
+✓ Callback-based error handling for flexibility
+✓ Linked-list AST for simple execution model
+✓ Symbol tables for macros/blocks/definitions
+✓ Environment flags for feature control/debugging
+✓ Recursive descent for readable code
+✓ Line tracking throughout parsing
+✓ Graceful error recovery (optional)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TYPICAL PARSING FLOW:
+
+1. MulleScionParser -template (ObjC)
+   ↓
+2. createParser() / initializeSymbolTables()
+   ↓
+3. parser_init(buf, len) (C)
+   ↓
+4. _parser_next_object() loop (C)
+   ├─ parser_grab_text_until_scion_start()
+   ├─ parser_do_expression() or parser_do_command()
+   ├─ Create MulleScionObject node
+   └─ Link into AST
+   ↓
+5. Return MulleScionTemplate tree
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ADVANCED CONCEPTS:
+
+EXPRESSION OPERATOR HANDLING:
+  The expression parser is *not* a classic precedence parser.
+  `parser_do_expression()` parses a unary expression and `_parser_do_expression()`
+  attaches operators by recursively parsing the RHS with `parser_do_expression()`.
+
+  Operators handled here:
+    • Logical: &&, ||, and, or
+    • Comparison: == != < > <= >= and textual eq/ne/lt/le/gt/ge
+    • Conditional: ?:
+    • Concat: ~
+    • Pipe/filter: |
+    • Dot: .
+    • Indexing: expr[ indexExpr ]
+
+  The parser uses AST metadata (`precedence`/`needsParenthesis`) to require
+  explicit parentheses where needed.
+
+  Notably absent:
+    • Binary arithmetic operators: +, -, *, /, %
+
+BACKTRACKING:
+  parser_memo saves position and line number
+  parser_recall() restores for alternative parsing
+  Used for lookahead and multi-path exploration
+
+ERROR RECOVERY:
+  Errors are reported via callbacks
+  Parser can continue if ignoreErrors=true
+  Errors include line/column/context information
+
+MACRO EXPANSION:
+  Parameters are substituted into macro body
+  Body is recursively parsed after substitution
+  Nested macro calls are supported
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SUMMARY:
+
+MulleScion is a sophisticated template engine with a ~3,700 line C parser
+embedded in an Objective-C class. It uses recursive descent parsing with
+right-recursive operator attachment (parenthesis checks via AST precedence),
+position checkpointing for lookahead, and a callback architecture for error handling. The result is a linked-list AST
+suitable for template inheritance, macros, and complex expressions.
+
+The parser demonstrates excellent practices in:
+  • Manual tokenization with careful position tracking
+  • Recursive descent (with AST-based parenthesis checks; no full precedence ladder)
+  • Position checkpointing for complex lookahead
+  • Callback-based error handling
+  • Symbol tables for macro/block management
+  • Feature flags via environment variables
+  • Accurate source location tracking for diagnostics
+
+╚════════════════════════════════════════════════════════════════════════════╝
