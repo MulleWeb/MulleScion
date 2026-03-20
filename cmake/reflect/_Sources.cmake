@@ -41,5 +41,5 @@ src/exists.m
 # contents selected with patternfile ??-source--stage2-sources
 #
 set( STAGE2_SOURCES
-src/MulleObjCLoader+MulleScion.m
+src/MulleObjCDeps+MulleScion.m
 )

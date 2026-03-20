@@ -16,7 +16,7 @@
 #import "MulleCommonObjCRuntime.h"
 #import "MulleMutableLineNumber.h"
 #import "MulleObjCCompilerSettings.h"
-#import "MulleObjCLoader+MulleScion.h"
+#import "MulleObjCDeps+MulleScion.h"
 #import "MulleScionDataSourceProtocol.h"
 #import "MulleScionLocals.h"
 #import "MulleScionNull.h"

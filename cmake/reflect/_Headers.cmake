@@ -57,7 +57,7 @@ set( PUBLIC_HEADERS
 src/MulleCommonObjCRuntime.h
 src/MulleMutableLineNumber.h
 src/MulleObjCCompilerSettings.h
-src/MulleObjCLoader+MulleScion.h
+src/MulleObjCDeps+MulleScion.h
 src/MulleScionDataSourceProtocol.h
 src/MulleScionLocals.h
 src/MulleScionNull.h

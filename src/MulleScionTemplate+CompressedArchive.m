@@ -72,17 +72,20 @@ typedef union
 } mulle_swappable_uint64_t;
 
 
+static inline uint32_t _mulle_ntohl( uint32_t n) {
+    return ((n >> 24) & 0xFF)     |
+           ((n >>  8) & 0xFF00)   |
+           ((n <<  8) & 0xFF0000) |
+           ((n << 24));
+}
 
-#ifndef ntohl
-extern uint32_t   ntohl( uint32_t value);
-#endif
 
 static inline uint64_t  _mulle_swap64( mulle_swappable_uint64_t v)
 {
    mulle_swappable_uint64_t   x;
 
-   x.l[ 1] = ntohl( v.l[ 0]);
-   x.l[ 0] = ntohl( v.l[ 1]);
+   x.l[ 1] = _mulle_ntohl( v.l[ 0]);
+   x.l[ 0] = _mulle_ntohl( v.l[ 1]);
    return( x.q);
 }
 

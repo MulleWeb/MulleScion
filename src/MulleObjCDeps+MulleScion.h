@@ -1,5 +1,5 @@
 //
-//  MulleObjCLoader+Foundation.h
+//  MulleObjCDeps+Foundation.h
 //  MulleObjCStandardFoundation
 //
 //  Created by Nat! on 11.05.17.
@@ -9,7 +9,7 @@
 
 #ifdef __MULLE_OBJC__
 
-@interface MulleObjCLoader( MulleScion)
+@interface MulleObjCDeps( MulleScion)
 @end
 
 #endif
