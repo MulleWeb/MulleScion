@@ -1712,8 +1712,9 @@ static MulleScionConditional  * NS_RETURNS_RETAINED
    if( [left needsParenthesis])
       parser_error( p, "left side of conditional needs parentheses");
    // the middle is OK, because inside ?:
-   if( [right needsParenthesis])
-      parser_error( p, "right side of conditional needs parentheses");
+   // right side can be another conditional (right-associative), so no check
+   // if( [right needsParenthesis])
+   //    parser_error( p, "right side of conditional needs parentheses");
 
    return( [MulleScionConditional newWithRetainedLeftExpression:left
                                        retainedMiddleExpression:middle
@@ -2019,124 +2020,196 @@ static void   check_parentheses_left_right( parser *p,
 // }
 
 
+// Precedence for binary operators (higher = binds tighter)
+// Based on C operator precedence
+static int parser_get_binary_precedence( char op)
+{
+   switch( op)
+   {
+   case '?':  return( 2);   // ternary conditional
+
+   case 'o':  return( 3);   // || / or
+
+   case 'a':  return( 4);   // && / and
+
+   // Equality comparisons
+   case MulleScionEqual:
+   case MulleScionNotEqual:
+               return( 5);
+
+   // Relational comparisons
+   case MulleScionLessThan:
+   case MulleScionGreaterThan:
+   case MulleScionLessThanOrEqualTo:
+   case MulleScionGreaterThanOrEqualTo:
+               return( 6);
+
+   case '~':  return( 9);   // concat
+
+   case '|':  return( 10);  // pipe
+
+   case '.':
+   case '[':  return( 11);  // member access, indexing
+   }
+   return( 0);  // unknown operator
+}
+
+
+static int parser_is_right_associative( char op)
+{
+   return( op == '?');  // only ternary is right-associative
+}
+
+
 static MulleScionExpression * NS_RETURNS_RETAINED
-   _parser_do_expression( parser *p, MulleScionExpression *left)
+   _parser_do_expression( parser *p, MulleScionExpression *left, int min_prec)
 {
    MulleScionExpression           *right;
    char                           operator;
    MulleScionComparisonOperator   comparator;
    MulleScionDot                  *dot;
+   int                            prec;
+   int                            next_min;
 
    NSCParameterAssert( [left isKindOfClass:[MulleScionExpression class]]);
 
-   parser_skip_whitespace( p);
-
-   /* get the operator */
-   operator = parser_peek_character( p);
-   switch( operator)
+   for(;;)
    {
-   default  : return( left);
-   case '&' : if( ! parser_next_matching_string( p, "&&", 2))
-                  return( left);
-               operator = 'a';
-               break;
-   case '|' : if( parser_next_matching_string( p, "||", 2))
-                 operator = 'o';
-              else
-                 parser_skip_peeked_character( p, '|');
-              break;
-   case 'a' : if( ! parser_next_matching_string( p, "and", 3))
-                 return( left);
-              break;
-   case 'e' :
-   case 'g' :
-   case 'l' :
-   case 'n' :
-              comparator = parser_check_comparison_op2( p, operator);
-              if( comparator == MulleScionNoComparison)
-                 return( left);
-              operator = (char) comparator;
-              break;
+      parser_memo   saved_pos;
+      
+      parser_skip_whitespace( p);
 
-   case 'o' : if( ! parser_next_matching_string( p, "or", 2))
-                 return( left);
-              break;
-   case '<' :
-   case '>' :
-   case '!' : operator = (char) parser_check_comparison_op( p, operator);
-              break;
+      // Save position AFTER whitespace, before operator
+      parser_memorize( p, &saved_pos);
 
-   case '=' : comparator = parser_check_equal_or_set_op( p, operator);
-              if( comparator == MulleScionNoComparison)
-                 return( left);
-              operator = (char) comparator;
-              break;
-   case '~' :
-   case '?' :
-   case '.' : // the irony, that I have to support "modern" ObjC to do C :)
-              parser_skip_peeked_character( p, operator);
-              break;
-         // this is problematic, because it could also be the start of a
-         // unrelated method call... so lets request a new line between
-   case '[' :
-              if( p->lineNumber != [left lineNumber])
-                 return( left);
-              parser_skip_peeked_character( p, operator);
-              break;
-   }
+      /* get the operator */
+      operator = parser_peek_character( p);
+      switch( operator)
+      {
+      default  : return( left);
+      case '&' : if( ! parser_next_matching_string( p, "&&", 2))
+                     return( left);
+                  operator = 'a';
+                  break;
+      case '|' : if( parser_next_matching_string( p, "||", 2))
+                    operator = 'o';
+                 else
+                    parser_skip_peeked_character( p, '|');
+                 break;
+      case 'a' : if( ! parser_next_matching_string( p, "and", 3))
+                    return( left);
+                 break;
+      case 'e' :
+      case 'g' :
+      case 'l' :
+      case 'n' :
+                 comparator = parser_check_comparison_op2( p, operator);
+                 if( comparator == MulleScionNoComparison)
+                    return( left);
+                 operator = (char) comparator;
+                 break;
 
-   parser_skip_whitespace( p);
+      case 'o' : if( ! parser_next_matching_string( p, "or", 2))
+                    return( left);
+                 break;
+      case '<' :
+      case '>' :
+      case '!' : operator = (char) parser_check_comparison_op( p, operator);
+                 break;
 
-   right = parser_do_expression( p);
+      case '=' : comparator = parser_check_equal_or_set_op( p, operator);
+                 if( comparator == MulleScionNoComparison)
+                    return( left);
+                 operator = (char) comparator;
+                 break;
+      case '~' :
+      case '?' :
+      case '.' : // the irony, that I have to support "modern" ObjC to do C :)
+                 parser_skip_peeked_character( p, operator);
+                 break;
+            // this is problematic, because it could also be the start of a
+            // unrelated method call... so lets request a new line between
+      case '[' :
+                 if( p->lineNumber != [left lineNumber])
+                    return( left);
+                 parser_skip_peeked_character( p, operator);
+                 break;
+      }
 
-   switch( operator)
-   {
-   default :
-      check_parentheses_left_right( p, "comparison", left, right);
-      return( [MulleScionComparison newWithRetainedLeftExpression:left
-                                          retainedRightExpression:right
-                                                       comparison:operator
-                                                       lineNumber:p->memo.lineNumber]);
-   case 'a' :
-      check_parentheses_left_right( p, "and", left, right);
-      return( [MulleScionAnd newWithRetainedLeftExpression:left
-                                   retainedRightExpression:right
-                                                lineNumber:p->memo.lineNumber]);
-   case 'o' :
-      check_parentheses_left_right( p, "or", left, right);
-      return( [MulleScionOr newWithRetainedLeftExpression:left
-                                  retainedRightExpression:right
-                                               lineNumber:p->memo.lineNumber]);
-   case '[' :
-         left = parser_do_indexing( p, left, right);
-         return( _parser_do_expression( p, left));
+      // Check precedence - if too low, undo operator consumption and return
+      prec = parser_get_binary_precedence( operator);
+      if( prec < min_prec)
+      {
+         parser_recall( p, &saved_pos);
+         return( left);
+      }
 
-   case '?' :
-      return( parser_do_conditional( p, left, right));
+      // For left-associative: next level needs higher precedence
+      // For right-associative: next level needs same precedence
+      next_min = parser_is_right_associative( operator) ? prec : prec + 1;
 
-   case '~' :
-      // check_parentheses_left_right( p, "~", left, right);
-      return( [MulleScionConcat newWithRetainedLeftExpression:left
+      parser_skip_whitespace( p);
+
+      right = parser_do_unary_expression( p);
+      right = _parser_do_expression( p, right, next_min);
+
+      switch( operator)
+      {
+      default :
+         check_parentheses_left_right( p, "comparison", left, right);
+         left = [MulleScionComparison newWithRetainedLeftExpression:left
+                                             retainedRightExpression:right
+                                                          comparison:operator
+                                                          lineNumber:p->memo.lineNumber];
+         break;
+      case 'a' :
+         // check_parentheses_left_right( p, "and", left, right);
+         left = [MulleScionAnd newWithRetainedLeftExpression:left
                                       retainedRightExpression:right
-                                                   lineNumber:p->memo.lineNumber]);
+                                                   lineNumber:p->memo.lineNumber];
+         break;
+      case 'o' :
+         // check_parentheses_left_right( p, "or", left, right);
+         left = [MulleScionOr newWithRetainedLeftExpression:left
+                                     retainedRightExpression:right
+                                                  lineNumber:p->memo.lineNumber];
+         break;
+      case '[' :
+            left = parser_do_indexing( p, left, right);
+            break;
 
-   case '|' :
-      if( ! [right isMethod] && ! [right isPipe] && ! [right isIdentifier])
-         parser_error( p, "an identifier was expected after '|'");
-      return( [MulleScionPipe newWithRetainedLeftExpression:left
+      case '?' :
+         left = parser_do_conditional( p, left, right);
+         break;
+
+      case '~' :
+         // check_parentheses_left_right( p, "~", left, right);
+         left = [MulleScionConcat newWithRetainedLeftExpression:left
+                                         retainedRightExpression:right
+                                                      lineNumber:p->memo.lineNumber];
+         break;
+
+      case '|' :
+         if( ! [right isMethod] && ! [right isPipe] && ! [right isIdentifier])
+            parser_error( p, "an identifier was expected after '|'");
+         left = [MulleScionPipe newWithRetainedLeftExpression:left
+                                       retainedRightExpression:right
+                                                    lineNumber:p->memo.lineNumber];
+         break;
+      case '.' :
+         if( ! [right isMethod] && ! [right isPipe] && ! [right isDot] && ! [right isIdentifier])
+            parser_error( p, "an identifier was expected after '.'");
+         dot = [MulleScionDot newWithRetainedLeftExpression:left
                                     retainedRightExpression:right
-                                                 lineNumber:p->memo.lineNumber]);
-   case '.' :
-      if( ! [right isMethod] && ! [right isPipe] && ! [right isDot] && ! [right isIdentifier])
-         parser_error( p, "an identifier was expected after '.'");
-      dot = [MulleScionDot newWithRetainedLeftExpression:left
-                                 retainedRightExpression:right
-                                              lineNumber:p->memo.lineNumber];
+                                                 lineNumber:p->memo.lineNumber];
 
-      // limited precedence code for '|'
-      if( ! [right isPipe])
-         return( dot);
-      return( [(MulleScionPipe *) right hierarchicalExchange:dot]);
+         // limited precedence code for '|'
+         if( ! [right isPipe])
+            left = dot;
+         else
+            left = [(MulleScionPipe *) right hierarchicalExchange:dot];
+         break;
+      }
    }
    return( nil);  // can't happen
 }
@@ -2150,7 +2223,7 @@ static MulleScionExpression * NS_RETURNS_RETAINED
    MulleScionExpression  *expr;
 
    left = parser_do_unary_expression( p);
-   expr = _parser_do_expression( p, left);
+   expr = _parser_do_expression( p, left, 0);
    NSCParameterAssert( [expr isKindOfClass:[MulleScionExpression class]]);
 
    return( expr);
@@ -2166,7 +2239,7 @@ static MulleScionObject * NS_RETURNS_RETAINED
    if( p->wasMacroCall)
       return( left);
 
-   return( _parser_do_expression( p, (MulleScionExpression *) left));
+   return( _parser_do_expression( p, (MulleScionExpression *) left, 0));
 }
 
 

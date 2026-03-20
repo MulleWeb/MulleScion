@@ -1,0 +1,490 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║             MulleScion Parser - Complete Visual Reference                  ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INPUT → PARSING → OUTPUT FLOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+INPUT EXAMPLE:
+  
+  <div class="greeting">
+    {# This is a comment #}
+    <h1>{{ greeting | capitalize }}</h1>
+    
+    {% if show_items %}
+      <ul>
+      {% for item in items %}
+        <li>{{ item.name }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+
+                            ↓
+                            
+PARSING PROCESS:
+
+  1. "MulleScionParser -template" invoked
+  2. Data loaded, parser_init() called
+  3. Main loop: _parser_next_object()
+     a. Find next {{ or {% or {# or EOF
+     b. Create MulleScionPlainText for content before
+     c. Determine tag type
+     d. Dispatch to handler
+     e. Create appropriate MulleScionObject
+     f. Link into tree, continue
+
+                            ↓
+                            
+AST OUTPUT (LINKED LIST):
+
+  MulleScionTemplate
+    ↓
+  MulleScionPlainText: "<div class=\"greeting\">\n  "
+    ↓
+  MulleScionPlainText: "\n  <h1>"
+    ↓
+  MulleScionPipe              ← {{ greeting | capitalize }}
+    └─ target: MulleScionVariable("greeting")
+    └─ filter: MulleScionFunction("capitalize")
+    ↓
+  MulleScionPlainText: "</h1>\n  "
+    ↓
+  MulleScionIf                ← {% if show_items %}
+    └─ condition: MulleScionVariable("show_items")
+    ↓
+  MulleScionPlainText: "<ul>\n    "
+    ↓
+  MulleScionFor              ← {% for item in items %}
+    └─ variable: "item"
+    └─ expression: MulleScionVariable("items")
+    ↓
+  MulleScionPlainText: "<li>"
+    ↓
+  MulleScionVariable: "item.name"  ← {{ item.name }}
+    ↓
+  MulleScionPlainText: "</li>\n    "
+    ↓
+  MulleScionEndFor           ← {% endfor %}
+    ↓
+  ... (continues)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+EXPRESSION PARSING (NO FULL PRECEDENCE)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+This parser does **not** implement a classic precedence ladder (there are no
+`parser_do_additive_expr`, `parser_do_multiplicative_expr`, etc.). The actual
+flow is:
+
+  parser_do_expression()
+        ↓
+  parser_do_unary_expression()                (literals/vars/arrays/dicts/methods/not/parentheses)
+        ↓
+  _parser_do_expression(p, left)              (attaches trailing operators)
+        ↓
+  if an operator is recognized:
+        - parse RHS via parser_do_expression()  (right-recursive)
+        - build AST node (And/Or/Comparison/Pipe/Dot/Concat/Conditional/Indexing)
+        - recurse to attach more operators
+
+Because RHS is parsed with `parser_do_expression()`, this is **largely
+right-associative**, not a strict precedence parser.
+
+The code uses AST metadata (`-[MulleScionExpression precedence]` and
+`-[MulleScionExpression needsParenthesis]`) to **error out when parentheses are
+required**, rather than encoding precedence in the grammar.
+
+Operators recognized by `_parser_do_expression()`:
+  • Logical: &&, ||, and, or
+  • Comparison: ==, !=, <, >, <=, >= and textual eq/ne/lt/le/gt/ge
+  • Conditional: ?:
+  • Concat: ~
+  • Pipe/filter: |
+  • Dot: .
+  • Indexing: expr[ indexExpr ]
+
+Notably absent:
+  • Binary arithmetic operators: +, -, *, /, %
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEMPLATE SYNTAX TREE (WHAT'S SUPPORTED)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEMPLATE
+├─ Plain Text (literal HTML/output)
+│
+├─ EXPRESSIONS {{ ... }}
+│  ├─ Literals
+│  │  ├─ Numbers: 42, 3.14, -5
+│  │  ├─ Strings: "hello"
+│  │  ├─ Booleans: YES, NO, nil
+│  │  └─ Collections: @(1,2,3), @{key: value}
+│  │
+│  ├─ Variables & Access
+│  │  ├─ Simple: variable
+│  │  ├─ Keypath: obj.prop.nested
+│  │  └─ Subscript: array[0], dict[key]
+│  │
+│  ├─ Operations
+│  │  ├─ Logical: &&, ||, !, and, or
+│  │  ├─ Comparison: ==, !=, <, >, <=, >= and textual eq/ne/lt/le/gt/ge
+│  │  ├─ Conditional: cond ? true_val : false_val
+│  │  ├─ Concat: left ~ right
+│  │  ├─ Pipe/filter: value | filter
+│  │  ├─ Dot: obj.property (and chaining)
+│  │  └─ Indexing: expr[ indexExpr ]
+│  │     (Note: binary arithmetic + - * / % is not parsed by the current parser)
+│  │
+│  ├─ Function Calls
+│  │  └─ functionName(arg1, arg2)
+│  │
+│  ├─ Method Calls (Objective-C style)
+│  │  └─ [target selector:arg]
+│  │
+│  └─ Special Keywords
+│     ├─ selector(methodName)
+│     ├─ not (logical negation)
+│     └─ parent() (in blocks)
+│
+├─ COMMANDS {% ... %}
+│  ├─ Control Flow
+│  │  ├─ if condition ... endif
+│  │  ├─ else
+│  │  ├─ elsefor
+│  │  ├─ for item in collection ... endfor
+│  │  └─ while condition ... endwhile
+│  │
+│  ├─ Template Structure
+│  │  ├─ block name ... endblock
+│  │  ├─ parent()  (within block)
+│  │  ├─ extends "base.html"
+│  │  └─ includes "partial.html"
+│  │
+│  ├─ Macros
+│  │  ├─ macro name(param1, param2) ... endmacro
+│  │  └─ name(arg1, arg2)  (call)
+│  │
+│  ├─ Variable Management
+│  │  ├─ set variable = expression
+│  │  └─ define variable = expression
+│  │
+│  ├─ Output Filtering
+│  │  ├─ filter filtername ... endfilter
+│  │  ├─ apply filtername ... endapply
+│  │  └─ [modifies output]
+│  │
+│  ├─ Special
+│  │  ├─ verbatim ... endverbatim
+│  │  ├─ requires "dependency.html"
+│  │  ├─ log message
+│  │  └─ [debug output]
+│  │
+│  └─ Implicit
+│     └─ variable = expression  (shorthand for set)
+│
+└─ COMMENTS {# ... #}
+   └─ [ignored, not output]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMMAND DISPATCH TABLE (parser_do_command())
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Command        Opcode                Handler
+─────────────────────────────────────────────────────
+apply          ApplyOpcode           parser_do_filter()
+block          BlockOpcode           parser_do_block()
+define         DefineOpcode          parser_do_define()
+else           ElseOpcode            [simple terminator]
+elsefor        ElseforOpcode         [simple terminator]
+endapply       EndapplyOpcode        [simple terminator]
+endblock       EndblockOpcode        [simple terminator]
+endfilter      EndfilterOpcode       [simple terminator]
+endfor         EndforOpcode          [simple terminator]
+endif          EndifOpcode           [simple terminator]
+endmacro       EndmacroOpcode        parser_do_endmacro()
+endverbatim    EndverbatimOpcode     [error - stray]
+endwhile       EndwhileOpcode        [simple terminator]
+extends        ExtendsOpcode         parser_do_extends()
+filter         FilterOpcode          parser_do_filter()
+for            ForOpcode             parser_do_for()
+if             IfOpcode              parser_do_if()
+includes       IncludesOpcode        parser_do_includes()
+log            LogOpcode             parser_do_log()
+macro          MacroOpcode           parser_do_macro()
+requires       RequiresOpcode        parser_do_requires()
+set            SetOpcode             parser_do_set()
+verbatim       VerbatimOpcode        parser_do_verbatim()
+while          WhileOpcode           parser_do_while()
+
+[implicit]     [not found]           parser_do_implicit_set()
+               [method call]         parser_do_method_call()
+               [print command]       parser_do_print()
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PARSER STATE CHECKPOINT SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Parser maintains multiple memos for position tracking:
+
+  memo                 General-purpose checkpoint
+                       ├─ Saved on block start
+                       ├─ Used for retry points
+                       └─ Typically command-level
+  
+  memo_scion           Scion tag checkpoint
+                       ├─ Saved at {{ / {% / {#
+                       ├─ Used for error context
+                       └─ Points to tag start
+  
+  memo_interesting     Content checkpoint
+                       ├─ Saved before command parsing
+                       ├─ Used for error diagnostics
+                       └─ Points to interesting content
+
+USAGE PATTERN:
+
+  parser_memo saved;
+  parser_memorize(p, &saved);
+  
+  if (!try_parse_variant_A(p)) {
+    parser_recall(p, &saved);
+    try_parse_variant_B(p);
+  }
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CHARACTER-LEVEL TOKENIZATION PATTERN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+All "grab" functions follow this pattern:
+
+1. Save position: parser_memorize(p, &memo_start)
+2. Advance until condition met
+3. Position at first char NOT matching
+4. Extract text: parser_get_string(p) from memo_start to curr
+5. Return status
+
+EXAMPLE - parser_grab_text_until_identifier_end():
+
+  Input:  "varName + other"
+          ↑
+          curr
+  
+  1. Save: memo_start.curr = "varName + other"
+  2. Advance while alphanumeric/underscore
+  3. Stop at: " + other"
+                ↑
+                curr now points here
+  4. Extract: "varName"
+  5. Whitespace already beyond identifier
+
+GRAB FUNCTIONS:
+
+  parser_grab_text_until_number_end()
+    └─ Captures: 42, 3.14, -5 (stops at non-digit/dot)
+
+  parser_grab_text_until_identifier_end()
+    └─ Captures: varName (stops at non-alnum/underscore)
+
+  parser_grab_text_until_keypath_end()
+    └─ Captures: obj.prop.nested[key] (stops at operator)
+
+  parser_grab_text_until_selector_end()
+    └─ Captures: method:name:parts (Objective-C style)
+
+  parser_grab_text_until_quote()
+    └─ Captures: string content between quotes
+
+  parser_grab_text_until_scion_start()
+    └─ Captures: plain text until {{ or {% or {#
+
+  parser_skip_text_until_scion_end()
+    └─ Skips: content until }} or %} or #}
+
+  parser_grab_text_until_command()
+    └─ Captures: block content until specific command
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ERROR REPORTING FLOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PARSE ERROR OCCURS:
+
+  parser_error(p, "expected identifier, got '%c'", *p->curr)
+        ↓
+  Build parser_error_info struct:
+  ├─ parser pointer
+  ├─ fileName: p->fileName
+  ├─ lineNumber: p->memo.lineNumber
+  ├─ columnNumber: parser_diagnostic_columnNumber(p)
+  │               (calculated from last newline)
+  ├─ message: formatted error string
+  └─ line: parser_diagnostic_line(p)
+           (extracted from buffer for context)
+        ↓
+  Invoke configured error callback:
+    - stored in `p->parser_do_error` (a function pointer obtained from ObjC `methodForSelector:`)
+        ↓
+  Which ultimately invokes the Objective-C method:
+  [parser parserError:&info]
+        ↓
+  Parser delegates to error handler
+
+OUTPUT EXAMPLE:
+
+  template.html:42:15: expected identifier, got '}'
+    HTML line showing context
+    ___________^______ (column marker)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHITESPACE HANDLING FUNCTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+parser_skip_whitespace()
+  └─ Skip: space, tab (NOT newline)
+  └─ Stop at: first non-whitespace
+
+parser_skip_whitespace_to_scion_comment_or_after_newline()
+  └─ Skip: space, tab
+  └─ Stop at: newline OR comment OR template tag
+
+parser_skip_whitespace_until_after_newline()
+  └─ Skip: space, tab, newline
+  └─ Stop at: first non-whitespace after newline
+
+parser_skip_whitespace_and_comments_always()
+  └─ Skip: space, tab, {# ... #} comments
+  └─ Stop at: first non-whitespace, non-comment
+
+parser_skip_whitespace_if_terminated_by_newline()
+  └─ Lookahead: if next non-space is newline
+  └─ If yes: skip space, tab, newline
+  └─ If no: don't skip anything
+
+parser_skip_after_newline()
+  └─ Consume: newline (increment lineNumber)
+  └─ Then: skip whitespace
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MACRO EXPANSION SEQUENCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEMPLATE:
+  {% macro greet(name) %}
+    Hello {{ name }}!
+  {% endmacro %}
+  
+  {{ greet("World") }}
+
+PARSING:
+
+  1. Parse macro definition
+     ├─ Save name: "greet"
+     ├─ Save parameters: ["name"]
+     ├─ Save body template
+     └─ Store in macroTable
+
+  2. Parse function call: greet("World")
+     ├─ Lookup "greet" in macroTable
+     ├─ Found! It's a macro.
+     ├─ Create parameter bindings: name = "World"
+     ├─ Re-parse macro body with parameters as definitions
+     └─ Return parsed result
+
+  3. Expansion continues...
+     ├─ Parse body: "Hello {{ name }}!"
+     ├─ Encounter {{ name }}
+     ├─ Look up "name" in definitionTable
+     ├─ Found! It's bound to "World"
+     └─ Return MulleScionString("World")
+
+OUTPUT:
+  "Hello World!"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEMPLATE INHERITANCE (BLOCK OVERRIDE)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BASE.HTML:
+  <html>
+    <head><title>{{ title }}</title></head>
+    <body>
+      {% block content %}
+        Default content here
+      {% endblock %}
+    </body>
+  </html>
+
+CHILD.HTML:
+  {% extends "base.html" %}
+  {% block content %}
+    Custom content for this page
+  {% endblock %}
+
+PARSING SEQUENCE:
+
+  1. Parse child.html
+  2. Encounter: {% extends "base.html" %}
+  3. Load and parse base.html
+  4. Build block table:
+     blockTable["content"] = (child's block)
+  5. Return modified base template
+     └─ Child's blocks override base's blocks
+
+OUTPUT:
+  <html>
+    <head><title>{{ title }}</title></head>
+    <body>
+      Custom content for this page    ← From child block
+    </body>
+  </html>
+
+BLOCK REFERENCES:
+
+  Parent inside child block:
+  
+    {% block content %}
+      Prefix
+      {{ parent() }}
+      Suffix
+    {% endblock %}
+  
+  parent() expands to base block content:
+  
+    Prefix
+    Default content here
+    Suffix
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LINE NUMBER TRACKING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Initialized: p->lineNumber = 1
+
+Incremented when:
+  ├─ parser_next_character() encounters '\n'
+  ├─ parser_nl() called explicitly
+  └─ parser_skip_after_newline() processes line end
+
+Saved in:
+  ├─ parser_memo.lineNumber (on memorize)
+  ├─ Every MulleScionObject.lineNumber_
+  └─ Used for all error diagnostics
+
+Example with multi-line template:
+
+  Line 1: <div>
+  Line 2:   {% if condition %}
+              ↑ p->lineNumber = 2
+              └─ Saved in MulleScionIf.lineNumber_ = 2
+  Line 3:     Content
+  Line 4:   {% endif %}
+              ↑ p->lineNumber = 4
+              └─ Saved in MulleScionEndIf.lineNumber_ = 4
+
+Error on line 2 would report:
+  template.html:2:5: error message
+  Line 2 content displayed with column marker
+
+╚════════════════════════════════════════════════════════════════════════════╝
