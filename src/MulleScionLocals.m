@@ -180,6 +180,7 @@
 
 - (void) addEntriesFromLocals:(id <MulleScionLocals>) other
 {
+   MULLE_C_UNUSED( other);
    // we can't do that
    abort();
 }

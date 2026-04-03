@@ -58,6 +58,7 @@ extern void  MULLE_NO_RETURN   MulleScionPrintingException( NSString *exceptionN
 
 - (NSString *) mulleScionDescriptionWithLocalVariables:(id <MulleScionLocals>) context
 {
+   MULLE_C_UNUSED( context);
    return( [self description]);
 }
 

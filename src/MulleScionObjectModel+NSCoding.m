@@ -75,6 +75,7 @@ static id  _copy(id self)
 
 - (id) copyWithZone:(NSZone *) zone
 {
+   MULLE_C_UNUSED( zone);
    return( _copy( self));
 }
 
@@ -389,12 +390,14 @@ static id  _copy(id self)
 
 - (id) initWithCoder:(NSCoder *) decoder
 {
+   MULLE_C_UNUSED( decoder);
    abort();
 }
 
 
 - (void) encodeWithCoder:(NSCoder *) encoder
 {
+   MULLE_C_UNUSED( encoder);
    abort();
 }
 @end

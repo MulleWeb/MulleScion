@@ -58,6 +58,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( MulleObjCValueFoundation);
 
 + (id) allocWithZone:(NSZone *) zone
 {
+   MULLE_C_UNUSED( zone);
 #ifdef DEBUG
    abort();
 #endif
@@ -90,6 +91,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( MulleObjCValueFoundation);
 
 + (id) valueForUndefinedKey:(NSString *) key
 {
+   MULLE_C_UNUSED( key);
    return( nil);
 }
 
