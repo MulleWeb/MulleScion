@@ -224,6 +224,7 @@ static inline void   TRACE_EVAL_BEGIN_END( MulleScionObject *self, id value, id 
                    localVariables:(id <MulleScionLocals>) locals
                        dataSource:(id <MulleScionDataSource>) dataSource
 {
+   MULLE_C_UNUSED( output);
    TRACE_RENDER( self, s, locals, dataSource);
    return( self->next_);
 }
@@ -624,6 +625,7 @@ static id  f_NSLocalizedString( id self, NSArray *evaledArguments, NSArray *argu
                    localVariables:(id <MulleScionLocals>) locals
                        dataSource:(id <MulleScionDataSource>) dataSource
 {
+   MULLE_C_UNUSED( output);
    NSAssert( [locals valueForKeyPath:@"NSNotFound"], @"use -[MulleScionTemplate localVariablesWithDefaultValues:] to create the localVariables dictionary");
 
    TRACE_RENDER( self, s, locals, dataSource);
@@ -704,6 +706,7 @@ static id   MulleScionValueForKeyPath( NSString *keyPath,
            localVariables:(id <MulleScionLocals>) locals
                dataSource:(id <MulleScionDataSource>) dataSource
 {
+   MULLE_C_UNUSED( dataSource);
    // SECURITY HOLE: FUNNEL THROUGH DATASOURCE
 #ifdef HAVE_TRACE
    if( [value_ isEqualToString:MulleScionTraceKey])
@@ -1051,6 +1054,8 @@ static void   *numberBuffer( char *type, NSNumber *value)
       localVariables:(id <MulleScionLocals>) locals
           dataSource:(id <MulleScionDataSource>) dataSource
 {
+   MULLE_C_UNUSED( locals);
+   MULLE_C_UNUSED( dataSource);
    id   result;
 
    NSParameterAssert( value);
@@ -1063,6 +1068,8 @@ static void   *numberBuffer( char *type, NSNumber *value)
 - (NSString *) flushWithLocalVariables:(id <MulleScionLocals>) locals
                             dataSource:(id <MulleScionDataSource>) dataSource
 {
+   MULLE_C_UNUSED( locals);
+   MULLE_C_UNUSED( dataSource);
    return( nil);
 }
 
@@ -1071,6 +1078,9 @@ static void   *numberBuffer( char *type, NSNumber *value)
        localVariables:(id <MulleScionLocals>) locals
                dataSource:(id <MulleScionDataSource>) dataSource
 {
+   MULLE_C_UNUSED( valueToSet);
+   MULLE_C_UNUSED( locals);
+   MULLE_C_UNUSED( dataSource);
    abort();
 }
 
@@ -1123,6 +1133,8 @@ static void   *numberBuffer( char *type, NSNumber *value)
 - (id) valueWithLocalVariables:(id <MulleScionLocals>) locals
                     dataSource:(id <MulleScionDataSource>) dataSource
 {
+   MULLE_C_UNUSED( locals);
+   MULLE_C_UNUSED( dataSource);
    return( value_ ? value_ : MulleScionNull);
 }
 
@@ -1137,6 +1149,8 @@ static void   *numberBuffer( char *type, NSNumber *value)
 - (id) valueWithLocalVariables:(id <MulleScionLocals>) locals
                     dataSource:(id <MulleScionDataSource>) dataSource
 {
+   MULLE_C_UNUSED( locals);
+   MULLE_C_UNUSED( dataSource);
    NSParameterAssert( value_ != nil);
    return( value_);
 }
@@ -1151,6 +1165,8 @@ static void   *numberBuffer( char *type, NSNumber *value)
 - (id) valueWithLocalVariables:(id <MulleScionLocals>) locals
                     dataSource:(id <MulleScionDataSource>) dataSource
 {
+   MULLE_C_UNUSED( locals);
+   MULLE_C_UNUSED( dataSource);
    SEL   sel;
 
    NSParameterAssert( value_ != nil);
@@ -1357,6 +1373,7 @@ static void   *numberBuffer( char *type, NSNumber *value)
                    localVariables:(id <MulleScionLocals>) locals
                        dataSource:(id <MulleScionDataSource>) dataSource
 {
+   MULLE_C_UNUSED( output);
    NSAutoreleasePool  *pool;
 
    TRACE_RENDER( self, s, locals, dataSource);
@@ -1398,6 +1415,7 @@ static void   *numberBuffer( char *type, NSNumber *value)
                    localVariables:(id <MulleScionLocals>) locals
                        dataSource:(id <MulleScionDataSource>) dataSource
 {
+   MULLE_C_UNUSED( output);
    NSAutoreleasePool  *pool;
 
    TRACE_RENDER( self, s, locals, dataSource);
@@ -1425,6 +1443,7 @@ static void   *numberBuffer( char *type, NSNumber *value)
                    localVariables:(id <MulleScionLocals>) locals
                        dataSource:(id <MulleScionDataSource>) dataSource
 {
+   MULLE_C_UNUSED( output);
    TRACE_RENDER( self, s, locals, dataSource);
 
    updateLineNumber( self, locals);
@@ -1443,6 +1462,7 @@ static void   *numberBuffer( char *type, NSNumber *value)
                    localVariables:(id <MulleScionLocals>) locals
                        dataSource:(id <MulleScionDataSource>) dataSource
 {
+   MULLE_C_UNUSED( output);
    MulleScionObject   *curr;
    NSAutoreleasePool  *pool;
 
@@ -1862,6 +1882,7 @@ done:
                    localVariables:(id <MulleScionLocals>) locals
                        dataSource:(id <MulleScionDataSource>) dataSource
 {
+   MULLE_C_UNUSED( output);
    TRACE_RENDER( self, s, locals, dataSource);
 
    popFileName( locals);
@@ -1955,6 +1976,8 @@ done:
       localVariables:(id <MulleScionLocals>) locals
           dataSource:(id <MulleScionDataSource>) dataSource
 {
+   MULLE_C_UNUSED( locals);
+   MULLE_C_UNUSED( dataSource);
    id   result;
 
    NSParameterAssert( value);
@@ -1976,6 +1999,8 @@ done:
       localVariables:(id <MulleScionLocals>) locals
           dataSource:(id <MulleScionDataSource>) dataSource
 {
+   MULLE_C_UNUSED( locals);
+   MULLE_C_UNUSED( dataSource);
    id   result;
 
    NSParameterAssert( value);
@@ -2345,6 +2370,7 @@ done:
                    localVariables:(id <MulleScionLocals>) locals
                        dataSource:(id <MulleScionDataSource>) dataSource
 {
+   MULLE_C_UNUSED( output);
    MulleScionExpression  *prev;
    NSMutableArray        *stack;
    NSMutableArray        *modeStack;
@@ -2534,6 +2560,7 @@ static NSBundle  *searchForBundleInDirectory( NSFileManager *manager, NSString *
                    localVariables:(id <MulleScionLocals>) locals
                        dataSource:(id <MulleScionDataSource>) dataSource
 {
+   MULLE_C_UNUSED( output);
    NSAutoreleasePool    *pool;
    NSBundle             *bundle;
    NSArray              *directories;

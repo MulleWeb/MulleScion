@@ -393,6 +393,7 @@ static NSString   *output_line( NSString *fileName,
        lineNumber:(NSUInteger) lineNumber
      columnNumber:(NSUInteger) columnNumber
 {
+   MULLE_C_UNUSED( parser);
    NSLog( @"warning: %@", output_line( fileName, line, lineNumber, columnNumber, reason));
 }
 
@@ -404,6 +405,7 @@ static NSString   *output_line( NSString *fileName,
        lineNumber:(NSUInteger) lineNumber
      columnNumber:(NSUInteger) columnNumber
 {
+   MULLE_C_UNUSED( parser);
    [NSException raise:NSInvalidArgumentException
                format:@"%@",
                        output_line( fileName, line, lineNumber, columnNumber, reason)];

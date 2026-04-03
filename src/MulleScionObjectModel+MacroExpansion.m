@@ -47,6 +47,8 @@
 - (id) newExpandedVariableWithIdentifier:(NSString *) identifier
                           withExpression:(MulleScionExpression *) expr NS_RETURNS_RETAINED
 {
+   MULLE_C_UNUSED( identifier);
+   MULLE_C_UNUSED( expr);
    return( nil);
 }
 
