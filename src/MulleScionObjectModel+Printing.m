@@ -103,7 +103,7 @@ static BOOL   isTracing;
 #ifdef HAVE_TRACE_RENDER
 # define TRACE_RENDER( self, s, locals, dataSource)  if( isTracing) fprintf( stderr, "%ld: %s\n", (long) [self lineNumber], [[self traceDescription] UTF8String])
 #else
-# define TRACE_RENDER( self, s, locals, dataSource)
+# define TRACE_RENDER( self, s, locals, dataSource) do { (void)(locals); (void)(dataSource); } while(0)
 #endif
 
 
@@ -230,7 +230,7 @@ static inline void   TRACE_EVAL_BEGIN_END( MulleScionObject *self, id value, id 
 }
 
 
-static void   pushFileName( id <MulleScionLocals>  locals, NSString *filename)
+static void   pushFileName( id <MulleScionLocals> locals, NSString *filename)
 {
    NSMutableArray   *stack;
    NSString         *prev;
@@ -1135,6 +1135,7 @@ static void   *numberBuffer( char *type, NSNumber *value)
 {
    MULLE_C_UNUSED( locals);
    MULLE_C_UNUSED( dataSource);
+
    return( value_ ? value_ : MulleScionNull);
 }
 
@@ -1151,6 +1152,7 @@ static void   *numberBuffer( char *type, NSNumber *value)
 {
    MULLE_C_UNUSED( locals);
    MULLE_C_UNUSED( dataSource);
+
    NSParameterAssert( value_ != nil);
    return( value_);
 }
@@ -1165,9 +1167,10 @@ static void   *numberBuffer( char *type, NSNumber *value)
 - (id) valueWithLocalVariables:(id <MulleScionLocals>) locals
                     dataSource:(id <MulleScionDataSource>) dataSource
 {
+   SEL   sel;
+
    MULLE_C_UNUSED( locals);
    MULLE_C_UNUSED( dataSource);
-   SEL   sel;
 
    NSParameterAssert( value_ != nil);
 
