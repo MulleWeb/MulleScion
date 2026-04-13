@@ -1,11 +1,6 @@
       { @selector( MulleObjCDeps), @selector( MulleFoundation) },      // 3c20656f;MulleObjCDeps;46ed3b36;MulleFoundation
-      { @selector( MulleObjCDeps), @selector( MulleFoundationBase) },      // 3c20656f;MulleObjCDeps;efab19ea;MulleFoundationBase
-      { @selector( MulleObjCDeps), @selector( MulleObjCCalendarFoundation) },      // 3c20656f;MulleObjCDeps;6b608d36;MulleObjCCalendarFoundation
-      { @selector( MulleObjCDeps), @selector( MulleObjCDecimalFoundation) },      // 3c20656f;MulleObjCDeps;f04a7a28;MulleObjCDecimalFoundation
       { @selector( MulleObjCDeps), @selector( MulleObjCHTTPFoundation) },      // 3c20656f;MulleObjCDeps;457d3115;MulleObjCHTTPFoundation
-      { @selector( MulleObjCDeps), @selector( MulleObjCInetFoundation) },      // 3c20656f;MulleObjCDeps;088ec1b3;MulleObjCInetFoundation
       { @selector( MulleObjCDeps), @selector( MulleObjCInetOSFoundation) },      // 3c20656f;MulleObjCDeps;e6af6918;MulleObjCInetOSFoundation
-      { @selector( MulleObjCDeps), @selector( MulleObjCOSFoundation) },      // 3c20656f;MulleObjCDeps;94ffe970;MulleObjCOSFoundation
       { @selector( MulleMutableLineNumber), MULLE_OBJC_NO_CATEGORYID },      // f0a19f70;MulleMutableLineNumber;;
       { @selector( MulleScionAnd), @selector( Printing) },      // e3dc9432;MulleScionAnd;11e5c20c;Printing
       { @selector( MulleScionAnd), MULLE_OBJC_NO_CATEGORYID },      // e3dc9432;MulleScionAnd;;
