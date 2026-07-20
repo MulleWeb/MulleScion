@@ -49,16 +49,22 @@
 }
 
 
-+ (id) allocWithZone:(NSZone *)zone
++ (id) alloc
 {
    id  p;
 
-   p = [super allocWithZone:zone];
+   p = [super alloc];
    // we will take undefined behaviour, thank you :)
 #ifdef SIMPLE_SCOREBOARD
    fprintf( stderr, "%0.*p alive %s\n", (int) sizeof( void *) << 1, p, [NSStringFromClass( self) cString]);
 #endif
    return( p);
+}
+
+
++ (id) allocWithZone:(NSZone *)zone
+{
+   return( [self alloc]);
 }
 #endif
 
