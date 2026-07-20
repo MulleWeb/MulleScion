@@ -7,7 +7,7 @@
       user="MulleWeb";
       repo="MulleScion";
       homepage="https://github.com/MulleWeb/MulleScion";
-      version="1861.2.2";
+      version="1862.0.1";
       license="BSD-3-Clause";
    };
    dependencies =
