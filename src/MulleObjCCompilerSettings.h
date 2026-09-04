@@ -1,8 +1,9 @@
 //
-//  MulleCore - Optimized Foundation Replacements and Extensions Functionality
-//              also a part of MulleEOFoundation of MulleEOF (Project Titmouse)
-//              which is part of the Mulle EOControl Framework Collection
-//  Copyright (C) 2013 Nat!, Codeon GmbH, Mulle kybernetiK. All rights reserved.
+//  MulleObjCCompilerSettings.h
+//  MulleScion
+//
+//  Copyright (c) 2013 Nat! - Mulle kybernetiK.
+//  All rights reserved.
 //
 //
 //  Redistribution and use in source and binary forms, with or without
@@ -31,7 +32,6 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-
 #ifndef __has_feature      // Optional.
 # define __has_feature(x) 0 // Compatibility with non-clang compilers.
 #endif
