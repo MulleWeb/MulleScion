@@ -52,6 +52,11 @@ object using a template file is as easy as:
 ```
 
 
+
+## Documentation & Guides
+
+* [API Summary](asset/dox/api/toc)
+
 ## Info
 
 This is the general architecture of *MulleScion*
@@ -72,7 +77,7 @@ HTML editors:
 ``` html
 <html>
   <!-- rendered by mulle-scion on
-        2026-07-21T14:22:23Z -->
+        2026-08-03T15:02:19Z -->
   <body>
     <for item in [NSTimeZone knownTimeZoneNames]>
       <if item#.isFirst>

@@ -99,3 +99,6 @@ build-*/
 *.tmp.*
 *.test.*
 .idea
+.kiro/
+TODO.md
+REVIEW.md

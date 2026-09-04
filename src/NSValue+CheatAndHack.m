@@ -2,10 +2,9 @@
 //  NSValue+CheatAndHack.m
 //  MulleScion
 //
-//  Created by Nat! on 26.02.13.
-//
-//  Copyright (c) 2013 Nat! - Mulle kybernetiK
+//  Copyright (c) 2013 Nat! - Mulle kybernetiK.
 //  All rights reserved.
+//
 //
 //  Redistribution and use in source and binary forms, with or without
 //  modification, are permitted provided that the following conditions are met:
@@ -33,7 +32,6 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 //
-
 #import "import-private.h"
 
 

@@ -2,8 +2,10 @@
 //  NSObject+KVC_Compatibility.h
 //  MulleScion
 //
-//  Created by Nat! on 07.11.13.
+//  Copyright (c) 2014 Nat! - Mulle kybernetiK.
 //  Copyright (c) 2013 Mulle kybernetiK. All rights reserved.
+//  All rights reserved.
+//
 //
 //  Redistribution and use in source and binary forms, with or without
 //  modification, are permitted provided that the following conditions are met:
