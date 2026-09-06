@@ -1,12 +1,12 @@
 {
    "name" : "MulleScion",
-   "version" : "1862.0.1",
+   "version" : "1862.0.2",
    "description" : "🌱 A modern template engine for Objective C",
    "keywords" : [],
    "license" : "BSD-3-Clause",
    "repo" : "MulleWeb/MulleScion",
    "src" : [
-      "asset/dox/TOC.md",
+      "asset/dox/api/toc/index.md",
       "src/env-convenience.h",
       "src/exists.h",
       "src/exists.m",
