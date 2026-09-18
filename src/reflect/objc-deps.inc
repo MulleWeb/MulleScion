@@ -1,6 +1,4 @@
-      { @selector( MulleObjCDeps), @selector( MulleFoundation) },      // 3c20656f;MulleObjCDeps;46ed3b36;MulleFoundation
-      { @selector( MulleObjCDeps), @selector( MulleObjCHTTPFoundation) },      // 3c20656f;MulleObjCDeps;457d3115;MulleObjCHTTPFoundation
-      { @selector( MulleObjCDeps), @selector( MulleObjCInetOSFoundation) },      // 3c20656f;MulleObjCDeps;e6af6918;MulleObjCInetOSFoundation
+      { @selector( MulleObjCDeps), @selector( MulleWebFoundation) },      // 3c20656f;MulleObjCDeps;1bc28b1e;MulleWebFoundation
       { @selector( MulleMutableLineNumber), MULLE_OBJC_NO_CATEGORYID },      // f0a19f70;MulleMutableLineNumber;;
       { @selector( MulleScionAnd), @selector( Printing) },      // e3dc9432;MulleScionAnd;11e5c20c;Printing
       { @selector( MulleScionAnd), MULLE_OBJC_NO_CATEGORYID },      // e3dc9432;MulleScionAnd;;

@@ -77,7 +77,7 @@ HTML editors:
 ``` html
 <html>
   <!-- rendered by mulle-scion on
-        2026-09-06T15:26:46Z -->
+        2026-09-14T20:26:57Z -->
   <body>
     <for item in [NSTimeZone knownTimeZoneNames]>
       <if item#.isFirst>
@@ -154,9 +154,7 @@ Install the requirements:
 
 | Requirements                                 | Description
 |----------------------------------------------|-----------------------
-| [MulleFoundation](https://github.com/MulleFoundation/MulleFoundation)             | 💍 Umbrella library for the MulleFoundation
-| [MulleObjCHTTPFoundation](https://github.com/MulleWeb/MulleObjCHTTPFoundation)             | 🎫 HTTP and HTML utility methods and classes for mulle-objc
-| [MulleObjCInetOSFoundation](https://github.com/MulleFoundation/MulleObjCInetOSFoundation)             | 📠💻 OS specific extensions to NSHost and NSURL
+| [MulleWebFoundation](https://github.com/MulleWeb/MulleWebFoundation)             | 🛸 MulleWebFoundation does something
 | [mulle-objc-list](https://github.com/mulle-objc/mulle-objc-list)             | 📒 Lists mulle-objc runtime information contained in executables.
 
 Download the latest [tar](https://github.com/MulleWeb/MulleScion/archive/refs/tags/latest.tar.gz) or [zip](https://github.com/MulleWeb/MulleScion/archive/refs/tags/latest.zip) archive and unpack it.
