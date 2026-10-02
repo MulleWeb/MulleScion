@@ -34,6 +34,8 @@
 //
 #import "MulleScionObjectModel+Printing.h"
 
+#include <string.h>
+
 #import "MulleScionObjectModel+TraceDescription.h"
 #import "MulleMutableLineNumber.h"
 #import "MulleScionNull.h"
@@ -828,10 +830,23 @@ static void   *numberBuffer( char *type, NSNumber *value)
    char         *myType;
    void         *buf;
 
+   NSGetSizeAndAlignment( type, &size, &alignment);
+
+   //
+   // A C string argument: hand out the string's characters. The pointer stays
+   // valid until the autorelease pool is drained, which is after the
+   // invocation has been sent. This check has to come before the NSValue test
+   // below, as an NSString is not an NSValue.
+   //
+   if( value && *type == _C_CHARPTR && [value isKindOfClass:[NSString class]])
+   {
+      buf = (void *) [[NSMutableData dataWithLength:size] mutableBytes];
+      *(char **) buf = (char *) [value UTF8String];
+      return( buf);
+   }
+
    if( value && ! [value isKindOfClass:[NSValue class]])
       return( NULL);
-
-   NSGetSizeAndAlignment( type, &size, &alignment);
 
    buf = (void *) [[NSMutableData dataWithLength:size] mutableBytes];
    if( ! value)
@@ -857,11 +872,35 @@ static void   *numberBuffer( char *type, NSNumber *value)
    }
 
    myType = (char *) [value objCType];
-   if( _mulle_objc_type_is_equal_to_type( myType, type))
+   if( ! _mulle_objc_type_is_equal_to_type( myType, type))
       return( NULL);
 
    [value getValue:buf];
    return( buf);
+}
+
+
+//
+// evaluate one argument expression, applying the same restrictions as a
+// regular method call does
+//
+static id   argumentValue( MulleScionExpression *expr,
+                           id <MulleScionLocals> locals,
+                           id <MulleScionDataSource> dataSource)
+{
+   id   value;
+
+   value = [expr valueWithLocalVariables:locals
+                              dataSource:dataSource];
+   NSCParameterAssert( value);
+
+   if( value == dataSource) // plug security hole
+      MulleScionPrintingException( NSInvalidArgumentException, locals,
+                                  @"You can't use the dataSource as an argument");
+   if( value == MulleScionNull)
+      value = nil;
+
+   return( value);
 }
 
 
@@ -870,7 +909,6 @@ static void   *numberBuffer( char *type, NSNumber *value)
       localVariables:(id <MulleScionLocals>) locals
           dataSource:(id <MulleScionDataSource>) dataSource
 {
-   MulleScionExpression   *expr;
    NSAutoreleasePool      *pool;
    NSInvocation           *invocation;
    NSMethodSignature      *signature;
@@ -906,52 +944,132 @@ static void   *numberBuffer( char *type, NSNumber *value)
    // remember varargs, there can be more arguments
    m = [signature numberOfArguments];
    n = [arguments_ count] + 2;
-   if( m != n)
-      MulleScionPrintingException( NSInvalidArgumentException, locals,
-                                  @"Method \"%@\" expects %ld arguments (got %ld)", NSStringFromSelector( action_), (long) n,
-                                       (long) m);
-
-
-   invocation = [NSInvocation invocationWithMethodSignature:signature];
-   [invocation setSelector:action_];
-
-   for( i = 2; i < n; i++)
+   if( [signature isVariadic])
    {
-      expr  = [arguments_ objectAtIndex:i - 2];
-      value = [expr valueWithLocalVariables:locals
-                                 dataSource:dataSource];
-      NSParameterAssert( value);
-
-      if( value == dataSource) // plug security hole
+      // everything beyond the named parameters is the variadic tail
+      if( m > n)
          MulleScionPrintingException( NSInvalidArgumentException, locals,
-                                     @"You can't use the dataSource as an argument");
-      if( value == MulleScionNull)
-         value = nil;
+                                     @"Method \"%@\" expects at least %ld arguments (got %ld)",
+                                     NSStringFromSelector( action_),
+                                     (long) m - 2,
+                                     (long) n - 2);
+   }
+   else
+      if( m != n)
+         MulleScionPrintingException( NSInvalidArgumentException, locals,
+                                     @"Method \"%@\" expects %ld arguments (got %ld)",
+                                     NSStringFromSelector( action_),
+                                     (long) m - 2,
+                                     (long) n - 2);
 
-      // type = id_type;  // ok, varargs with non-objects won't work
-      // if( i < m)
+
+   //
+   // A NSMethodSignature can not describe the tail of a variadic method, so it
+   // can not size an invocation for one. Build the MetaABI parameter block
+   // ourselves instead: named parameters in their natural layout, the tail as
+   // objects.
+   //
+   // Objects only, because a template has no way to say what type a variadic
+   // argument is supposed to have. The format string of a printf style method
+   // is just a string to us and not a type specification, so we do not inspect
+   // it either.
+   //
+   if( [signature isVariadic])
+   {
+      NSUInteger   frameSize;
+
+      frameSize = [signature frameLength] + (n - m + 1) * sizeof( id);
+      mulle_vararg_builder_do( frame, frameSize)
       {
+         mulle_vararg_list   p;
+         NSUInteger          alignment;
+         NSUInteger          size;
+
+         memset( frame, 0, frameSize);
+
+         p = mulle_vararg_list_make( frame);
+
+         for( i = 2; i < m; i++)
+         {
+            value = argumentValue( [arguments_ objectAtIndex:i - 2],
+                                   locals,
+                                   dataSource);
+
+            type = (char *) [signature getArgumentTypeAtIndex:i];
+            type = _NSObjCSkipRuntimeTypeQualifier( type);
+
+            switch( *type)
+            {
+            case _C_ID    : arg = &value; break;
+            case _C_CLASS : arg = &value; break;
+            case _C_SEL   : [value getValue:&sel]; arg = &sel; break;
+            default       : arg = numberBuffer( type, value); break;
+            }
+
+            if( ! arg)
+               MulleScionPrintingException( NSInvalidArgumentException, locals,
+                                           @"Method \"%@\" is not callable on \"%@\" from MulleScion (argument #%ld)",
+                NSStringFromSelector( action_), [target class], (long) i - 2);
+
+            NSGetSizeAndAlignment( type, &size, &alignment);
+            p.p = mulle_pointer_align( p.p, (unsigned int) alignment);
+            memcpy( p.p, arg, size);
+            p.p = &((char *) p.p)[ size];
+         }
+
+         // the variadic tail
+         for( ; i < n; i++)
+         {
+            value = argumentValue( [arguments_ objectAtIndex:i - 2],
+                                   locals,
+                                   dataSource);
+            mulle_vararg_push_id( p, value);
+         }
+
+         invocation = NSInvocationCreateWithMetaABIFrameAndLength( signature,
+                                                                   target,
+                                                                   action_,
+                                                                   frame,
+                                                                   (size_t) ((char *) p.p - (char *) frame),
+                                                                   0);
+      }
+   }
+   else
+   {
+      invocation = [NSInvocation invocationWithMethodSignature:signature];
+      [invocation setSelector:action_];
+
+      for( i = 2; i < n; i++)
+      {
+         value = argumentValue( [arguments_ objectAtIndex:i - 2],
+                                locals,
+                                dataSource);
+
          type = (char *) [signature getArgumentTypeAtIndex:i];
          type = _NSObjCSkipRuntimeTypeQualifier( type);
+
+         switch( *type)
+         {
+         case _C_ID    : arg = &value; break;
+         case _C_CLASS : arg = &value; break;
+         case _C_SEL   : [value getValue:&sel]; arg = &sel; break;
+         default       : arg = numberBuffer( type, value); break;
+         }
+
+         if( ! arg)
+            MulleScionPrintingException( NSInvalidArgumentException, locals,
+                                        @"Method \"%@\" is not callable on \"%@\" from MulleScion (argument #%ld)",
+             NSStringFromSelector( action_), [target class], (long) i - 2);
+
+         [invocation setArgument:arg
+                         atIndex:i];
       }
-
-      switch( *type)
-      {
-      case _C_ID    : arg = &value; break;
-      case _C_CLASS : arg = &value; break;
-      case _C_SEL   : [value getValue:&sel]; arg = &sel; break;
-      default       : arg = numberBuffer( type, value); break;
-      }
-
-      if( ! arg)
-         MulleScionPrintingException( NSInvalidArgumentException, locals,
-                                     @"Method \"%@\" is not callable on \"%@\" from MulleScion (argument #%ld)",
-          NSStringFromSelector( action_), [target class], (long) i - 2);
-
-      // unfortunately NSInvocation is too dumb for varargs
-      [invocation setArgument:arg
-                      atIndex:i];
    }
+
+   if( ! invocation)
+      MulleScionPrintingException( NSInvalidArgumentException, locals,
+                                  @"Method \"%@\" is not callable on \"%@\" from MulleScion",
+                                  NSStringFromSelector( action_), [target class]);
 
    // [invocation retainArguments];
    [invocation invokeWithTarget:target];
@@ -975,7 +1093,10 @@ static void   *numberBuffer( char *type, NSNumber *value)
       case _C_ID       : result = *buf; break;
       case _C_CLASS    : result = *buf; break;
       case _C_SEL      : result = [NSValue valueWithBytes:buf objCType:@encode( SEL)]; break;
-      case _C_CHARPTR  : result = [NSString stringWithCString:      (char *) buf]; break;
+      case _C_CHARPTR  : // the buffer holds the pointer, not the characters
+         if( *(char **) buf)
+            result = [NSString stringWithCString:*(char **) buf];
+         break;
       case _C_CHR      : result = [NSNumber numberWithChar:         *(char *) buf]; break;
       case _C_UCHR     : result = [NSNumber numberWithUnsignedChar: *(unsigned char *) buf]; break;
       case _C_SHT      : result = [NSNumber numberWithShort:        *(short *) buf]; break;

@@ -31,7 +31,8 @@ Key features at a high level:
 
 Deliberate design limits (from README): no arithmetic or bitwise logic in
 templates, `&&`/`||` have no precedence (use parentheses), and method calls use
-`NSInvocation` (so varargs methods, C structs, and C arrays are problematic).
+`NSInvocation` (so C structs and C arrays are problematic). Variadic methods
+can be called, but their variadic tail carries objects only (see below).
 
 This is the `MulleScion` implementation only; it depends on the mulle-objc
 Foundation and HTTP/InetOS foundation libraries.
@@ -579,9 +580,17 @@ template.
   (`setObject:forReadOnlyKey:`); ordinary `setObject:forKey:` values may be
   overwritten by templates.
 - **Template limitations to respect:** no arithmetic/bitwise operators; no
-  operator precedence for `&&`/`||` (wrap in parentheses); varargs methods,
-  C structs, and C arrays are unreliable under `NSInvocation`; missing keys
-  simply yield `nil` output.
+  operator precedence for `&&`/`||` (wrap in parentheses); C structs and C
+  arrays are unreliable under `NSInvocation`; missing keys simply yield `nil`
+  output.
+- **Variadic methods take objects only.** Arguments beyond the named parameters
+  are written with commas and become the variadic tail:
+  `[[@"VfL" stringByAppendingFormat:@" %@", @"Bochum 1848"]]`. A template has no
+  way to say what type a variadic argument should have — the format string of a
+  printf style method is just a string to us, not a type specification, and is
+  not inspected — so a tail argument can never be an `int`, `long` or `double`
+  slot. Methods with an object tail (`%@`, `id` terminated lists) work;
+  `%d`/`%f` style tails read at best garbage.
 - **Use `writeToOutput:` targeting `NSMutableString`** when building large
   output incrementally instead of concatenating full `NSString` results.
 - **Parse-once-render-many:** call `MulleScionParser`/`-template` once and

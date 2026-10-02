@@ -34,7 +34,7 @@
 //
 #import "import.h"
 
-#define MULLE_SCION_VERSION   ((1862UL << 20) | (0 << 8) | 2)
+#define MULLE_SCION_VERSION   ((1862UL << 20) | (0 << 8) | 3)
 
 #import "MulleScionObjectModel.h"
 #import "MulleScionObjectModel+Printing.h"

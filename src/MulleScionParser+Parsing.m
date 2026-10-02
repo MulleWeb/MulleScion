@@ -102,13 +102,19 @@
 //                         // blocks these are then substituted for the blocks
 //                         // of the same name, that already exist
 //
+//
+// NB: these must not be bare lowercase. mingw <io.h> declares
+//     "int eof( int)", which made "last_type == eof" an always false
+//     pointer comparison and broke the windows build. Keep the type
+//     prefix.
+//
 typedef enum
 {
-   eof        = -1,
-   expression = 0,
-   command    = 1,
-   comment    = 2,
-   garbage    = 3
+   MacroTypeEof        = -1,
+   MacroTypeExpression = 0,
+   MacroTypeCommand    = 1,
+   MacroTypeComment    = 2,
+   MacroTypeGarbage    = 3
 } macro_type;
 
 
@@ -575,7 +581,7 @@ static macro_type   parser_grab_text_until_scion_start( parser *p)
 
    parser_memorize( p, &p->memo);
 
-   type    = garbage;
+   type    = MacroTypeGarbage;
    inquote = 0;
    c       = p->curr > p->buf ? p->curr[ -1] : 0;
 
@@ -590,24 +596,24 @@ static macro_type   parser_grab_text_until_scion_start( parser *p)
       //
       switch( c)
       {
-      case '\n' :  type = garbage; parser_nl( p); continue;
-      case '"'  :  type = garbage; inquote = ! inquote; continue;
-      default   :  type = garbage; continue;
-      case '%'  :  type = command; break;
-      case '#'  :  type = comment; break;
-      case '{'  :  type = expression; break;
-      case '}'  :  if( type == garbage)
+      case '\n' :  type = MacroTypeGarbage; parser_nl( p); continue;
+      case '"'  :  type = MacroTypeGarbage; inquote = ! inquote; continue;
+      default   :  type = MacroTypeGarbage; continue;
+      case '%'  :  type = MacroTypeCommand; break;
+      case '#'  :  type = MacroTypeComment; break;
+      case '{'  :  type = MacroTypeExpression; break;
+      case '}'  :  if( type == MacroTypeGarbage)
                      continue;
                    if( parser_scion_looks_escaped( p))
                    {
-                      type    = garbage;
+                      type    = MacroTypeGarbage;
                       continue;
                    }
                    // because of css with e.g. width=100%}, we let it slide
-                   if( type == command)
+                   if( type == MacroTypeCommand)
                    {
                      parser_warning( p, "unexpected '%c}' without opener", d);
-                     type    = garbage;
+                     type    = MacroTypeGarbage;
                      continue;
                    }
                    parser_error( p, "unexpected '%c}' without opener", d);
@@ -617,7 +623,7 @@ static macro_type   parser_grab_text_until_scion_start( parser *p)
       {
          if( parser_scion_looks_escaped( p))
          {
-            type    = garbage;
+            type    = MacroTypeGarbage;
             continue;
          }
 
@@ -627,7 +633,7 @@ static macro_type   parser_grab_text_until_scion_start( parser *p)
       }
    }
 
-   return( eof);
+   return( MacroTypeEof);
 }
 
 
@@ -639,7 +645,7 @@ static macro_type   parser_next_scion_end( parser *p)
    unsigned char   c, d;
 
    if( p->curr + 2 > p->sentinel)
-      return( eof);
+      return( MacroTypeEof);
 
    d = *p->curr++;
    c = *p->curr++;
@@ -647,12 +653,12 @@ static macro_type   parser_next_scion_end( parser *p)
    if( c == '}')
       switch( d)
       {
-      case '}' : return( expression);
-      case '%' : return( command);
-      case '#' : return( comment);
+      case '}' : return( MacroTypeExpression);
+      case '%' : return( MacroTypeCommand);
+      case '#' : return( MacroTypeComment);
       }
    p->curr -= 2;
-   return( garbage);
+   return( MacroTypeGarbage);
 }
 
 
@@ -870,14 +876,14 @@ static macro_type   parser_skip_text_until_scion_end( parser *p, int type)
          {
             switch( d)
             {
-            case '%' : return( command);
-            case '#' : return( comment);
-            case '}' : return( expression);
+            case '%' : return( MacroTypeCommand);
+            case '#' : return( MacroTypeComment);
+            case '}' : return( MacroTypeExpression);
             }
          }
       }
    }
-   return( eof);
+   return( MacroTypeEof);
 }
 
 
@@ -1540,10 +1546,11 @@ static MulleScionMethod  * NS_RETURNS_RETAINED   parser_do_method( parser *p)
             if( c != ',')
                break;
 
-            parser_error( p, "sorry but varargs isn't in the cards yet");
-
-            // parser_skip_peeked_character( p, ',');
-            // parser_skip_whitespace( p);
+            // a comma collects further arguments for the current keyword.
+            // They end up beyond the named parameters of the method call, so
+            // they are its variadic tail
+            parser_skip_peeked_character( p, ',');
+            parser_skip_whitespace( p);
          }
 
          hasColon = parser_grab_text_until_selector_end( p, YES);
@@ -2299,7 +2306,7 @@ static void   parser_error_different_closer( parser *p,
    assert( found >= -1 && found <= 3);
    assert( expected >= -1 && expected <= 3);
 
-   if( found == garbage)
+   if( found == MacroTypeGarbage)
       parser_error( p, "a '%s' was expected",
                macro_type_names[ expected]);
    else
@@ -2324,7 +2331,7 @@ static void   parser_finish_comment( parser *p)
 
    end_type = parser_skip_text_until_scion_end( p, '#');
    parser_skip_whitespace_if_terminated_by_newline( p);
-   parser_error_if_different_closer( p, end_type, comment);
+   parser_error_if_different_closer( p, end_type, MacroTypeComment);
 }
 
 
@@ -2334,7 +2341,7 @@ static void   parser_finish_expression( parser *p)
 
    parser_skip_whitespace_and_comments_always( p);
    end_type = parser_next_scion_end( p);
-   parser_error_if_different_closer( p, end_type, expression);
+   parser_error_if_different_closer( p, end_type, MacroTypeExpression);
 }
 
 
@@ -2346,7 +2353,7 @@ static void   parser_finish_command_and_line( parser *p)
    end_type = parser_next_scion_end( p);
    parser_skip_whitespace_until_after_newline( p);
 
-   parser_error_if_different_closer( p, end_type, command);
+   parser_error_if_different_closer( p, end_type, MacroTypeCommand);
 }
 
 
@@ -2358,7 +2365,7 @@ static void   parser_finish_command( parser *p)
    end_type = parser_next_scion_end( p);
    parser_skip_whitespace_to_scion_comment_or_after_newline( p);
 
-   parser_error_if_different_closer( p, end_type, command);
+   parser_error_if_different_closer( p, end_type, MacroTypeCommand);
 }
 
 
@@ -2514,7 +2521,7 @@ static void  parser_do_whole_block_to_block_table( parser *p)
    assert( block);
 
    stack     = 1;
-   last_type = command;
+   last_type = MacroTypeCommand;
    for( node = block; next = parser_next_object( p, node, &last_type); node = next)
    {
       if( [next isBlock])
@@ -2764,14 +2771,14 @@ static MulleScionTemplate * NS_RETURNS_RETAINED  _parser_do_extends( parser *p)
    MulleScionObject      *obj;
 
    inferior  = (MulleScionTemplate *) _parser_do_includes( p, NO);
-   last_type = command;
+   last_type = MacroTypeCommand;
 
    for(;;)
    {
       obj = parser_next_object_after_extend( p, &last_type);
       if( obj)
          [[inferior tail] appendRetainedObject:obj];
-      if( last_type == eof)
+      if( last_type == MacroTypeEof)
          break;
    }
    return( inferior);
@@ -3120,7 +3127,7 @@ static MulleScionObject  * NS_RETURNS_RETAINED
    // now just grab stuff until we hit an endmacro
 
    root       = [[[MulleScionTemplate alloc] initWithFilename:p->fileName] autorelease];
-   last_type  = eof;
+   last_type  = MacroTypeEof;
    p->inMacro = YES;
 
    last = nil;
@@ -3132,7 +3139,7 @@ static MulleScionObject  * NS_RETURNS_RETAINED
    }
 
    p->inMacro = NO;
-   if( last_type != command)
+   if( last_type != MacroTypeCommand)
       parser_error( p, "endmacro expected", identifier);
 
    //
@@ -3478,18 +3485,18 @@ retry:
    *last_type = type;
    switch( (int) type)
    {
-   case eof :
+   case MacroTypeEof :
       return( nil);
 
-   case comment :
+   case MacroTypeComment :
       parser_finish_comment( p);
       goto retry;
 
-   case expression :
+   case MacroTypeExpression :
       parser_finish_expression( p);
       break;
 
-   case command :
+   case MacroTypeCommand :
       obj = parser_do_block_break_on_extends_skip_others( p);
       break;
    }
@@ -3518,7 +3525,7 @@ retry:
    parser_next_character( p);
    parser_next_character( p);
 
-   if( type == comment || type == command)
+   if( type == MacroTypeComment || type == MacroTypeCommand)
       parser_adjust_memo_to_end_of_previous_line( p, &plaintext_end);
 
    s = parser_get_memorized_retained_string( &plaintext_start, &plaintext_end);
@@ -3536,14 +3543,14 @@ retry:
 
    switch( (int) type)
    {
-   case eof :
+   case MacroTypeEof :
       return( nil);
 
-   case comment :
+   case MacroTypeComment :
       parser_finish_comment( p);
       goto retry;
 
-   case expression :
+   case MacroTypeExpression :
       parser_skip_whitespace( p);
       parser_memorize( p, &p->memo_interesting);
       next = parser_do_expression_or_macro( p);
@@ -3553,7 +3560,7 @@ retry:
          fprintf( stderr, "%s\n", [[next dumpDescription] cString]);
       break;
 
-   case command :
+   case MacroTypeCommand :
       parser_skip_whitespace( p);
       next = parser_do_commands( p);
       if( ! [next snarfsScion])
@@ -3620,7 +3627,7 @@ retry:
       // reset environment to not talkative
       parser.environment &= MULLESCION_NO_HASHBANG | MULLESCION_VERBATIM_INCLUDE_HASHBANG;
 
-      last_type = eof;
+      last_type = MacroTypeEof;
       node      = root;
 
 retry:
@@ -3630,7 +3637,7 @@ NS_DURING
 NS_HANDLER
       // skip to next %}
       parser.skipComments = 0;
-      if( parser_skip_text_until_scion_end( &parser, '%') != eof)
+      if( parser_skip_text_until_scion_end( &parser, '%') != MacroTypeEof)
       {
          while( node->next_)
             node = node->next_;
@@ -3641,7 +3648,7 @@ NS_ENDHANDLER
       return;
    }
 
-   last_type = eof;
+   last_type = MacroTypeEof;
    for( node = root; node; node = parser_next_object( &parser, node, &last_type));
 }
 
