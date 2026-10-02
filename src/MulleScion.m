@@ -395,11 +395,16 @@ static MulleScionPrinter  *createPrinterWithDatasource( id dataSource)
 @end
 
 
-#ifndef DONT_HAVE_MULLE_SCION_CACHING
-
 #define MulleScionCacheDirectoryKey   @"MulleScionCacheDirectory"
 
+//
+// The category is always compiled so that its reflected dependency
+// (objc-deps.inc) stays satisfiable on every platform. Only the actual
+// caching implementation is conditionally compiled out on iOS.
+//
 @implementation MulleScionTemplate( Caching)
+
+#ifndef DONT_HAVE_MULLE_SCION_CACHING
 
 static BOOL       cacheEnabled_;
 static NSString   *cacheDirectory_;
@@ -505,7 +510,7 @@ MULLE_OBJC_DEPENDS_ON_LIBRARY( MulleFoundation);
    return( cacheEnabled_);
 }
 
-@end
+#endif  // DONT_HAVE_MULLE_SCION_CACHING
 
-#endif
+@end
 

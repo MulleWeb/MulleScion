@@ -1,6 +1,6 @@
 {
    "name" : "MulleScion",
-   "version" : "1862.0.2",
+   "version" : "1862.0.3",
    "description" : "🌱 A modern template engine for Objective C",
    "keywords" : [],
    "license" : "BSD-3-Clause",
@@ -73,9 +73,7 @@
       "src/reflect/_MulleScion-versioncheck.h"
    ],
    "dependencies" : {
-      "MulleFoundation/MulleFoundation": "*",
-      "MulleWeb/MulleObjCHTTPFoundation": "*",
-      "MulleFoundation/MulleObjCInetOSFoundation": "*",
-      "mulle-objc/mulle-objc-list": "*"
+      "MulleWeb/MulleWebFoundation": "*",
+      "mulle-objc/mulle-objc-tools": "*"
    }
 }

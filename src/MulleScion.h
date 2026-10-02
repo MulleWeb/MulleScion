@@ -129,26 +129,34 @@
 @end
 
 //
-// caching and keyed encoding is not useful on iOS
+// caching and keyed encoding is not useful on iOS.
 //
-#ifdef TARGET_OS_IPHONE
+// Note: TARGET_OS_IPHONE is *defined* on all Apple platforms (as 0 on macOS,
+// as 1 on iOS), so we must test its value, not merely its existence. Using
+// `#ifdef` here disabled caching on macOS too, which is not intended.
+//
+#if defined( TARGET_OS_IPHONE) && TARGET_OS_IPHONE
 # define DONT_HAVE_MULLE_SCION_CACHING
 #endif
 
-#ifndef DONT_HAVE_MULLE_SCION_CACHING
-
+//
+// Always declare the category, so that the reflected class/category
+// dependency (objc-deps.inc) stays satisfiable on every platform. Otherwise
+// the mulle-objc runtime blocks "waiting for MulleScionTemplate( Caching)".
+// Only the caching-specific methods are conditionally compiled.
+//
 @interface MulleScionTemplate( Caching)
 
+#ifndef DONT_HAVE_MULLE_SCION_CACHING
 // Easier to use environment variable: MulleScionCacheDirectory
 + (void) setCacheDirectory:(NSString *) directory;
 + (NSString *) cacheDirectory;
 + (void) setCacheEnabled:(BOOL) flag;
 + (BOOL) isCacheEnabled;
 - (NSString *) cachePathForPath:(NSString *) fileName;
+#endif
 
 @end
-
-#endif
 
 extern char   MulleScionFrameworkVersion[];
 

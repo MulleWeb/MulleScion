@@ -382,9 +382,11 @@ static id  _copy(id self)
 @end
 
 
-#ifdef DEBUG
-@implementation MulleScionMacro( NSCoding )
+// we still need the category for objc-deps.inc else release and debug
+// differ...
+@implementation MulleScionMacro( NSCoding)
 
+#ifdef DEBUG
 - (id) initWithCoder:(NSCoder *) decoder
 {
    MULLE_C_UNUSED( decoder);
@@ -397,8 +399,9 @@ static id  _copy(id self)
    MULLE_C_UNUSED( encoder);
    abort();
 }
-@end
 #endif
+
+@end
 
 
 @implementation MulleScionRequires( NSCoding)
