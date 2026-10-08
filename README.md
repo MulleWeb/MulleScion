@@ -77,7 +77,7 @@ HTML editors:
 ``` html
 <html>
   <!-- rendered by mulle-scion on
-        2026-10-02T09:08:13Z -->
+        2026-10-08T19:21:42Z -->
   <body>
     <for item in [NSTimeZone knownTimeZoneNames]>
       <if item#.isFirst>

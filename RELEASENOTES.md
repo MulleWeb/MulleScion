@@ -1,6 +1,17 @@
 ### 1862.0.3
 
 
+* Document that the caching category stays declared even when caching is
+  disabled, with only its methods conditionally compiled out, so the reflected
+  class/category dependency remains satisfiable on every platform
+* Explain that the ``DONT_HAVE_MULLE_SCION_CACHING`` guard tests the value of
+  ``TARGET_OS_IPHONE`` (defined as `0` on macOS, `1` on iOS) rather than its mere
+  existence
+* Update the API currency note to reflect reworked conditional compilation and
+  dependency version bounds
+
+
+
 feature: support variadic method calls and fix char * handling in templates
 
 * call variadic methods (e.g. `stringByAppendingFormat:`) from templates; arguments after the named parameters become the variadic tail

@@ -143,8 +143,13 @@ Foundation and HTTP/InetOS foundation libraries.
 
 #### `MulleScionTemplate( Caching)` (declared in `MulleScion.h`)
 
-Toggled off on iOS (`DONT_HAVE_MULLE_SCION_CACHING`). Controlled at runtime
-via environment variable `MulleScionCacheDirectory` or
+The category is always declared — even when caching is disabled — so the
+reflected class/category dependency (`objc-deps.inc`) stays satisfiable on
+every platform; only the caching-specific methods are conditionally compiled
+out. Caching is disabled (via `DONT_HAVE_MULLE_SCION_CACHING`) only on iOS:
+because `TARGET_OS_IPHONE` is *defined* on all Apple platforms (as `0` on macOS,
+`1` on iOS), the guard tests its value, not merely its existence. Controlled at
+runtime via environment variable `MulleScionCacheDirectory` or
 `NSUserDefaults` key `MulleScionCacheDirectory`.
 
 ```objc
@@ -784,8 +789,11 @@ Direct mulle-sde library dependencies (from `.mulle/etc/sourcetree/config` and
 
 An `asset/dox/api/toc/index.md` already existed. It was committed in commit
 `485c7cd` ("refactor: standardize BSD license headers across the codebase",
-2026-09-04). There have been no changes to `src/` (public headers) since that
-commit, so the API documented here is current for the working tree at HEAD.
+2026-09-04). Changes to `src/MulleScion.h` since then only reworked the
+conditional compilation of `MulleScionTemplate( Caching)` (the category is now
+always declared; only its methods are gated) and updated the reflected
+dependency version bounds — no public symbols were added or removed — so the
+API documented here is current for the working tree at HEAD.
 The previous file contained a number of inaccuracies (a non-existent
 `mulleDescriptionForScionKeyPath:` data source method, a
 `descriptionWithUTF8Template:dataSource:searchPath:` variant that is not
